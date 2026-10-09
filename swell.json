@@ -2,7 +2,7 @@
 	"id": "sales_report",
 	"name": "Sales Report",
 	"description": "Sales, inventory, customer, discount and product reports by email",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"type": "admin",
 	"permissions": [
 		"read_orders",
