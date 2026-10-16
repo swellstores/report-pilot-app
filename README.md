@@ -62,8 +62,8 @@ Revenue and orders for the period, compared with the period before.
 
 - **Summary:** Revenue, Previous revenue and Revenue change; Orders, Previous
   orders and Order change; Average order value and Items sold; New and
-  Returning customers; Subtotal, Discounts, Shipping and Tax; Cancelled and
-  Unpaid orders.
+  Returning customers; Subtotal, Discounts, Shipping and Tax; Cancelled orders,
+  Unpaid orders and Refunds.
 - **Top products:** the 10 products that earned the most, with their quantity
   and revenue. Can be turned off.
 - **Daily breakdown:** orders and revenue for each day, including days with no
@@ -71,8 +71,13 @@ Revenue and orders for the period, compared with the period before.
   any report longer than 31 days.
 - The **Sales reports** list has **With sales** and **No sales** tabs.
 
-Revenue counts orders that are paid and not cancelled. Cancelled and unpaid
-orders are counted separately and aren't in revenue. A customer is
+Revenue counts orders that are paid and not cancelled, less anything refunded
+on them so far. On stores whose prices don't include tax, Subtotal − Discounts +
+Shipping + Tax − Refunds = Revenue.
+Shipping is after any shipping discount. Cancelled and unpaid orders are counted
+separately and aren't in revenue; draft orders aren't counted at all. Refunds
+count against the period the order was placed in, as they stand when the report
+is built: a refund made after a report was sent isn't in that report. A customer is
 "returning" if they had a paid order before the period started. Orders that
 aren't linked to a customer account aren't counted as new or returning.
 
@@ -93,7 +98,7 @@ Who bought in the period.
   customer. Turning this off keeps customer names out of the report and email
   entirely.
 
-Only orders linked to a customer account are counted.
+Only orders linked to a customer account are counted. Spend is less any refunds.
 
 ### Inventory report
 
@@ -106,7 +111,8 @@ runs, not a period; its schedule only sets how often it's taken.
   sold in the last 30 days, SKU and a link to the product. The page shows 10 at
   first. Past 50, a note says how many more there are.
 
-Only active products and variants that track stock are checked. An item is low
+Only active products and variants that track stock are checked. Archived
+variants (option combinations a product no longer offers) are left out. An item is low
 when its stock is at or below **Low stock threshold**. Estimated days left is the
 current stock divided by the average sold per day over the last 30 days.
 
@@ -128,7 +134,8 @@ How each product did in the period.
   Can be turned off.
 
 Revenue here is item revenue, worked out the same way as the sales report's top
-products.
+products. Swell doesn't split refunds by product, so item revenue is before
+refunds.
 
 ### Discount report
 
@@ -143,8 +150,10 @@ How much was given away in discounts, and through which coupons and promotions.
   order revenue, average discount and type (Coupon, Promotion or Other). Past 10,
   a note says how many more there are.
 
-Discounts that aren't tied to a coupon or promotion are shown as "Item-level or
-manual discounts", so the lines add up to the total. Discount change is shown in
+Discounts given include shipping discounts. Discounts that aren't tied to a
+coupon or promotion are shown as "Shipping discounts" or "Item-level or manual
+discounts", so the lines add up to the total. Revenue figures on this report are
+before refunds. Discount change is shown in
 grey rather than green or red, because giving more discounts isn't simply good or
 bad.
 
@@ -169,7 +178,7 @@ A cart is **recovered** when it later became an order that wasn't cancelled,
 however the customer came back: through Swell's abandoned cart email, on their
 own, or because staff turned the cart into an order. The report doesn't show how
 many came back because of the email. **Recovered revenue** counts only those
-orders that are paid. **Still open** counts the rest: carts that never became an
+orders that are paid, less any refunds. **Still open** counts the rest: carts that never became an
 order, or whose order was cancelled, so Recovered carts and Still open add up to
 Abandoned carts. Abandoned change is shown in grey.
 
@@ -277,7 +286,8 @@ Some tabs have more:
 
   Totals such as revenue and order counts have no limit. When a report reaches a
   limit, its email says the figures are partial. On the page, only the sales
-  report's Top products and the product report's Best sellers show that note.
+  report's Top products and New and Returning customers, and the product
+  report's Best sellers, show that note.
 - **The time zone is set in the app.** Swell doesn't let apps read your store's
   time zone, so the app has its own setting. If the two differ, reports follow
   the app's. Estimated days left on the inventory report counts the last 30 days
@@ -286,8 +296,6 @@ Some tabs have more:
   converting them, and the report shows the currency of the most recent paid
   order in the period (or USD if there are none). The subscription report uses
   the subscriptions' currency. Treat totals on these stores as approximate.
-- **Promotion names:** the app doesn't ask for access to promotions, so if Swell
-  refuses to read one, its line is labelled "Promotion".
 - **Billing intervals:** plans billed daily, weekly, monthly or yearly are
   converted to a monthly amount. Any other interval is counted as monthly.
 - **Send times:** reports are sent once a day, in the 08:00 hour of your time
@@ -345,14 +353,15 @@ separately.
 | Emails | `notifications/*-report.json` and `.tpl` (Liquid), one per report |
 | Page components | `components/ReportSummary.tsx` (summary cards), `ReportTable.tsx` (tables), `SettingsSection.tsx` (the Each report heading on the settings page) |
 | Settings page | `settings/report-config.json` |
-| App Store listing | `swell.json` (name, short description, support and documentation links, gallery under `images`), `DESCRIPTION.md` (full description), `assets/icon.png` (512×512), `assets/image.png` (cover, 1200×630), `assets/screenshots/` (gallery, 3200×1800) |
+| App Store listing | `swell.json` (name, short and full descriptions, support and documentation links, gallery under `images`), `assets/icon.png` (512×512), `assets/image.png` (cover, 1200×630), `assets/screenshots/` (gallery, 3200×1800) |
 | Icon generator | `scripts/make-icon.js` (`npm run icon`; not app config) |
 | Cover and gallery sources | `design/listing/`: `build.py` writes mock-up pages with sample data, and `render.sh` renders them into `assets/` with headless Chrome (`npm run listing`; on Windows, run it from Git Bash) |
 
 ### Permissions
 
 `read_orders`, `read_products`, `read_accounts`, `read_carts`,
-`read_subscriptions`, `read_settings`, `write_notifications` (to email
+`read_subscriptions`, `read_promotions` (for promotion names on the discount
+report), `write_notifications` (to email
 recipients) and `read_:models` (to find the app's notification templates). The
 app writes only to its own collections.
 

@@ -25,10 +25,12 @@ export async function scan(
   maxPages: number = MAX_PAGES,
 ): Promise<{ truncated: boolean; seen: number }> {
   let seen = 0;
+  let total = NaN;
 
   for (let page = 1; page <= maxPages; page++) {
     const response = await swell.get(url, { ...query, limit: PAGE_LIMIT, page });
     const results: any[] = response?.results ?? [];
+    total = Number(response?.count);
 
     for (const record of results) {
       visit(record);
@@ -40,6 +42,11 @@ export async function scan(
     }
   }
 
+  // The last page was full. That's only a cut-off if there were more records
+  // than were read: exactly the ceiling isn't.
+  if (Number.isFinite(total) && total <= seen) {
+    return { truncated: false, seen };
+  }
   console.warn(`Read of ${url} truncated at ${maxPages * PAGE_LIMIT} records.`);
   return { truncated: true, seen };
 }

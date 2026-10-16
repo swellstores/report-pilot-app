@@ -42,6 +42,7 @@ async function fetchCustomerTotals(swell: SwellAPI, start: Date, end: Date) {
         account_id: true,
         orders: { $sum: 1 },
         spend: { $sum: 'grand_total' },
+        refunds: { $sum: 'refund_total' },
       },
       limit: GROUP_PAGE_LIMIT,
       page,
@@ -54,7 +55,7 @@ async function fetchCustomerTotals(swell: SwellAPI, start: Date, end: Date) {
       if (row?.account_id) {
         totals.set(row.account_id, {
           orders: Number(row.orders) || 0,
-          spend: round(row.spend),
+          spend: netSpend(row),
         });
       }
     }
@@ -62,9 +63,19 @@ async function fetchCustomerTotals(swell: SwellAPI, start: Date, end: Date) {
     if (rows.length < GROUP_PAGE_LIMIT || totals.size === before) {
       break;
     }
+    // The last page was full: it's only a cut-off if one more page has
+    // customers not seen yet.
     if (page === GROUP_MAX_PAGES) {
-      truncated = true;
-      console.warn('Customer totals truncated; customer report figures are a lower bound.');
+      const next = await swell.get('/orders', {
+        where: { ...revenueWhere(start, end), account_id: { $ne: null } },
+        group: { account_id: true },
+        limit: GROUP_PAGE_LIMIT,
+        page: page + 1,
+      });
+      truncated = (next?.results ?? []).some((row: any) => row?.account_id && !totals.has(row.account_id));
+      if (truncated) {
+        console.warn('Customer totals truncated; customer report figures are a lower bound.');
+      }
     }
   }
 
@@ -73,7 +84,7 @@ async function fetchCustomerTotals(swell: SwellAPI, start: Date, end: Date) {
 
 /**
  * Lifetime paid orders and spend per account, on the same basis as the rest of
- * the report: paid, not cancelled, summed from `grand_total`. The account's own
+ * the report: paid, not cancelled, summed from `grand_total` less refunds. The account's own
  * `order_value` is not used, because it can disagree with that basis (it read
  * $0 for accounts whose orders were marked paid rather than charged).
  */
@@ -85,21 +96,27 @@ async function fetchLifetimeTotals(swell: SwellAPI, ids: string[]) {
   }
 
   const response = await swell.get('/orders', {
-    where: { paid: true, status: { $ne: 'canceled' }, account_id: { $in: valid } },
+    where: { paid: true, canceled: { $ne: true }, account_id: { $in: valid } },
     group: {
       account_id: true,
       orders: { $sum: 1 },
       spend: { $sum: 'grand_total' },
+      refunds: { $sum: 'refund_total' },
     },
     limit: valid.length,
   });
 
   for (const row of response?.results ?? []) {
     if (row?.account_id) {
-      totals.set(row.account_id, { orders: Number(row.orders) || 0, spend: round(row.spend) });
+      totals.set(row.account_id, { orders: Number(row.orders) || 0, spend: netSpend(row) });
     }
   }
   return totals;
+}
+
+/** A grouped row's spend less its refunds. */
+function netSpend(row: { spend?: unknown; refunds?: unknown }) {
+  return round((Number(row.spend) || 0) - (Number(row.refunds) || 0));
 }
 
 /** Accounts by id, for names and emails. Also used by the cart and subscription reports. */
@@ -120,14 +137,20 @@ export async function fetchAccounts(swell: SwellAPI, ids: string[]) {
   return byId;
 }
 
-/** A customer's display name: their name, else their email, else `fallback`. */
+/**
+ * A customer's display name: their name, else their email, else `fallback`.
+ *
+ * Shoppers write their own names, and these are mailed to the store's team, so
+ * `<` and `>` are removed: a name can't carry a link or other HTML into an
+ * email whether or not the template escapes it.
+ */
 export function accountName(account: any, fallback: string): string {
-  return (
+  const name =
     account?.name ||
     [account?.first_name, account?.last_name].filter(Boolean).join(' ') ||
     account?.email ||
-    fallback
-  );
+    '';
+  return String(name).replace(/[<>]/g, '').trim() || fallback;
 }
 
 export async function buildCustomerReport(
@@ -168,7 +191,6 @@ export async function buildCustomerReport(
     return {
       account_id: id,
       name,
-      email: account.email ?? null,
       orders: totals.orders,
       spend: totals.spend,
       lifetime_value: lifetime.get(id)?.spend ?? round(account.order_value),
@@ -195,7 +217,7 @@ export async function buildCustomerReport(
       : 0,
     average_spend: customerCount ? round(totalSpend / customerCount) : 0,
     top_customers: topCustomers,
-    truncated: current.truncated || previous.truncated,
+    truncated: current.truncated || previous.truncated || split.truncated,
   };
 }
 

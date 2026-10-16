@@ -125,7 +125,7 @@
               "key": "recovered_revenue",
               "label": "Recovered revenue",
               "type": "currency",
-              "hint": "Revenue from those orders that have been paid."
+              "hint": "Revenue from those orders that have been paid, less any refunds."
             }
           ]
         ]

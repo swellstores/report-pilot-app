@@ -297,11 +297,16 @@ export function isoDate(date: Date, timeZone: string = DEFAULT_TIME_ZONE): strin
   return dayKey(localDay(date, timeZone));
 }
 
-/** Orders that count toward revenue: paid, and not cancelled. */
+/**
+ * Orders that count toward revenue: paid, and not cancelled. Uses the
+ * `canceled` flag rather than `status`, which is a label a store can redefine.
+ * `paid` stays true after a refund, so revenue figures subtract `refund_total`
+ * separately.
+ */
 export function revenueWhere(start: Date, end: Date) {
   return {
     paid: true,
-    status: { $ne: 'canceled' },
+    canceled: { $ne: true },
     date_created: { $gte: start.toISOString(), $lt: end.toISOString() },
   };
 }
@@ -313,7 +318,10 @@ export interface Totals {
   discount_total: number;
   shipping_total: number;
   tax_total: number;
+  /** What the orders were charged, before refunds. */
   grand_total: number;
+  /** Refunded so far on those orders. */
+  refund_total: number;
 }
 
 const EMPTY_TOTALS: Totals = {
@@ -324,6 +332,7 @@ const EMPTY_TOTALS: Totals = {
   shipping_total: 0,
   tax_total: 0,
   grand_total: 0,
+  refund_total: 0,
 };
 
 /**
@@ -338,9 +347,12 @@ export async function fetchTotals(swell: SwellAPI, start: Date, end: Date): Prom
       item_quantity: { $sum: 'item_quantity' },
       sub_total: { $sum: 'sub_total' },
       discount_total: { $sum: 'discount_total' },
-      shipping_total: { $sum: 'shipping_total' },
+      // Swell's field is `shipment_total` (shipping after any shipping
+      // discount); the report stores it as `shipping_total`.
+      shipping_total: { $sum: 'shipment_total' },
       tax_total: { $sum: 'tax_total' },
       grand_total: { $sum: 'grand_total' },
+      refund_total: { $sum: 'refund_total' },
     },
   });
 
@@ -357,6 +369,7 @@ export async function fetchTotals(swell: SwellAPI, start: Date, end: Date): Prom
     shipping_total: round(row.shipping_total),
     tax_total: round(row.tax_total),
     grand_total: round(row.grand_total),
+    refund_total: round(row.refund_total),
   };
 }
 
@@ -371,9 +384,10 @@ async function fetchExcludedCounts(
   };
 
   const [cancelled, unpaid] = await Promise.all([
-    swell.get('/orders/:count', { where: { ...dateRange, status: 'canceled' } }),
+    swell.get('/orders/:count', { where: { ...dateRange, canceled: true } }),
+    // Drafts are always unpaid but nobody owes anything on them yet.
     swell.get('/orders/:count', {
-      where: { ...dateRange, paid: false, status: { $ne: 'canceled' } },
+      where: { ...dateRange, paid: false, canceled: { $ne: true }, draft: { $ne: true } },
     }),
   ]);
 
@@ -407,6 +421,7 @@ async function fetchDailyTotals(swell: SwellAPI, start: Date, end: Date, timeZon
       group: {
         orders: { $sum: 1 },
         revenue: { $sum: 'grand_total' },
+        refunds: { $sum: 'refund_total' },
         year: { $year: 'date_created' },
         month: { $month: 'date_created' },
         day: { $dayOfMonth: 'date_created' },
@@ -416,7 +431,7 @@ async function fetchDailyTotals(swell: SwellAPI, start: Date, end: Date, timeZon
     for (const row of response?.results ?? []) {
       const key = dayKey({ year: Number(row.year), month: Number(row.month), day: Number(row.day) });
       if (byDate.has(key)) {
-        byDate.set(key, { date: key, orders: Number(row.orders) || 0, revenue: round(row.revenue) });
+        byDate.set(key, { date: key, orders: Number(row.orders) || 0, revenue: netRevenue(row) });
       }
     }
     return [...byDate.values()];
@@ -428,16 +443,21 @@ async function fetchDailyTotals(swell: SwellAPI, start: Date, end: Date, timeZon
       days.slice(i, i + BATCH).map(async (d) => {
         const response = await swell.get('/orders', {
           where: revenueWhere(d.from, d.to),
-          group: { orders: { $sum: 1 }, revenue: { $sum: 'grand_total' } },
+          group: { orders: { $sum: 1 }, revenue: { $sum: 'grand_total' }, refunds: { $sum: 'refund_total' } },
         });
         const row = response?.results?.[0];
         if (row) {
-          byDate.set(d.key, { date: d.key, orders: Number(row.orders) || 0, revenue: round(row.revenue) });
+          byDate.set(d.key, { date: d.key, orders: Number(row.orders) || 0, revenue: netRevenue(row) });
         }
       }),
     );
   }
   return [...byDate.values()];
+}
+
+/** A grouped row's `revenue` less its `refunds`. */
+function netRevenue(row: { revenue?: unknown; refunds?: unknown }) {
+  return round((Number(row.revenue) || 0) - (Number(row.refunds) || 0));
 }
 
 interface TopProduct {
@@ -470,6 +490,7 @@ async function fetchTopProducts(
   const pageLimit = 100;
   const maxPages = 25;
   let truncated = false;
+  let read = 0;
 
   for (let page = 1; page <= maxPages; page++) {
     const response = await swell.get('/orders', {
@@ -480,6 +501,7 @@ async function fetchTopProducts(
     });
 
     const orders = response?.results ?? [];
+    read += orders.length;
 
     for (const order of orders) {
       for (const item of order.items ?? []) {
@@ -505,7 +527,9 @@ async function fetchTopProducts(
       break;
     }
 
-    if (page === maxPages) {
+    // A full last page is only a cut-off if there were more orders than that.
+    const total = Number(response?.count);
+    if (page === maxPages && !(Number.isFinite(total) && total <= read)) {
       truncated = true;
       console.warn(
         `Top products truncated: more than ${maxPages * pageLimit} orders in period.`,
@@ -568,8 +592,16 @@ export async function fetchAccountIds(
       break;
     }
 
+    // The last page was full: it's only a cut-off if one more page has
+    // accounts not seen yet.
     if (page === ACCOUNT_MAX_PAGES) {
-      truncated = true;
+      const next = await swell.get('/orders', {
+        where,
+        group: { account_id: true },
+        limit: ACCOUNT_PAGE_LIMIT,
+        page: page + 1,
+      });
+      truncated = (next?.results ?? []).some((row: any) => row?.account_id && !ids.has(row.account_id));
     }
   }
 
@@ -597,7 +629,7 @@ export async function fetchCustomerSplit(swell: SwellAPI, start: Date, end: Date
   }
 
   if (accountIds.length === 0) {
-    return { new_customer_count: 0, returning_customer_count: 0 };
+    return { new_customer_count: 0, returning_customer_count: 0, truncated };
   }
 
   // Look the prior history up in batches, so a busy period does not build one
@@ -608,7 +640,7 @@ export async function fetchCustomerSplit(swell: SwellAPI, start: Date, end: Date
   for (let i = 0; i < accountIds.length; i += ACCOUNT_CHUNK) {
     const { ids: prior } = await fetchAccountIds(swell, {
       paid: true,
-      status: { $ne: 'canceled' },
+      canceled: { $ne: true },
       account_id: { $in: accountIds.slice(i, i + ACCOUNT_CHUNK) },
       date_created: { $lt: start.toISOString() },
     });
@@ -621,6 +653,8 @@ export async function fetchCustomerSplit(swell: SwellAPI, start: Date, end: Date
   return {
     new_customer_count: accountIds.filter((id) => !returning.has(id)).length,
     returning_customer_count: returning.size,
+    // More customers than the split reads: both counts are a lower bound.
+    truncated,
   };
 }
 
@@ -786,8 +820,6 @@ export async function checkRecipientDelivery(
 /** How long to wait before checking whether Swell accepted the notifications. */
 const DELIVERY_CHECK_MS = 2500;
 
-const resolvedTemplates = new Map<string, string>();
-
 /**
  * Turn `<collection>.<notification name>` into the id Swell uses for an app's
  * notification: `app_<app id>.apps_<app id>_<collection>.<name>`, where the app
@@ -797,17 +829,11 @@ const resolvedTemplates = new Map<string, string>();
  * The record id is read from `app_id` on the collection's definition in
  * `GET /:models`, which is where Swell documents it. If more than one installed
  * app has a collection of that name, the most recently installed one wins.
+ *
+ * Looked up on every send, not cached: it's one read per report, and a cached
+ * answer could outlive a failed lookup or belong to another store.
  */
-export async function resolveTemplate(
-  swell: Pick<SwellAPI, 'get'>,
-  template: string,
-  options: { strict?: boolean } = {},
-): Promise<string> {
-  const cached = resolvedTemplates.get(template);
-  if (cached) {
-    return cached;
-  }
-
+export async function resolveTemplate(swell: Pick<SwellAPI, 'get'>, template: string): Promise<string> {
   const dot = template.indexOf('.');
   const collection = template.slice(0, dot);
   const name = template.slice(dot + 1);
@@ -827,17 +853,10 @@ export async function resolveTemplate(
       console.warn(`No app model found for ${collection}; sending ${template} with the short name.`);
     }
   } catch (error) {
-    // A caller that can retry (the send-report workflow) gets the error, so a
-    // brief API failure doesn't send every email to the short name.
-    if (options.strict) {
-      throw error;
-    }
     // Reading /:models needs the `read_:models` permission in swell.json.
     console.warn(`Could not look up the app id for ${template} (needs read_:models):`, error);
   }
   console.log(`Notification template for ${template}: ${resolved}`);
-
-  resolvedTemplates.set(template, resolved);
   return resolved;
 }
 
@@ -867,20 +886,26 @@ export async function buildReport(
         : Promise.resolve([]),
     ]);
 
+  const revenue = round(totals.grand_total - totals.refund_total);
+  const prevRevenue = round(prevTotals.grand_total - prevTotals.refund_total);
+
   return {
     period_label: formatPeriodLabel(periodStart, periodEnd, timeZone),
     period_start: periodStart.toISOString(),
     period_end: periodEnd.toISOString(),
     currency,
     ...totals,
+    // Revenue is what was charged less what has been refunded on those orders,
+    // so Subtotal − Discounts + Shipping + Tax − Refunds = Revenue.
+    grand_total: revenue,
     ...excluded,
-    ...customers,
-    average_order_value: totals.order_count
-      ? round(totals.grand_total / totals.order_count)
-      : 0,
+    new_customer_count: customers.new_customer_count,
+    returning_customer_count: customers.returning_customer_count,
+    customers_truncated: customers.truncated,
+    average_order_value: totals.order_count ? round(revenue / totals.order_count) : 0,
     prev_order_count: prevTotals.order_count,
-    prev_grand_total: prevTotals.grand_total,
-    revenue_change_pct: percentChange(totals.grand_total, prevTotals.grand_total),
+    prev_grand_total: prevRevenue,
+    revenue_change_pct: percentChange(revenue, prevRevenue),
     order_change_pct: percentChange(totals.order_count, prevTotals.order_count),
     top_products: topProducts.products,
     // Set when the period had more paid orders than the ranking reads, so the

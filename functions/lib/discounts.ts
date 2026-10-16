@@ -25,9 +25,15 @@ interface DiscountLine {
   revenue: number;
 }
 
-/** Orders in the window that carry any discount. */
+/**
+ * Orders in the window that carry any discount. `discount_total` covers line
+ * items only; a shipping discount is recorded in `shipment_discount`.
+ */
 function discountedWhere(start: Date, end: Date) {
-  return { ...revenueWhere(start, end), discount_total: { $gt: 0 } };
+  return {
+    ...revenueWhere(start, end),
+    $or: [{ discount_total: { $gt: 0 } }, { shipment_discount: { $gt: 0 } }],
+  };
 }
 
 async function fetchDiscountedTotals(swell: SwellAPI, start: Date, end: Date) {
@@ -37,20 +43,21 @@ async function fetchDiscountedTotals(swell: SwellAPI, start: Date, end: Date) {
       orders: { $sum: 1 },
       revenue: { $sum: 'grand_total' },
       discount: { $sum: 'discount_total' },
+      shipping_discount: { $sum: 'shipment_discount' },
     },
   });
   const row = response?.results?.[0] ?? {};
   return {
     orders: Number(row.orders) || 0,
     revenue: round(row.revenue),
-    discount: round(row.discount),
+    // The total given away is line-item discounts plus shipping discounts.
+    discount: round((Number(row.discount) || 0) + (Number(row.shipping_discount) || 0)),
   };
 }
 
 /**
- * Promotion names, best effort. Reading promotions may need a scope this app
- * does not hold on every store; when it fails the lines keep a generic label
- * rather than failing the report.
+ * Promotion names (needs `read_promotions`). Best effort: if the read fails,
+ * the lines keep a generic label rather than failing the report.
  */
 async function fetchPromotionNames(swell: SwellAPI, ids: string[]) {
   const names = new Map<string, string>();
@@ -106,11 +113,12 @@ export async function buildDiscountReport(
     '/orders',
     {
       where: discountedWhere(start, end),
-      fields: 'coupon_code,discounts,discount_total,grand_total',
+      fields: 'coupon_code,discounts,discount_total,shipment_discount,grand_total',
     },
     (order) => {
       const revenue = Number(order.grand_total) || 0;
-      const total = Number(order.discount_total) || 0;
+      const shippingDiscount = Number(order.shipment_discount) || 0;
+      const total = (Number(order.discount_total) || 0) + shippingDiscount;
       let attributed = 0;
 
       for (const discount of order.discounts ?? []) {
@@ -136,9 +144,19 @@ export async function buildDiscountReport(
         }
       }
 
-      // Discounts set directly on line items or by hand do not appear in
-      // `discounts`; account for the remainder so the lines reconcile.
-      const remainder = round(total - attributed);
+      // Whatever `discounts` doesn't account for is shown on its own lines so
+      // the lines reconcile: a shipping discount not tied to a coupon or
+      // promotion first, then discounts set on line items or by hand.
+      let remainder = round(total - attributed);
+      const shippingPart = round(Math.min(Math.max(remainder, 0), shippingDiscount));
+      if (shippingPart > 0.01) {
+        add(
+          { key: 'other:shipping', type: 'other', label: 'Shipping discounts', promotion_id: null },
+          shippingPart,
+          revenue,
+        );
+        remainder = round(remainder - shippingPart);
+      }
       if (remainder > 0.01) {
         add(
           { key: 'other:manual', type: 'other', label: 'Item-level or manual discounts', promotion_id: null },

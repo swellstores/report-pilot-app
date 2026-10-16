@@ -17,6 +17,9 @@ export const config = {
  * - `hint`: shown when hovering, focusing or clicking the info icon next to the label.
  * - `tone`: `neutral` shows a `change` in grey instead of green or red, for a
  *   figure where a rise is not necessarily good news (e.g. discounts given).
+ *
+ * `params.note_key` + `params.note`: a note shown under the figures when that
+ * record field is true or above 0, such as when some figures are partial.
  */
 interface Figure {
   key: string;
@@ -48,12 +51,15 @@ const STYLE = `
   .rs .down { color: #dc2626; }
   .rs .flat { color: #525252; }
   .rs .muted { color: #9ca3af; font-weight: 400; }
+  .rs .note { margin: 0; font-size: 13px; line-height: 18px; color: #737373; }
 `;
 
 export default function ReportSummary({ context, params, locale }: ComponentProps<unknown, { record?: ReportRecord }>) {
   const record = context?.record ?? {};
   const rows = readRows(params.rows);
   const currency = typeof record.currency === 'string' && record.currency ? record.currency : 'USD';
+  const noteKey = typeof params.note_key === 'string' ? params.note_key : null;
+  const note = noteKey && Number(record[noteKey]) > 0 && typeof params.note === 'string' ? params.note : null;
 
   return (
     <div className="rs">
@@ -71,6 +77,7 @@ export default function ReportSummary({ context, params, locale }: ComponentProp
           ))}
         </div>
       ))}
+      {note && <p className="note">{note}</p>}
     </div>
   );
 }

@@ -324,7 +324,7 @@ settings = page(
       <div class="body">
         <div class="row"><span class="toggle"></span>Send scheduled reports</div>
         <div class="lbl">Recipients</div>
-        <div class="inp" id="recipients"><span><span class="chip">owner@harborandpine.com &times;</span><span class="chip">finance@harborandpine.com &times;</span></span></div>
+        <div class="inp" id="recipients"><span><span class="chip">owner@example.com &times;</span><span class="chip">finance@example.com &times;</span></span></div>
         <div class="lbl">Time zone</div>
         <div class="inp" id="tz" style="width:46%">Pacific Daylight Time{CHEVRON}</div>
         <div class="divide"></div>
@@ -332,7 +332,7 @@ settings = page(
         <div class="rtabs"><div>Sales</div><div>Customers</div><div class="on">Inventory</div><div>Products</div><div>Discounts</div><div>Abandoned carts</div><div>Subscriptions</div></div>
         <div class="row"><span class="toggle"></span>Send the inventory report</div>
         <div class="lbl">Also send this report to</div>
-        <div class="inp" id="extra" style="width:60%"><span><span class="chip">warehouse@harborandpine.com &times;</span></span></div>
+        <div class="inp" id="extra" style="width:60%"><span><span class="chip">warehouse@example.com &times;</span></span></div>
       </div>
     </div>
   </div>

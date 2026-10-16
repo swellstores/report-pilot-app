@@ -44,7 +44,7 @@
       "label": "Revenue",
       "type": "currency",
       "readonly": true,
-      "description": "Revenue from all orders in this period."
+      "description": "Revenue from all orders in this period, before refunds."
     },
     {
       "id": "sub_total",
@@ -58,7 +58,7 @@
       "label": "Discounts given",
       "type": "currency",
       "readonly": true,
-      "description": "Total taken off by coupons, promotions and other discounts."
+      "description": "Total taken off by coupons, promotions and other discounts, including shipping discounts."
     },
     {
       "id": "discounted_order_count",
@@ -72,7 +72,7 @@
       "label": "Discounted order revenue",
       "type": "currency",
       "readonly": true,
-      "description": "Revenue from the orders that had a discount."
+      "description": "Revenue from the orders that had a discount, before refunds."
     },
     {
       "id": "discounted_order_pct",
@@ -130,7 +130,7 @@
               "key": "discount_total",
               "label": "Discounts given",
               "type": "currency",
-              "hint": "Total taken off by coupons, promotions and other discounts."
+              "hint": "Total taken off by coupons, promotions and other discounts, including shipping discounts."
             },
             {
               "key": "prev_discount_total",
@@ -169,13 +169,13 @@
               "key": "grand_total",
               "label": "Revenue",
               "type": "currency",
-              "hint": "Revenue from all orders in this period."
+              "hint": "Revenue from all orders in this period, before refunds."
             },
             {
               "key": "discounted_revenue",
               "label": "Discounted order revenue",
               "type": "currency",
-              "hint": "Revenue from the orders that had a discount."
+              "hint": "Revenue from the orders that had a discount, before refunds."
             },
             {
               "key": "discount_rate_pct",

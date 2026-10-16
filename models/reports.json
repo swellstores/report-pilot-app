@@ -59,7 +59,7 @@
     "shipping_total": {
       "type": "currency",
       "label": "Shipping",
-      "description": "Total shipping charged across counted orders.",
+      "description": "Total shipping charged across counted orders, after shipping discounts.",
       "default": 0
     },
     "tax_total": {
@@ -71,7 +71,7 @@
     "grand_total": {
       "type": "currency",
       "label": "Revenue",
-      "description": "Total revenue (grand total) across counted orders.",
+      "description": "Total charged across counted orders, less refunds made on them.",
       "default": 0
     },
     "average_order_value": {
@@ -90,6 +90,12 @@
       "type": "int",
       "label": "Unpaid orders",
       "description": "Orders created in the period that are not yet paid.",
+      "default": 0
+    },
+    "refund_total": {
+      "type": "currency",
+      "label": "Refunds",
+      "description": "Refunded so far on counted orders. Already taken out of revenue.",
       "default": 0
     },
     "new_customer_count": {
@@ -153,6 +159,12 @@
           "default": 0
         }
       }
+    },
+    "customers_truncated": {
+      "type": "bool",
+      "label": "New and returning partial",
+      "description": "Set when the period had more customers than the new and returning split reads, so both counts are a lower bound.",
+      "default": false
     },
     "top_products_truncated": {
       "type": "bool",

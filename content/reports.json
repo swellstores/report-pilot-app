@@ -39,7 +39,7 @@
       "id": "grand_total",
       "label": "Revenue",
       "type": "currency",
-      "description": "Total of paid, non-cancelled orders in this period, including shipping and tax, after discounts.",
+      "description": "Total of paid, non-cancelled orders in this period, including shipping and tax, after discounts and refunds.",
       "admin_span": 2,
       "readonly": true
     },
@@ -164,6 +164,14 @@
       "readonly": true
     },
     {
+      "id": "refund_total",
+      "label": "Refunds",
+      "type": "currency",
+      "description": "Refunded so far on this period's orders. Already taken out of revenue.",
+      "admin_span": 1,
+      "readonly": true
+    },
+    {
       "id": "summary",
       "label": "Sales report summary",
       "type": "component",
@@ -171,13 +179,15 @@
       "readonly": true,
       "description": "Headline figures for this period. Hover the info icon on a figure for what it counts.",
       "params": {
+        "note_key": "customers_truncated",
+        "note": "This period had more customers than the report reads, so New customers and Returning customers cover only part of it.",
         "rows": [
           [
             {
               "key": "grand_total",
               "label": "Revenue",
               "type": "currency",
-              "hint": "Total of paid, non-cancelled orders in this period, including shipping and tax, after discounts."
+              "hint": "Total of paid, non-cancelled orders in this period, including shipping and tax, after discounts and refunds."
             },
             {
               "key": "prev_grand_total",
@@ -252,7 +262,7 @@
               "key": "shipping_total",
               "label": "Shipping",
               "type": "currency",
-              "hint": "Total shipping charged."
+              "hint": "Total shipping charged, after shipping discounts."
             },
             {
               "key": "tax_total",
@@ -271,6 +281,12 @@
               "key": "unpaid_count",
               "label": "Unpaid orders",
               "hint": "Orders placed in this period that are not paid yet. Not counted in revenue."
+            },
+            {
+              "key": "refund_total",
+              "label": "Refunds",
+              "type": "currency",
+              "hint": "Refunded so far on this period's orders. Already taken out of revenue."
             }
           ]
         ]
@@ -311,6 +327,13 @@
         "unlisted_key": "top_products_truncated",
         "unlisted_note": "This period had more orders than the ranking reads, so the list covers only part of it."
       }
+    },
+    {
+      "id": "customers_truncated",
+      "label": "New and returning partial",
+      "type": "boolean",
+      "description": "More customers than the new and returning split reads; both counts are a lower bound.",
+      "readonly": true
     },
     {
       "id": "top_products_truncated",

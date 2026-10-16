@@ -134,7 +134,9 @@ export async function buildInventoryReport(
       swell,
       '/products:variants',
       {
-        where: { parent_id: { $in: ids }, active: { $ne: false } },
+        // Archived variants are old option combinations Swell keeps (with
+        // stock set to 0) for orders that used them; they aren't for sale.
+        where: { parent_id: { $in: ids }, active: { $ne: false }, archived: { $ne: true } },
         fields: 'id,parent_id,name,sku,stock_level',
       },
       (variant) => {

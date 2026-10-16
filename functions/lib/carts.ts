@@ -32,6 +32,7 @@ interface CartRow {
 
 interface OrderInfo {
   date_created: string;
+  /** What the order was charged, less anything refunded on it so far. */
   grand_total: number;
   paid: boolean;
   canceled: boolean;
@@ -43,13 +44,13 @@ async function fetchOrders(swell: SwellAPI, ids: string[]) {
   for (const batch of chunk(ids.filter((id) => RECORD_ID.test(id)), 100)) {
     const response = await swell.get('/orders', {
       where: { id: { $in: batch } },
-      fields: 'id,date_created,grand_total,paid,canceled,status',
+      fields: 'id,date_created,grand_total,refund_total,paid,canceled,status',
       limit: batch.length,
     });
     for (const order of response?.results ?? []) {
       byId.set(order.id, {
         date_created: order.date_created,
-        grand_total: round(order.grand_total),
+        grand_total: round((Number(order.grand_total) || 0) - (Number(order.refund_total) || 0)),
         paid: order.paid === true,
         canceled: order.canceled === true || order.status === 'canceled',
       });

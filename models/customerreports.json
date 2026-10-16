@@ -94,10 +94,6 @@
           "type": "string",
           "label": "Customer"
         },
-        "email": {
-          "type": "string",
-          "label": "Email"
-        },
         "orders": {
           "type": "int",
           "label": "Orders",

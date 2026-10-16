@@ -44,7 +44,6 @@
       {
         "account_id": "8001",
         "name": "Ada Lovelace",
-        "email": "ada@example.com",
         "orders": 3,
         "spend": 912.4,
         "lifetime_value": 2410.75,
@@ -54,7 +53,6 @@
       {
         "account_id": "8002",
         "name": "Grace Hopper",
-        "email": "grace@example.com",
         "orders": 1,
         "spend": 499.99,
         "lifetime_value": 499.99,
@@ -64,7 +62,6 @@
       {
         "account_id": "8003",
         "name": "Alan Turing",
-        "email": "alan@example.com",
         "orders": 2,
         "spend": 331.2,
         "lifetime_value": 1022.0,

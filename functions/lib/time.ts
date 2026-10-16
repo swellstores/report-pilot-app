@@ -13,6 +13,7 @@ export const DEFAULT_TIME_ZONE = 'UTC';
 /** The local hour reports are sent at. Crons run hourly and wait for it. */
 export const SEND_HOUR = 8;
 
+const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 86400000;
 
 /** A setting's time zone if the runtime knows it, otherwise UTC. */
@@ -89,10 +90,32 @@ function offsetAt(date: Date, timeZone: string): number {
 /** The instant a local calendar day starts (00:00) in `timeZone`. */
 export function startOfLocalDay(day: LocalDay, timeZone: string): Date {
   const guess = Date.UTC(day.year, day.month - 1, day.day);
-  // Two passes settle the offset even when the day starts on a DST change.
+  // Two passes settle the offset on almost every day.
   let instant = guess - offsetAt(new Date(guess), timeZone);
   instant = guess - offsetAt(new Date(instant), timeZone);
-  return new Date(instant);
+
+  // Where the clocks change at midnight, the passes can be an hour out: when
+  // they jump forward (Santiago, Havana, Asunción) 00:00 doesn't exist, and
+  // when they go back (Amman, Gaza) it happens twice. Either way the day
+  // starts at the first instant whose local date is `day`, within a few hours
+  // of the estimate.
+  const target = dayKey(day);
+  const reached = (t: number) => dayKey(localDay(new Date(t), timeZone)) >= target;
+  let before = instant - 6 * HOUR_MS;
+  let after = instant + 6 * HOUR_MS;
+  if (reached(before) || !reached(after)) {
+    return new Date(instant);
+  }
+  while (after - before > 1000) {
+    const mid = Math.floor((before + after) / 2);
+    if (reached(mid)) {
+      after = mid;
+    } else {
+      before = mid;
+    }
+  }
+  // Clock changes happen on a whole second.
+  return new Date(Math.floor(after / 1000) * 1000);
 }
 
 /** The local calendar day `date` falls on in `timeZone`. */
