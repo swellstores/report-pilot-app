@@ -1,4 +1,4 @@
-import { generate, isReportType, reportLabel } from './lib/runner';
+import { isReportType, recipientsFor, reportLabel, startSend } from './lib/runner';
 
 export const config: SwellConfig = {
   description: 'Generate a report and email it right away, from the app settings page',
@@ -10,8 +10,12 @@ export const config: SwellConfig = {
 /**
  * The admin picked a report type in the action's modal. This sends it now, to
  * the recipients in the app settings, whether or not that report is switched on
- * or scheduled — the admin asked for
- * it explicitly — and even if the period had nothing in it.
+ * or scheduled — the admin asked for it explicitly — and even if the period had
+ * nothing in it.
+ *
+ * The work happens in the `send-report` workflow, so this replies straight
+ * away instead of making the admin wait (and possibly time out) while a large
+ * store's report is built.
  */
 export default async function (req: SwellRequest) {
   const { swell } = req;
@@ -21,26 +25,27 @@ export default async function (req: SwellRequest) {
     return { message: 'Choose a report type to send.' };
   }
 
-  const result = await generate(swell, type, { save: true, force: true });
   const label = reportLabel(type);
+  let recipients: string[];
 
-  if (!result.report_id) {
-    return { message: `${label} could not be saved, so no email was sent.` };
+  try {
+    recipients = await recipientsFor(swell, type);
+    await startSend(swell, { type, now: new Date().toISOString(), force: true, source: 'action' });
+  } catch (error) {
+    console.error(`${label}: could not start send-report:`, error);
+    return { message: `${label} could not be started, so nothing was sent. Try again in a minute.` };
   }
 
-  const sent = result.extra_recipients_sent ?? 0;
-  const failed = result.extra_recipients_failed ?? 0;
-  const plural = (n: number) => `${n} recipient${n === 1 ? '' : 's'}`;
+  const where = `It will be listed under Reporting → ${label}s.`;
 
-  if (!sent && !failed) {
+  if (!recipients.length) {
     return {
-      message: `${label} for ${result.report.period_label} saved. No recipients are set in the app settings, so no email was sent.`,
+      message: `Creating the ${label.toLowerCase()} now. No recipients are set in the app settings, so no email will be sent. ${where}`,
     };
   }
 
+  const count = `${recipients.length} recipient${recipients.length === 1 ? '' : 's'}`;
   return {
-    message:
-      `${label} for ${result.report.period_label} sent to ${plural(sent)}.` +
-      (failed ? ` ${plural(failed)} could not be sent to.` : ''),
+    message: `Sending the ${label.toLowerCase()} to ${count}. It should arrive within a few minutes. ${where}`,
   };
 }

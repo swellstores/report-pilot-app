@@ -209,7 +209,9 @@ but nobody is emailed. Store admins aren't emailed unless they're on a list.
 ### Sending a report now
 
 **Actions → Send a report now** on the app's page builds, saves and emails a
-report immediately. It covers the most recent full period, ending at midnight
+report immediately. The dialog closes straight away. The report is listed
+under **Reporting** once it's built, and the email usually arrives within a few
+minutes. It covers the most recent full period, ending at midnight
 today: the previous day, the last 7 or 14 days, or the previous calendar month.
 On any day but Monday, a weekly report sent this way covers a different week from
 the scheduled one. It sends even if that report is switched off or the period was
@@ -302,7 +304,10 @@ Check that **Send scheduled reports** and the report's own switch are on, that
 today is a day its schedule sends (Monday for weekly, the 1st for monthly), and
 that at least one recipient is set. If the period had nothing in it, the report
 is skipped unless **Send even when there is nothing to report** is on. Then
-choose **Actions → Send a report now** to check the email arrives.
+choose **Actions → Send a report now** to check the email arrives. Give it a few
+minutes: the report is built after the dialog closes, so the dialog can't show
+a problem. If it still doesn't arrive, open **Developer → Console → Logs**,
+filter by **App: Report Pilot**, and look for the report's last log line.
 
 ### The report covers the wrong days or arrives at the wrong hour
 
@@ -328,9 +333,10 @@ separately.
 | --- | --- |
 | Cron functions, one per report, each running hourly at its own minute (UTC) | `functions/sales-report.ts` (:00), `inventory-report.ts` (:05), `customer-report.ts` (:10), `discount-report.ts` (:15), `product-report.ts` (:20), `cart-report.ts` (:25), `subscription-report.ts` (:30) |
 | "Send a report now" action | `functions/send-report-now.ts`, declared as the `send_now` action in `settings/report-config.json` |
+| Building, saving and emailing a report, in steps | `functions/send-report.ts` (a workflow, started by the crons and the action) |
 | Preview or send any report on demand | `functions/run-report.ts` (route, not public) |
 | Dashboard address for component links | `functions/dashboard-path.ts` (route only the app's components call) |
-| Building, saving and emailing any report | `functions/lib/runner.ts` |
+| Report types, schedule checks and the workflow's steps | `functions/lib/runner.ts` |
 | Report calculations | `functions/lib/report.ts` (sales, periods, recipients, sending), `inventory.ts`, `customers.ts`, `products.ts`, `discounts.ts`, `carts.ts`, `subscriptions.ts`, `scan.ts` (bounded paging) |
 | Time zone, periods and send hour | `functions/lib/time.ts` |
 | Settings for the other report types | `functions/lib/report-settings.ts` |
@@ -354,10 +360,26 @@ app writes only to its own collections.
 
 Each cron runs every hour. It returns straight away unless it's the store's
 08:00 hour (`isSendHour`) and the report is due today (`isDueToday`), both in
-the time zone setting. It then builds the report for the window from
-`resolveWindow`, skips it if empty (unless the setting says otherwise), saves it
-to the report's collection, and emails each recipient with
-`sendToExtraRecipients`. Saving a record doesn't email anyone by itself: each
+the time zone setting. It then looks up the report's email template
+(`resolveTemplate`, which reads `/:models`, something a workflow isn't allowed
+to do), starts the `send-report` workflow with it, and returns.
+**Send a report now** starts the same workflow, so the dialog doesn't wait.
+
+The workflow runs in steps, each with its own time limit, so a large store's
+report isn't cut off by the 10 seconds a function gets:
+
+1. **Build report:** reads the settings and builds the report (for its window
+   from `resolveWindow`, or as a snapshot for inventory). Read-only, so it's
+   retried up to twice if it fails.
+2. If the report is empty, it stops here (unless the setting says otherwise or
+   it was sent from the action).
+3. **Save report** to the report's collection.
+4. **Email recipient 1, 2, …:** one step per address, then a short wait and a
+   check that Swell sent each one. A failed address doesn't stop the others.
+
+A step that finished isn't run again when a later one fails. Saving and
+emailing are never retried, because a request that timed out may still have
+gone through, so a report is never saved twice and nobody is emailed twice. Saving a record doesn't email anyone by itself: each
 notification has a condition that never matches.
 
 ### Running, testing and pushing
@@ -423,8 +445,11 @@ be deactivated.
   change in `content/`, change its `.tpl` to match.
 - **Daily breakdown in other time zones.** The server groups dates in UTC, so
   outside UTC each local day is totalled with its own small read (up to 31).
-- **Limits per run:** each function has a 10-second timeout. Recipients are
-  emailed one at a time, and each send is checked about 2.5 seconds later.
+- **Limits per run:** each function has a 10-second timeout, so the crons and
+  the action only start the `send-report` workflow, whose build step has 5
+  minutes. `run-report` still builds inline, so on a large store it can time
+  out. Recipients are emailed one at a time, and each send is checked about 5
+  seconds later (2.5 seconds in `run-report`).
 - **Logs:** `swell logs -f --app report_pilot`. Logs may be unavailable in the
   test environment, so `run-report` returns errors in its response as well.
 

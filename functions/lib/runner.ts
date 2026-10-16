@@ -3,6 +3,11 @@
  * on-demand route and the "Send a report now" action all generate, store and
  * mail a report the same way.
  *
+ * The crons and the action don't build reports themselves: they start the
+ * `send-report` workflow and return at once. Building a report on a busy store
+ * can take longer than the 10 seconds a function gets, and each workflow step
+ * gets its own time limit and retries.
+ *
  * Each type has its own model and notification. Storing the record does not
  * email anyone by itself (the notifications' conditions never match); each
  * recipient in the app settings gets an explicit notification record.
@@ -19,9 +24,11 @@ import {
   isDueToday,
   NOTIFICATION_TEMPLATE,
   resolveSettings,
+  resolveTemplate,
   resolveWindow,
   sendToExtraRecipients,
 } from './report';
+export { checkRecipientDelivery, createRecipientNotification, resolveTemplate } from './report';
 import {
   resolveCartSettings,
   resolveCustomerSettings,
@@ -200,10 +207,81 @@ export async function generate(swell: SwellAPI, type: ReportType, options: Gener
   };
 }
 
+/** The workflow that builds, saves and emails one report (`functions/send-report.ts`). */
+export const SEND_WORKFLOW = 'send-report';
+
+/** What the crons and the action pass to the `send-report` workflow. JSON only. */
+export interface SendParams {
+  type: ReportType;
+  /** ISO time the run was asked for; the report covers the period before it. */
+  now: string;
+  /** Override the configured period. */
+  period?: string;
+  /** Save and send even when the report has nothing in it. */
+  force?: boolean;
+  /** What started it, for the logs. */
+  source: 'schedule' | 'action';
+  /**
+   * The notification's full name. Looked up before the run starts, because a
+   * workflow isn't allowed to read `/:models` ("Workflow runtime API path is
+   * not allowed").
+   */
+  template?: string;
+}
+
+/** Start the `send-report` workflow. Returns as soon as the run is created. */
+export async function startSend(swell: SwellAPI, params: Omit<SendParams, 'template'>) {
+  const template = await resolveTemplate(swell, DEFINITIONS[params.type].template);
+  const run = await swell.workflows.create(SEND_WORKFLOW, { ...params, template });
+  console.log(`${DEFINITIONS[params.type].label}: started ${SEND_WORKFLOW} run ${run?.id} (${params.source}).`);
+  return run;
+}
+
+/**
+ * Workflow step 1: read the settings and build the report. Read-only, so safe
+ * to retry. Returns everything the later steps need, so they don't re-read
+ * settings that may have changed in between.
+ */
+export async function buildForSend(swell: SwellAPI, params: SendParams) {
+  const definition = DEFINITIONS[params.type];
+  const settings = definition.settings(await swell.settings());
+  const period = params.period ?? settings.period;
+  const report = await definition.build(swell, settings, new Date(params.now), period);
+
+  return {
+    report,
+    period,
+    empty: definition.isEmpty(report),
+    recipients: settings.recipients,
+    send_when_empty: settings.send_when_empty,
+  };
+}
+
+/** Workflow step 2: store the report record. Throws if Swell doesn't return an id. */
+export async function saveForSend(swell: SwellAPI, type: ReportType, report: Record<string, any>) {
+  const created = await swell.post(`/${DEFINITIONS[type].collection}`, report);
+  if (!created?.id) {
+    throw new Error(
+      `${DEFINITIONS[type].label} was not saved: ${created?.errors ? JSON.stringify(created.errors) : 'no id returned'}`,
+    );
+  }
+  return created.id as string;
+}
+
+/** `<collection>.<notification>` for a type, to resolve before emailing. */
+export function notificationTemplate(type: ReportType) {
+  return DEFINITIONS[type].template;
+}
+
+/** The one-line summary used in log lines. */
+export function reportSummary(type: ReportType, report: any) {
+  return DEFINITIONS[type].summary(report);
+}
+
 /**
  * Entry point for a type's cron, which runs every hour: honour the toggles,
- * then send only in the store's send hour (08:00 local) on a day the period
- * is due.
+ * then start the `send-report` workflow only in the store's send hour (08:00
+ * local) on a day the period is due.
  */
 export async function runScheduled(swell: SwellAPI, type: ReportType, now: Date = new Date()) {
   const definition = DEFINITIONS[type];
@@ -221,23 +299,17 @@ export async function runScheduled(swell: SwellAPI, type: ReportType, now: Date 
   }
 
   if (!isDueToday(settings.period, now, settings.timeZone)) {
+    console.log(`${definition.label} skipped: ${settings.period} report is not due today.`);
     return { type, skipped: 'not_due', period: settings.period };
   }
 
-  const result = await generate(swell, type, { save: true, now });
+  const run = await startSend(swell, { type, now: now.toISOString(), source: 'schedule' });
+  return { type, started: run?.id };
+}
 
-  if (result.skipped) {
-    console.log(`${definition.label} skipped: nothing to report for ${result.report.period_label}.`);
-    return { type, skipped: result.skipped, period: result.report.period_label };
-  }
-
-  return {
-    type,
-    report_id: result.report_id,
-    period: result.report.period_label,
-    extra_recipients_sent: result.extra_recipients_sent,
-    extra_recipients_failed: result.extra_recipients_failed,
-  };
+/** Recipients a type's report goes to, for the action's reply. */
+export async function recipientsFor(swell: SwellAPI, type: ReportType) {
+  return DEFINITIONS[type].settings(await swell.settings()).recipients;
 }
 
 /** Whether a type's own toggle (and the master switch) is on. */

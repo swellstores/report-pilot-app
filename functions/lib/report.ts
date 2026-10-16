@@ -710,48 +710,77 @@ export async function sendToExtraRecipients(
   const errors: string[] = [];
 
   for (const to of recipients) {
-    try {
-      const notification = await swell.post('/notifications', {
-        template: fullTemplate,
-        record_id: recordId,
-        to,
-      });
-      if (notification?.id) {
-        created.push({ to, id: notification.id });
-      } else {
-        errors.push(`${to}: ${notification?.errors ? JSON.stringify(notification.errors) : 'not created'}`);
-      }
-    } catch (error) {
-      // Kept and returned as well as logged: a swallowed failure with no
-      // visible reason is how this feature stayed broken unnoticed before.
-      const message = error instanceof Error ? error.message : String(error);
-      errors.push(`${to}: ${message}`);
-      console.error(`Report copy to ${to} failed:`, error);
+    const result = await createRecipientNotification(swell, fullTemplate, recordId, to);
+    if (result.id) {
+      created.push({ to, id: result.id });
+    } else {
+      errors.push(`${to}: ${result.error}`);
     }
   }
 
   // A created notification record is not a delivered email: Swell renders it a
   // moment later and records a problem (such as "Notification template not
   // found") on the record's `error` field. Check once so the result is honest.
-  let sent = created.length;
   if (created.length) {
     await new Promise((resolve) => setTimeout(resolve, DELIVERY_CHECK_MS));
-    for (const { to, id } of created) {
-      try {
-        const record = await swell.get(`/notifications/${id}`);
-        if (record?.error) {
-          sent--;
-          errors.push(`${to}: ${record.error}`);
-          console.error(`Report copy to ${to} failed: ${record.error} (template ${fullTemplate})`);
-        }
-      } catch (error) {
-        // Could not read it back; leave it counted as sent.
-        console.warn(`Could not check delivery to ${to}:`, error);
-      }
-    }
+    errors.push(...(await checkRecipientDelivery(swell, fullTemplate, created)));
   }
 
-  return { sent, failed: errors.length, errors };
+  return { sent: recipients.length - errors.length, failed: errors.length, errors };
+}
+
+/**
+ * Create the notification record that emails one stored report to one
+ * address. Never throws: a failure comes back as `error`, so one bad address
+ * can't stop the others.
+ */
+export async function createRecipientNotification(
+  swell: Pick<SwellAPI, 'post'>,
+  fullTemplate: string,
+  recordId: string,
+  to: string,
+): Promise<{ id?: string; error?: string }> {
+  try {
+    const notification = await swell.post('/notifications', {
+      template: fullTemplate,
+      record_id: recordId,
+      to,
+    });
+    if (notification?.id) {
+      return { id: notification.id as string };
+    }
+    return { error: notification?.errors ? JSON.stringify(notification.errors) : 'not created' };
+  } catch (error) {
+    // Kept and returned as well as logged: a swallowed failure with no
+    // visible reason is how this feature stayed broken unnoticed before.
+    console.error(`Report copy to ${to} failed:`, error);
+    return { error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+/**
+ * Read back notification records a moment after creating them, and return a
+ * `"<address>: <error>"` line for each one Swell couldn't send.
+ */
+export async function checkRecipientDelivery(
+  swell: Pick<SwellAPI, 'get'>,
+  fullTemplate: string,
+  created: { to: string; id: string }[],
+): Promise<string[]> {
+  const errors: string[] = [];
+  for (const { to, id } of created) {
+    try {
+      const record = await swell.get(`/notifications/${id}`);
+      if (record?.error) {
+        errors.push(`${to}: ${record.error}`);
+        console.error(`Report copy to ${to} failed: ${record.error} (template ${fullTemplate})`);
+      }
+    } catch (error) {
+      // Could not read it back; leave it counted as sent.
+      console.warn(`Could not check delivery to ${to}:`, error);
+    }
+  }
+  return errors;
 }
 
 /** How long to wait before checking whether Swell accepted the notifications. */
@@ -769,7 +798,11 @@ const resolvedTemplates = new Map<string, string>();
  * `GET /:models`, which is where Swell documents it. If more than one installed
  * app has a collection of that name, the most recently installed one wins.
  */
-async function resolveTemplate(swell: SwellAPI, template: string): Promise<string> {
+export async function resolveTemplate(
+  swell: Pick<SwellAPI, 'get'>,
+  template: string,
+  options: { strict?: boolean } = {},
+): Promise<string> {
   const cached = resolvedTemplates.get(template);
   if (cached) {
     return cached;
@@ -794,6 +827,11 @@ async function resolveTemplate(swell: SwellAPI, template: string): Promise<strin
       console.warn(`No app model found for ${collection}; sending ${template} with the short name.`);
     }
   } catch (error) {
+    // A caller that can retry (the send-report workflow) gets the error, so a
+    // brief API failure doesn't send every email to the short name.
+    if (options.strict) {
+      throw error;
+    }
     // Reading /:models needs the `read_:models` permission in swell.json.
     console.warn(`Could not look up the app id for ${template} (needs read_:models):`, error);
   }
