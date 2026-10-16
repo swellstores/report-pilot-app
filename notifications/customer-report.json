@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json.swell.store/notification.json",
+  "collection": "customerreports",
+  "label": "Customer report",
+  "description": "Emails the customer activity summary to the recipients listed in the Report Pilot app settings each time a report is generated.",
+  "method": "email",
+  "event": "created",
+  "enabled": true,
+  "admin": true,
+  "new": true,
+  "repeat": true,
+  "subject": "Customers: {{ period_label }} — {{ customer_count }} bought, {{ new_customer_count }} new",
+  "conditions": { "id": { "$exists": false } },
+  "fields": [
+    {
+      "id": "intro",
+      "label": "Intro line",
+      "type": "short_text",
+      "default": "Here's who bought from the store."
+    },
+    {
+      "id": "footer",
+      "label": "Footer note",
+      "type": "long_text",
+      "default": "You're receiving this because your address is listed as a recipient in the Report Pilot app settings. Change how often the customer report is sent, turn it off, or remove your address there."
+    }
+  ],
+  "sample": {
+    "period_label": "Oct 5 – Oct 11, 2026",
+    "period_start": "2026-10-05T00:00:00.000Z",
+    "period_end": "2026-10-12T00:00:00.000Z",
+    "currency": "USD",
+    "customer_count": 98,
+    "prev_customer_count": 87,
+    "customer_change_pct": 12.64,
+    "new_customer_count": 46,
+    "returning_customer_count": 52,
+    "repeat_buyer_count": 14,
+    "repeat_rate_pct": 14.29,
+    "returning_rate_pct": 53.06,
+    "average_spend": 159.57,
+    "truncated": false,
+    "top_customers": [
+      {
+        "account_id": "8001",
+        "name": "Ada Lovelace",
+        "email": "ada@example.com",
+        "orders": 3,
+        "spend": 912.4,
+        "lifetime_value": 2410.75,
+        "lifetime_orders": 11,
+        "is_new": false
+      },
+      {
+        "account_id": "8002",
+        "name": "Grace Hopper",
+        "email": "grace@example.com",
+        "orders": 1,
+        "spend": 499.99,
+        "lifetime_value": 499.99,
+        "lifetime_orders": 1,
+        "is_new": true
+      },
+      {
+        "account_id": "8003",
+        "name": "Alan Turing",
+        "email": "alan@example.com",
+        "orders": 2,
+        "spend": 331.2,
+        "lifetime_value": 1022.0,
+        "lifetime_orders": 6,
+        "is_new": false
+      }
+    ]
+  }
+}

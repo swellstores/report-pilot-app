@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json.swell.store/model.json",
+  "collection": "customerreports",
+  "description": "Customer activity for a single reporting period.",
+  "label": "Customer report",
+  "plural": "Customer reports",
+  "name_field": "period_label",
+  "primary_field": "period_label",
+  "secondary_field": "customer_count",
+  "fields": {
+    "period_label": {
+      "type": "string",
+      "label": "Period",
+      "description": "Human-readable label for the reporting period.",
+      "required": true
+    },
+    "period_start": {
+      "type": "date",
+      "label": "Period start",
+      "description": "Inclusive start of the reporting window.",
+      "required": true
+    },
+    "period_end": {
+      "type": "date",
+      "label": "Period end",
+      "description": "Exclusive end of the reporting window.",
+      "required": true
+    },
+    "currency": {
+      "type": "string",
+      "label": "Currency",
+      "default": "USD"
+    },
+    "customer_count": {
+      "type": "int",
+      "label": "Customers",
+      "description": "Distinct accounts with a paid order in the period.",
+      "default": 0
+    },
+    "prev_customer_count": {
+      "type": "int",
+      "label": "Previous period customers",
+      "default": 0
+    },
+    "customer_change_pct": {
+      "type": "float",
+      "label": "Customer change %",
+      "scale": 2
+    },
+    "new_customer_count": {
+      "type": "int",
+      "label": "New customers",
+      "description": "First paid order fell in this period.",
+      "default": 0
+    },
+    "returning_customer_count": {
+      "type": "int",
+      "label": "Returning customers",
+      "description": "Had a paid order before this period.",
+      "default": 0
+    },
+    "repeat_buyer_count": {
+      "type": "int",
+      "label": "Repeat buyers",
+      "description": "Placed two or more paid orders in this period.",
+      "default": 0
+    },
+    "repeat_rate_pct": {
+      "type": "float",
+      "label": "Repeat rate %",
+      "scale": 2
+    },
+    "returning_rate_pct": {
+      "type": "float",
+      "label": "Returning rate %",
+      "scale": 2
+    },
+    "average_spend": {
+      "type": "currency",
+      "label": "Average spend per customer",
+      "default": 0
+    },
+    "top_customers": {
+      "type": "array",
+      "label": "Top customers",
+      "description": "Highest-spending customers in the period.",
+      "value_type": "object",
+      "fields": {
+        "account_id": {
+          "type": "string",
+          "label": "Account ID"
+        },
+        "name": {
+          "type": "string",
+          "label": "Customer"
+        },
+        "email": {
+          "type": "string",
+          "label": "Email"
+        },
+        "orders": {
+          "type": "int",
+          "label": "Orders",
+          "default": 0
+        },
+        "spend": {
+          "type": "currency",
+          "label": "Spend",
+          "default": 0
+        },
+        "lifetime_value": {
+          "type": "currency",
+          "label": "Lifetime value",
+          "default": 0
+        },
+        "lifetime_orders": {
+          "type": "int",
+          "label": "Lifetime orders",
+          "default": 0
+        },
+        "is_new": {
+          "type": "bool",
+          "label": "New customer"
+        }
+      }
+    },
+    "truncated": {
+      "type": "bool",
+      "label": "Partial",
+      "description": "Set when a read hit its page ceiling, so counts are a lower bound.",
+      "default": false
+    },
+    "summary": {
+      "type": "string",
+      "label": "Summary",
+      "description": "Display only: the dashboard draws the headline figures here from the report's other fields. Never stored."
+    }
+  },
+  "events": {
+    "types": [
+      {
+        "id": "created",
+        "description": "A new customer report was generated for a reporting period."
+      }
+    ]
+  }
+}

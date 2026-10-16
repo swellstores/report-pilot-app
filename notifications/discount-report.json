@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json.swell.store/notification.json",
+  "collection": "discountreports",
+  "label": "Discount report",
+  "description": "Emails the discount and coupon usage summary to the recipients listed in the Report Pilot app settings each time a report is generated.",
+  "method": "email",
+  "event": "created",
+  "enabled": true,
+  "admin": true,
+  "new": true,
+  "repeat": true,
+  "subject": "Discounts: {{ period_label }} — {{ discount_total | currency }} off {{ discounted_order_count }} orders",
+  "conditions": { "id": { "$exists": false } },
+  "fields": [
+    {
+      "id": "intro",
+      "label": "Intro line",
+      "type": "short_text",
+      "default": "Here's how discounts were used."
+    },
+    {
+      "id": "footer",
+      "label": "Footer note",
+      "type": "long_text",
+      "default": "You're receiving this because your address is listed as a recipient in the Report Pilot app settings. Change how often the discount report is sent, turn it off, or remove your address there."
+    }
+  ],
+  "sample": {
+    "period_label": "Oct 5 – Oct 11, 2026",
+    "period_start": "2026-10-05T00:00:00.000Z",
+    "period_end": "2026-10-12T00:00:00.000Z",
+    "currency": "USD",
+    "order_count": 128,
+    "grand_total": 15637.85,
+    "sub_total": 14320.5,
+    "discount_total": 640.25,
+    "discounted_order_count": 31,
+    "discounted_revenue": 3902.1,
+    "discounted_order_pct": 24.22,
+    "discount_rate_pct": 14.1,
+    "discounted_aov": 125.87,
+    "full_price_aov": 121.04,
+    "prev_discount_total": 512.8,
+    "discount_change_pct": 24.85,
+    "discounts_hidden": 0,
+    "truncated": false,
+    "discounts": [
+      {
+        "type": "coupon",
+        "label": "FALL15",
+        "orders": 18,
+        "discount": 402.6,
+        "revenue": 2281.4,
+        "average_discount": 22.37
+      },
+      {
+        "type": "promotion",
+        "label": "Free gift over $100",
+        "orders": 9,
+        "discount": 180,
+        "revenue": 1320.7,
+        "average_discount": 20
+      },
+      {
+        "type": "other",
+        "label": "Item-level or manual discounts",
+        "orders": 4,
+        "discount": 57.65,
+        "revenue": 300,
+        "average_discount": 14.41
+      }
+    ]
+  }
+}

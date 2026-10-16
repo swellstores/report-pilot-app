@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json.swell.store/model.json",
+  "collection": "subscriptionreports",
+  "description": "Subscription activity for a single reporting period.",
+  "label": "Subscription report",
+  "plural": "Subscription reports",
+  "name_field": "period_label",
+  "primary_field": "period_label",
+  "secondary_field": "active_count",
+  "fields": {
+    "period_label": {
+      "type": "string",
+      "label": "Period",
+      "description": "Human-readable label for the reporting period.",
+      "required": true
+    },
+    "period_start": {
+      "type": "date",
+      "label": "Period start",
+      "description": "Inclusive start of the reporting window.",
+      "required": true
+    },
+    "period_end": {
+      "type": "date",
+      "label": "Period end",
+      "description": "Exclusive end of the reporting window.",
+      "required": true
+    },
+    "currency": {
+      "type": "string",
+      "label": "Currency",
+      "default": "USD"
+    },
+    "active_count": {
+      "type": "int",
+      "label": "Active subscriptions",
+      "description": "Paying subscriptions when the report ran.",
+      "default": 0
+    },
+    "trial_count": {
+      "type": "int",
+      "label": "On trial",
+      "description": "Subscriptions in a free trial when the report ran.",
+      "default": 0
+    },
+    "monthly_recurring_revenue": {
+      "type": "currency",
+      "label": "Monthly recurring revenue",
+      "description": "What paying subscriptions bring in per month.",
+      "default": 0
+    },
+    "new_count": {
+      "type": "int",
+      "label": "New subscriptions",
+      "description": "Started in the period.",
+      "default": 0
+    },
+    "prev_new_count": {
+      "type": "int",
+      "label": "Previous period new",
+      "default": 0
+    },
+    "new_change_pct": {
+      "type": "float",
+      "label": "New change %",
+      "scale": 2
+    },
+    "canceled_count": {
+      "type": "int",
+      "label": "Canceled",
+      "description": "Canceled in the period.",
+      "default": 0
+    },
+    "prev_canceled_count": {
+      "type": "int",
+      "label": "Previous period canceled",
+      "default": 0
+    },
+    "canceled_change_pct": {
+      "type": "float",
+      "label": "Canceled change %",
+      "scale": 2
+    },
+    "net_change": {
+      "type": "int",
+      "label": "Net change",
+      "description": "New minus canceled in the period.",
+      "default": 0
+    },
+    "canceled_monthly_value": {
+      "type": "currency",
+      "label": "Monthly value canceled",
+      "default": 0
+    },
+    "paused_count": {
+      "type": "int",
+      "label": "Paused",
+      "description": "Paused when the report ran.",
+      "default": 0
+    },
+    "paused_in_period": {
+      "type": "int",
+      "label": "Paused in the period",
+      "default": 0
+    },
+    "past_due_count": {
+      "type": "int",
+      "label": "Past due",
+      "description": "Renewal payment failed: past due or unpaid.",
+      "default": 0
+    },
+    "renewals_next_7_days": {
+      "type": "int",
+      "label": "Renewals in the next 7 days",
+      "default": 0
+    },
+    "renewals_next_7_days_value": {
+      "type": "currency",
+      "label": "Renewal value in the next 7 days",
+      "default": 0
+    },
+    "trials_ending_next_7_days": {
+      "type": "int",
+      "label": "Trials ending in the next 7 days",
+      "default": 0
+    },
+    "plans": {
+      "type": "array",
+      "label": "By plan",
+      "description": "Running subscriptions by plan.",
+      "value_type": "object",
+      "fields": {
+        "plan": {
+          "type": "string",
+          "label": "Plan"
+        },
+        "paying": {
+          "type": "int",
+          "label": "Paying",
+          "default": 0
+        },
+        "trial": {
+          "type": "int",
+          "label": "On trial",
+          "default": 0
+        },
+        "monthly_revenue": {
+          "type": "currency",
+          "label": "Monthly revenue",
+          "default": 0
+        }
+      }
+    },
+    "canceled_subscriptions": {
+      "type": "array",
+      "label": "Canceled subscriptions",
+      "description": "Subscriptions canceled in the period, highest monthly value first.",
+      "value_type": "object",
+      "fields": {
+        "subscription_id": {
+          "type": "string",
+          "label": "Subscription ID"
+        },
+        "account_id": {
+          "type": "string",
+          "label": "Account ID"
+        },
+        "customer": {
+          "type": "string",
+          "label": "Customer"
+        },
+        "plan": {
+          "type": "string",
+          "label": "Plan"
+        },
+        "canceled_date": {
+          "type": "string",
+          "label": "Canceled",
+          "description": "Day, as YYYY-MM-DD."
+        },
+        "monthly_value": {
+          "type": "currency",
+          "label": "Monthly value",
+          "default": 0
+        }
+      }
+    },
+    "canceled_hidden": {
+      "type": "int",
+      "label": "Canceled not listed",
+      "description": "Canceled subscriptions beyond the 10 listed.",
+      "default": 0
+    },
+    "past_due_subscriptions": {
+      "type": "array",
+      "label": "Failed renewals",
+      "description": "Subscriptions whose renewal payment failed.",
+      "value_type": "object",
+      "fields": {
+        "subscription_id": {
+          "type": "string",
+          "label": "Subscription ID"
+        },
+        "account_id": {
+          "type": "string",
+          "label": "Account ID"
+        },
+        "customer": {
+          "type": "string",
+          "label": "Customer"
+        },
+        "plan": {
+          "type": "string",
+          "label": "Plan"
+        },
+        "amount": {
+          "type": "currency",
+          "label": "Amount due",
+          "default": 0
+        },
+        "status": {
+          "type": "string",
+          "label": "Status"
+        }
+      }
+    },
+    "past_due_hidden": {
+      "type": "int",
+      "label": "Past due not listed",
+      "description": "Past due subscriptions beyond the 10 listed.",
+      "default": 0
+    },
+    "truncated": {
+      "type": "bool",
+      "label": "Partial",
+      "description": "Set when a read hit its page ceiling, so counts are a lower bound.",
+      "default": false
+    },
+    "summary": {
+      "type": "string",
+      "label": "Summary",
+      "description": "Display only: the dashboard draws the headline figures here from the report's other fields. Never stored."
+    }
+  },
+  "events": {
+    "types": [
+      {
+        "id": "created",
+        "description": "A new subscription report was generated for a reporting period."
+      }
+    ]
+  }
+}

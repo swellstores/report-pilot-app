@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json.swell.store/model.json",
+  "collection": "reports",
+  "description": "A generated sales and revenue report covering a single reporting period",
+  "label": "Sales report",
+  "plural": "Sales reports",
+  "name_field": "period_label",
+  "primary_field": "period_label",
+  "secondary_field": "grand_total",
+  "fields": {
+    "period_label": {
+      "type": "string",
+      "label": "Period",
+      "description": "Human-readable label for the reporting period, e.g. 'Aug 18-24, 2026'.",
+      "required": true
+    },
+    "period_start": {
+      "type": "date",
+      "label": "Period start",
+      "description": "Inclusive start of the reporting window.",
+      "required": true
+    },
+    "period_end": {
+      "type": "date",
+      "label": "Period end",
+      "description": "Exclusive end of the reporting window.",
+      "required": true
+    },
+    "currency": {
+      "type": "string",
+      "label": "Currency",
+      "description": "Currency the monetary totals are reported in.",
+      "default": "USD"
+    },
+    "order_count": {
+      "type": "int",
+      "label": "Orders",
+      "description": "Number of paid, non-cancelled orders in the period.",
+      "default": 0
+    },
+    "item_quantity": {
+      "type": "int",
+      "label": "Items sold",
+      "description": "Total quantity of items across all counted orders.",
+      "default": 0
+    },
+    "sub_total": {
+      "type": "currency",
+      "label": "Subtotal",
+      "description": "Sum of order subtotals before discounts, tax and shipping.",
+      "default": 0
+    },
+    "discount_total": {
+      "type": "currency",
+      "label": "Discounts",
+      "description": "Total discounts applied across counted orders.",
+      "default": 0
+    },
+    "shipping_total": {
+      "type": "currency",
+      "label": "Shipping",
+      "description": "Total shipping charged across counted orders.",
+      "default": 0
+    },
+    "tax_total": {
+      "type": "currency",
+      "label": "Tax",
+      "description": "Total tax collected across counted orders.",
+      "default": 0
+    },
+    "grand_total": {
+      "type": "currency",
+      "label": "Revenue",
+      "description": "Total revenue (grand total) across counted orders.",
+      "default": 0
+    },
+    "average_order_value": {
+      "type": "currency",
+      "label": "Average order value",
+      "description": "Revenue divided by order count.",
+      "default": 0
+    },
+    "cancelled_count": {
+      "type": "int",
+      "label": "Cancelled orders",
+      "description": "Orders created in the period that were cancelled.",
+      "default": 0
+    },
+    "unpaid_count": {
+      "type": "int",
+      "label": "Unpaid orders",
+      "description": "Orders created in the period that are not yet paid.",
+      "default": 0
+    },
+    "new_customer_count": {
+      "type": "int",
+      "label": "New customers",
+      "description": "Distinct accounts whose first counted order fell in this period.",
+      "default": 0
+    },
+    "returning_customer_count": {
+      "type": "int",
+      "label": "Returning customers",
+      "description": "Distinct accounts in this period that had ordered before it.",
+      "default": 0
+    },
+    "prev_order_count": {
+      "type": "int",
+      "label": "Previous period orders",
+      "description": "Order count for the immediately preceding period of equal length.",
+      "default": 0
+    },
+    "prev_grand_total": {
+      "type": "currency",
+      "label": "Previous period revenue",
+      "description": "Revenue for the immediately preceding period of equal length.",
+      "default": 0
+    },
+    "revenue_change_pct": {
+      "type": "float",
+      "label": "Revenue change %",
+      "description": "Percent change in revenue versus the previous period. Null when there is no prior revenue to compare against.",
+      "scale": 2
+    },
+    "order_change_pct": {
+      "type": "float",
+      "label": "Order change %",
+      "description": "Percent change in order count versus the previous period. Null when there were no prior orders.",
+      "scale": 2
+    },
+    "top_products": {
+      "type": "array",
+      "label": "Top products",
+      "description": "Best-selling products in the period, ranked by revenue.",
+      "value_type": "object",
+      "fields": {
+        "product_id": {
+          "type": "string",
+          "label": "Product ID"
+        },
+        "name": {
+          "type": "string",
+          "label": "Product"
+        },
+        "quantity": {
+          "type": "int",
+          "label": "Quantity",
+          "default": 0
+        },
+        "revenue": {
+          "type": "currency",
+          "label": "Revenue",
+          "default": 0
+        }
+      }
+    },
+    "top_products_truncated": {
+      "type": "bool",
+      "label": "Top products partial",
+      "description": "Set when the period had more paid orders than the ranking reads, so the list is partial.",
+      "default": false
+    },
+    "daily_totals": {
+      "type": "array",
+      "label": "Daily breakdown",
+      "description": "Per-day order count and revenue across the period.",
+      "value_type": "object",
+      "fields": {
+        "date": {
+          "type": "string",
+          "label": "Date"
+        },
+        "orders": {
+          "type": "int",
+          "label": "Orders",
+          "default": 0
+        },
+        "revenue": {
+          "type": "currency",
+          "label": "Revenue",
+          "default": 0
+        }
+      }
+    },
+    "summary": {
+      "type": "string",
+      "label": "Summary",
+      "description": "Display only: the dashboard draws the headline figures here from the report's other fields. Never stored."
+    }
+  },
+  "events": {
+    "types": [
+      {
+        "id": "created",
+        "description": "A new sales report was generated for a reporting period."
+      }
+    ]
+  }
+}

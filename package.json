@@ -1,0 +1,21 @@
+{
+  "description": "Automated store reports delivered by email",
+  "devDependencies": {
+    "@swell/app-types": "^1.2.9",
+    "@swell/apps-sdk": "^2.0.0-alpha.7",
+    "preact": "^10.29.8",
+    "typescript": "^7.0.2"
+  },
+  "name": "report_pilot",
+  "private": true,
+  "scripts": {
+    "assets": "npm run icon && npm run cover",
+    "cover": "node scripts/make-cover.js assets/image.png",
+    "icon": "node scripts/make-icon.js assets/icon.png",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p components"
+  },
+  "version": "1.0.0",
+  "workspaces": [
+    "frontend"
+  ]
+}

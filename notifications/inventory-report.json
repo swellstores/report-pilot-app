@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json.swell.store/notification.json",
+  "collection": "inventoryreports",
+  "label": "Inventory report",
+  "description": "Emails the out-of-stock and low-stock report to the recipients listed in the Report Pilot app settings each time a snapshot is taken.",
+  "method": "email",
+  "event": "created",
+  "enabled": true,
+  "admin": true,
+  "new": true,
+  "repeat": true,
+  "subject": "Inventory: {{ out_of_stock_count }} out of stock, {{ low_stock_count }} running low",
+  "conditions": { "id": { "$exists": false } },
+  "fields": [
+    {
+      "id": "intro",
+      "label": "Intro line",
+      "type": "short_text",
+      "default": "Here's what needs restocking."
+    },
+    {
+      "id": "footer",
+      "label": "Footer note",
+      "type": "long_text",
+      "default": "You're receiving this because your address is listed as a recipient in the Report Pilot app settings. Change how often the inventory report is sent, turn it off, or remove your address there."
+    }
+  ],
+  "sample": {
+    "period_label": "Oct 12, 2026",
+    "snapshot_at": "2026-10-12T08:05:00.000Z",
+    "low_stock_threshold": 5,
+    "tracked_count": 64,
+    "out_of_stock_count": 2,
+    "low_stock_count": 3,
+    "attention_pct": 7.81,
+    "items_hidden": 0,
+    "truncated": false,
+    "items": [
+      {
+        "product_id": "7001",
+        "variant_id": null,
+        "name": "Canvas Weekender Bag",
+        "sku": "CWB-01",
+        "stock_level": 0,
+        "status": "out_of_stock",
+        "sold_30d": 21,
+        "days_of_cover": 0
+      },
+      {
+        "product_id": "7002",
+        "variant_id": "7102",
+        "name": "Merino Crew Sweater — Navy / M",
+        "sku": "MCS-NV-M",
+        "stock_level": -1,
+        "status": "out_of_stock",
+        "sold_30d": 9,
+        "days_of_cover": 0
+      },
+      {
+        "product_id": "7002",
+        "variant_id": "7103",
+        "name": "Merino Crew Sweater — Navy / L",
+        "sku": "MCS-NV-L",
+        "stock_level": 3,
+        "status": "low_stock",
+        "sold_30d": 18,
+        "days_of_cover": 5
+      },
+      {
+        "product_id": "7003",
+        "variant_id": null,
+        "name": "Leather Card Holder",
+        "sku": "LCH-01",
+        "stock_level": 4,
+        "status": "low_stock",
+        "sold_30d": 12,
+        "days_of_cover": 10
+      },
+      {
+        "product_id": "7004",
+        "variant_id": null,
+        "name": "Wool Beanie",
+        "sku": null,
+        "stock_level": 2,
+        "status": "low_stock",
+        "sold_30d": 0,
+        "days_of_cover": null
+      }
+    ]
+  }
+}

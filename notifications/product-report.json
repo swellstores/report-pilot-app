@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json.swell.store/notification.json",
+  "collection": "productreports",
+  "label": "Product report",
+  "description": "Emails the product summary to the recipients listed in the Report Pilot app settings each time a report is generated.",
+  "method": "email",
+  "event": "created",
+  "enabled": true,
+  "admin": true,
+  "new": true,
+  "repeat": true,
+  "subject": "Products: {{ period_label }} — {{ products_sold_count }} sold, {{ unsold_count }} with no sales",
+  "conditions": { "id": { "$exists": false } },
+  "fields": [
+    {
+      "id": "intro",
+      "label": "Intro line",
+      "type": "short_text",
+      "default": "Here's how your products performed."
+    },
+    {
+      "id": "footer",
+      "label": "Footer note",
+      "type": "long_text",
+      "default": "You're receiving this because your address is listed as a recipient in the Report Pilot app settings. Change how often the product report is sent, turn it off, or remove your address there."
+    }
+  ],
+  "sample": {
+    "period_label": "Oct 5 – Oct 11, 2026",
+    "period_start": "2026-10-05T00:00:00.000Z",
+    "period_end": "2026-10-12T00:00:00.000Z",
+    "currency": "USD",
+    "products_sold_count": 37,
+    "prev_products_sold_count": 34,
+    "units_sold": 214,
+    "item_revenue": 14320.5,
+    "top_share_pct": 61.4,
+    "include_unsold": true,
+    "unsold_count": 6,
+    "truncated": false,
+    "top_products": [
+      {
+        "product_id": "6001",
+        "name": "Merino Crew Sweater",
+        "quantity": 38,
+        "revenue": 3420,
+        "prev_quantity": 30,
+        "prev_revenue": 2700,
+        "revenue_change_pct": 26.67
+      },
+      {
+        "product_id": "6002",
+        "name": "Canvas Weekender Bag",
+        "quantity": 21,
+        "revenue": 2519.79,
+        "prev_quantity": 24,
+        "prev_revenue": 2879.76,
+        "revenue_change_pct": -12.5
+      },
+      {
+        "product_id": "6003",
+        "name": "Leather Card Holder",
+        "quantity": 44,
+        "revenue": 1759.56,
+        "prev_quantity": 0,
+        "prev_revenue": 0,
+        "revenue_change_pct": null
+      }
+    ],
+    "movers": [
+      {
+        "product_id": "6003",
+        "name": "Leather Card Holder",
+        "revenue": 1759.56,
+        "prev_revenue": 0,
+        "change": 1759.56,
+        "revenue_change_pct": null
+      },
+      {
+        "product_id": "6001",
+        "name": "Merino Crew Sweater",
+        "revenue": 3420,
+        "prev_revenue": 2700,
+        "change": 720,
+        "revenue_change_pct": 26.67
+      },
+      {
+        "product_id": "6004",
+        "name": "Wool Beanie",
+        "revenue": 120,
+        "prev_revenue": 540,
+        "change": -420,
+        "revenue_change_pct": -77.78
+      }
+    ],
+    "slow_products": [
+      {
+        "product_id": "6009",
+        "name": "Gift Wrap",
+        "quantity": 2,
+        "revenue": 10,
+        "prev_quantity": 3,
+        "prev_revenue": 15,
+        "revenue_change_pct": -33.33
+      }
+    ],
+    "unsold_products": [
+      {
+        "product_id": "6010",
+        "name": "Linen Apron"
+      },
+      {
+        "product_id": "6011",
+        "name": "Travel Mug"
+      }
+    ]
+  }
+}

@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json.swell.store/model.json",
+  "collection": "productreports",
+  "description": "Product sales performance for a single reporting period.",
+  "label": "Product report",
+  "plural": "Product reports",
+  "name_field": "period_label",
+  "primary_field": "period_label",
+  "secondary_field": "item_revenue",
+  "fields": {
+    "period_label": {
+      "type": "string",
+      "label": "Period",
+      "description": "Human-readable label for the reporting period.",
+      "required": true
+    },
+    "period_start": {
+      "type": "date",
+      "label": "Period start",
+      "description": "Inclusive start of the reporting window.",
+      "required": true
+    },
+    "period_end": {
+      "type": "date",
+      "label": "Period end",
+      "description": "Exclusive end of the reporting window.",
+      "required": true
+    },
+    "currency": {
+      "type": "string",
+      "label": "Currency",
+      "default": "USD"
+    },
+    "products_sold_count": {
+      "type": "int",
+      "label": "Products sold",
+      "description": "Distinct products with at least one paid sale.",
+      "default": 0
+    },
+    "prev_products_sold_count": {
+      "type": "int",
+      "label": "Previous period products sold",
+      "default": 0
+    },
+    "units_sold": {
+      "type": "int",
+      "label": "Units sold",
+      "default": 0
+    },
+    "item_revenue": {
+      "type": "currency",
+      "label": "Item revenue",
+      "description": "Line-item revenue, before shipping and tax.",
+      "default": 0
+    },
+    "top_share_pct": {
+      "type": "float",
+      "label": "Top products' share %",
+      "scale": 2
+    },
+    "top_products": {
+      "type": "array",
+      "label": "Best sellers",
+      "description": "Ranked by line-item revenue.",
+      "value_type": "object",
+      "fields": {
+        "product_id": {
+          "type": "string",
+          "label": "Product ID"
+        },
+        "name": {
+          "type": "string",
+          "label": "Product"
+        },
+        "quantity": {
+          "type": "int",
+          "label": "Quantity",
+          "default": 0
+        },
+        "revenue": {
+          "type": "currency",
+          "label": "Revenue",
+          "default": 0
+        },
+        "prev_quantity": {
+          "type": "int",
+          "label": "Previous quantity",
+          "default": 0
+        },
+        "prev_revenue": {
+          "type": "currency",
+          "label": "Previous revenue",
+          "default": 0
+        },
+        "revenue_change_pct": {
+          "type": "float",
+          "label": "Revenue change %",
+          "scale": 2
+        }
+      }
+    },
+    "slow_products": {
+      "type": "array",
+      "label": "Slowest sellers",
+      "description": "Products that sold, ranked from the least revenue.",
+      "value_type": "object",
+      "fields": {
+        "product_id": {
+          "type": "string",
+          "label": "Product ID"
+        },
+        "name": {
+          "type": "string",
+          "label": "Product"
+        },
+        "quantity": {
+          "type": "int",
+          "label": "Quantity",
+          "default": 0
+        },
+        "revenue": {
+          "type": "currency",
+          "label": "Revenue",
+          "default": 0
+        },
+        "prev_quantity": {
+          "type": "int",
+          "label": "Previous quantity",
+          "default": 0
+        },
+        "prev_revenue": {
+          "type": "currency",
+          "label": "Previous revenue",
+          "default": 0
+        },
+        "revenue_change_pct": {
+          "type": "float",
+          "label": "Revenue change %",
+          "scale": 2
+        }
+      }
+    },
+    "movers": {
+      "type": "array",
+      "label": "Biggest movers",
+      "description": "Largest revenue change against the previous period.",
+      "value_type": "object",
+      "fields": {
+        "product_id": {
+          "type": "string",
+          "label": "Product ID"
+        },
+        "name": {
+          "type": "string",
+          "label": "Product"
+        },
+        "revenue": {
+          "type": "currency",
+          "label": "Revenue",
+          "default": 0
+        },
+        "prev_revenue": {
+          "type": "currency",
+          "label": "Previous revenue",
+          "default": 0
+        },
+        "change": {
+          "type": "currency",
+          "label": "Change",
+          "default": 0
+        },
+        "revenue_change_pct": {
+          "type": "float",
+          "label": "Change %",
+          "scale": 2
+        }
+      }
+    },
+    "include_unsold": {
+      "type": "bool",
+      "label": "Unsold listed",
+      "default": false
+    },
+    "unsold_count": {
+      "type": "int",
+      "label": "Products with no sales",
+      "description": "Active products older than the period that sold nothing in it.",
+      "default": 0
+    },
+    "unsold_products": {
+      "type": "array",
+      "label": "No sales",
+      "description": "Active products older than the period that sold nothing.",
+      "value_type": "object",
+      "fields": {
+        "product_id": {
+          "type": "string",
+          "label": "Product ID"
+        },
+        "name": {
+          "type": "string",
+          "label": "Product"
+        }
+      }
+    },
+    "unsold_hidden": {
+      "type": "int",
+      "label": "No sales not listed",
+      "description": "Products with no sales beyond the 10 listed.",
+      "default": 0
+    },
+    "truncated": {
+      "type": "bool",
+      "label": "Partial",
+      "description": "Set when a read hit its page ceiling, so rankings are partial.",
+      "default": false
+    },
+    "summary": {
+      "type": "string",
+      "label": "Summary",
+      "description": "Display only: the dashboard draws the headline figures here from the report's other fields. Never stored."
+    }
+  },
+  "events": {
+    "types": [
+      {
+        "id": "created",
+        "description": "A new product report was generated for a reporting period."
+      }
+    ]
+  }
+}

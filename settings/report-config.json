@@ -1,0 +1,450 @@
+{
+  "$schema": "https://json.swell.store/setting.json",
+  "label": "Reports",
+  "description": "Choose which reports are emailed, how often each one runs, and who receives them.",
+  "actions": [
+    {
+      "id": "send_now",
+      "label": "Send a report now",
+      "function": "send-report-now",
+      "hint": "Generate a report and email it right away, without waiting for its schedule.",
+      "loading_label": "Sending…",
+      "modal": {
+        "title": "Send a report now",
+        "description": "The report covers the period it would on its next scheduled run, and goes to the recipients below.",
+        "submit_label": "Send",
+        "fields": [
+          {
+            "id": "report_type",
+            "type": "select",
+            "label": "Report",
+            "default": "sales",
+            "required": true,
+            "options": [
+              {
+                "label": "Sales",
+                "value": "sales"
+              },
+              {
+                "label": "Customers",
+                "value": "customers"
+              },
+              {
+                "label": "Inventory",
+                "value": "inventory"
+              },
+              {
+                "label": "Products",
+                "value": "products"
+              },
+              {
+                "label": "Discounts",
+                "value": "discounts"
+              },
+              {
+                "label": "Abandoned carts",
+                "value": "carts"
+              },
+              {
+                "label": "Subscriptions",
+                "value": "subscriptions"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "fields": [
+    {
+      "id": "enabled",
+      "type": "boolean",
+      "ui": "toggle",
+      "label": "Send scheduled reports",
+      "description": "Master switch. Turn off to stop every scheduled report without uninstalling the app.",
+      "default": true
+    },
+    {
+      "id": "send_when_empty",
+      "type": "boolean",
+      "ui": "toggle",
+      "label": "Send even when there is nothing to report",
+      "description": "When off, a report is skipped if its period had nothing in it — no paid orders, no discounted orders, no customers, no stock running low, no abandoned carts, or no subscription activity.",
+      "default": false
+    },
+    {
+      "id": "recipients",
+      "type": "tags",
+      "label": "Recipients",
+      "description": "Email addresses that receive every report that is switched on. To send a report to someone else as well, add them under that report's tab. Leave both empty to keep reports in the dashboard without emailing anyone.",
+      "placeholder": "finance@example.com"
+    },
+    {
+      "id": "each_report_heading",
+      "type": "component",
+      "component": "SettingsSection",
+      "readonly": true,
+      "params": {
+        "title": "Each report",
+        "description": "Switch each report on, choose how often it runs, and add anyone who should get only that report."
+      }
+    },
+    {
+      "type": "field_group",
+      "label": "Sales",
+      "description": "Revenue, orders, top products and the day-by-day picture.",
+      "fields": [
+        {
+          "id": "sales_enabled",
+          "type": "boolean",
+          "ui": "toggle",
+          "label": "Send the sales report",
+          "default": true
+        },
+        {
+          "id": "period",
+          "type": "select",
+          "label": "Reporting period",
+          "description": "Daily arrives every morning, weekly every Monday, every 2 weeks on alternate Mondays, monthly on the 1st — always at 08:00 UTC.",
+          "default": "weekly",
+          "options": [
+            {
+              "label": "Daily (last 24 hours)",
+              "value": "daily"
+            },
+            {
+              "label": "Weekly (last 7 days)",
+              "value": "weekly"
+            },
+            {
+              "label": "Every 2 weeks (last 14 days)",
+              "value": "biweekly"
+            },
+            {
+              "label": "Monthly (previous calendar month)",
+              "value": "monthly"
+            }
+          ]
+        },
+        {
+          "id": "sales_recipients",
+          "type": "tags",
+          "label": "Also send this report to",
+          "description": "These addresses get only the sales report, in addition to the main recipients list.",
+          "placeholder": "name@example.com"
+        },
+        {
+          "id": "top_products_enabled",
+          "type": "boolean",
+          "ui": "toggle",
+          "label": "Include top products",
+          "description": "Lists the 10 products that earned the most. The report shows 5, with Show more for the rest; the email lists 5. Turn off to leave the list out of the report and email.",
+          "default": true
+        },
+        {
+          "id": "include_daily_breakdown",
+          "type": "boolean",
+          "ui": "toggle",
+          "label": "Include daily breakdown",
+          "description": "Adds a day-by-day table of orders and revenue.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "field_group",
+      "label": "Customers",
+      "description": "Customers who bought, new versus returning, repeat buyers, and your top customers by spend.",
+      "fields": [
+        {
+          "id": "customers_enabled",
+          "type": "boolean",
+          "ui": "toggle",
+          "label": "Send the customer report",
+          "default": false
+        },
+        {
+          "id": "customers_period",
+          "type": "select",
+          "label": "Reporting period",
+          "default": "weekly",
+          "options": [
+            {
+              "label": "Daily (last 24 hours)",
+              "value": "daily"
+            },
+            {
+              "label": "Weekly (last 7 days)",
+              "value": "weekly"
+            },
+            {
+              "label": "Every 2 weeks (last 14 days)",
+              "value": "biweekly"
+            },
+            {
+              "label": "Monthly (previous calendar month)",
+              "value": "monthly"
+            }
+          ]
+        },
+        {
+          "id": "customers_recipients",
+          "type": "tags",
+          "label": "Also send this report to",
+          "description": "These addresses get only the customer report, in addition to the main recipients list.",
+          "placeholder": "name@example.com"
+        },
+        {
+          "id": "top_customers_enabled",
+          "type": "boolean",
+          "ui": "toggle",
+          "label": "Include top customers",
+          "description": "Lists the 10 customers who spent the most. The report shows 5, with Show more for the rest; the email lists 5. Turn off to leave customer names and emails out of the report and email.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "field_group",
+      "label": "Inventory",
+      "description": "What is out of stock or running low, and how many days the remaining stock will last at the last 30 days' rate of sale.",
+      "fields": [
+        {
+          "id": "inventory_enabled",
+          "type": "boolean",
+          "ui": "toggle",
+          "label": "Send the inventory report",
+          "default": false
+        },
+        {
+          "id": "inventory_period",
+          "type": "select",
+          "label": "How often",
+          "default": "weekly",
+          "options": [
+            {
+              "label": "Daily",
+              "value": "daily"
+            },
+            {
+              "label": "Weekly (Mondays)",
+              "value": "weekly"
+            },
+            {
+              "label": "Every 2 weeks (alternate Mondays)",
+              "value": "biweekly"
+            },
+            {
+              "label": "Monthly (the 1st)",
+              "value": "monthly"
+            }
+          ]
+        },
+        {
+          "id": "inventory_recipients",
+          "type": "tags",
+          "label": "Also send this report to",
+          "description": "These addresses get only the inventory report, in addition to the main recipients list.",
+          "placeholder": "name@example.com"
+        },
+        {
+          "id": "low_stock_threshold",
+          "type": "number",
+          "label": "Low stock threshold",
+          "description": "Stock-tracked products and variants at or below this level are listed as low. Each report lists up to 50 out-of-stock and low items.",
+          "default": 5,
+          "min": 0,
+          "max": 1000
+        }
+      ]
+    },
+    {
+      "type": "field_group",
+      "label": "Products",
+      "description": "Best and slowest sellers, the biggest movers against the previous period, and products that did not sell.",
+      "fields": [
+        {
+          "id": "products_enabled",
+          "type": "boolean",
+          "ui": "toggle",
+          "label": "Send the product report",
+          "default": false
+        },
+        {
+          "id": "products_period",
+          "type": "select",
+          "label": "Reporting period",
+          "default": "weekly",
+          "options": [
+            {
+              "label": "Daily (last 24 hours)",
+              "value": "daily"
+            },
+            {
+              "label": "Weekly (last 7 days)",
+              "value": "weekly"
+            },
+            {
+              "label": "Every 2 weeks (last 14 days)",
+              "value": "biweekly"
+            },
+            {
+              "label": "Monthly (previous calendar month)",
+              "value": "monthly"
+            }
+          ]
+        },
+        {
+          "id": "products_recipients",
+          "type": "tags",
+          "label": "Also send this report to",
+          "description": "These addresses get only the product report, in addition to the main recipients list.",
+          "placeholder": "name@example.com"
+        },
+        {
+          "id": "include_unsold_products",
+          "type": "boolean",
+          "ui": "toggle",
+          "label": "List products with no sales",
+          "description": "Active products, older than the period, that sold nothing in it.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "field_group",
+      "label": "Discounts",
+      "description": "How much was discounted, through which coupons and promotions, and the revenue those orders brought in.",
+      "fields": [
+        {
+          "id": "discounts_enabled",
+          "type": "boolean",
+          "ui": "toggle",
+          "label": "Send the discount report",
+          "default": false
+        },
+        {
+          "id": "discounts_period",
+          "type": "select",
+          "label": "Reporting period",
+          "default": "weekly",
+          "options": [
+            {
+              "label": "Daily (last 24 hours)",
+              "value": "daily"
+            },
+            {
+              "label": "Weekly (last 7 days)",
+              "value": "weekly"
+            },
+            {
+              "label": "Every 2 weeks (last 14 days)",
+              "value": "biweekly"
+            },
+            {
+              "label": "Monthly (previous calendar month)",
+              "value": "monthly"
+            }
+          ]
+        },
+        {
+          "id": "discounts_recipients",
+          "type": "tags",
+          "label": "Also send this report to",
+          "description": "These addresses get only the discount report, in addition to the main recipients list.",
+          "placeholder": "name@example.com"
+        }
+      ]
+    },
+    {
+      "type": "field_group",
+      "label": "Abandoned carts",
+      "description": "Carts customers left without checking out, how many came back as orders, and the products most often left behind.",
+      "fields": [
+        {
+          "id": "carts_enabled",
+          "type": "boolean",
+          "ui": "toggle",
+          "label": "Send the abandoned cart report",
+          "default": false
+        },
+        {
+          "id": "carts_period",
+          "type": "select",
+          "label": "Reporting period",
+          "default": "weekly",
+          "options": [
+            {
+              "label": "Daily (last 24 hours)",
+              "value": "daily"
+            },
+            {
+              "label": "Weekly (last 7 days)",
+              "value": "weekly"
+            },
+            {
+              "label": "Every 2 weeks (last 14 days)",
+              "value": "biweekly"
+            },
+            {
+              "label": "Monthly (previous calendar month)",
+              "value": "monthly"
+            }
+          ]
+        },
+        {
+          "id": "carts_recipients",
+          "type": "tags",
+          "label": "Also send this report to",
+          "description": "These addresses get only the abandoned cart report, in addition to the main recipients list.",
+          "placeholder": "name@example.com"
+        }
+      ]
+    },
+    {
+      "type": "field_group",
+      "label": "Subscriptions",
+      "description": "Active subscriptions and monthly recurring revenue, what started, was canceled or paused, failed renewals, and what renews in the next 7 days.",
+      "fields": [
+        {
+          "id": "subscriptions_enabled",
+          "type": "boolean",
+          "ui": "toggle",
+          "label": "Send the subscription report",
+          "default": false
+        },
+        {
+          "id": "subscriptions_period",
+          "type": "select",
+          "label": "Reporting period",
+          "default": "weekly",
+          "options": [
+            {
+              "label": "Daily (last 24 hours)",
+              "value": "daily"
+            },
+            {
+              "label": "Weekly (last 7 days)",
+              "value": "weekly"
+            },
+            {
+              "label": "Every 2 weeks (last 14 days)",
+              "value": "biweekly"
+            },
+            {
+              "label": "Monthly (previous calendar month)",
+              "value": "monthly"
+            }
+          ]
+        },
+        {
+          "id": "subscriptions_recipients",
+          "type": "tags",
+          "label": "Also send this report to",
+          "description": "These addresses get only the subscription report, in addition to the main recipients list.",
+          "placeholder": "name@example.com"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json.swell.store/notification.json",
+  "collection": "cartreports",
+  "label": "Abandoned cart report",
+  "description": "Emails the abandoned cart summary to the recipients listed in the Report Pilot app settings each time a report is generated.",
+  "method": "email",
+  "event": "created",
+  "enabled": true,
+  "admin": true,
+  "new": true,
+  "repeat": true,
+  "subject": "Abandoned carts: {{ period_label }} — {{ abandoned_count }} abandoned, {{ recovered_count }} recovered",
+  "conditions": {
+    "id": {
+      "$exists": false
+    }
+  },
+  "fields": [
+    {
+      "id": "intro",
+      "label": "Intro line",
+      "type": "short_text",
+      "default": "Here's what was left in carts."
+    },
+    {
+      "id": "footer",
+      "label": "Footer note",
+      "type": "long_text",
+      "default": "You're receiving this because your address is listed as a recipient in the Report Pilot app settings. Change how often the abandoned cart report is sent, turn it off, or remove your address there."
+    }
+  ],
+  "sample": {
+    "period_label": "Oct 5 – Oct 11, 2026",
+    "period_start": "2026-10-05T00:00:00.000Z",
+    "period_end": "2026-10-12T00:00:00.000Z",
+    "currency": "USD",
+    "abandoned_count": 42,
+    "prev_abandoned_count": 37,
+    "abandoned_change_pct": 13.51,
+    "abandoned_value": 5320.4,
+    "average_cart_value": 126.68,
+    "recovered_count": 9,
+    "recovery_rate_pct": 21.43,
+    "recovered_revenue": 1104.5,
+    "open_count": 33,
+    "truncated": false,
+    "carts_hidden": 32,
+    "abandoned_carts": [
+      {
+        "cart_id": "9001",
+        "number": "100231",
+        "account_id": "8001",
+        "customer": "Ada Lovelace",
+        "items": 3,
+        "value": 412.0,
+        "abandoned_date": "2026-10-09",
+        "status": "open"
+      },
+      {
+        "cart_id": "9002",
+        "number": "100218",
+        "account_id": "8002",
+        "customer": "Grace Hopper",
+        "items": 2,
+        "value": 288.5,
+        "abandoned_date": "2026-10-07",
+        "status": "recovered"
+      },
+      {
+        "cart_id": "9003",
+        "number": "100240",
+        "account_id": null,
+        "customer": "Guest",
+        "items": 1,
+        "value": 120.0,
+        "abandoned_date": "2026-10-10",
+        "status": "open"
+      }
+    ],
+    "products_left": [
+      {
+        "product_id": "7001",
+        "name": "Merino Crew Sweater",
+        "carts": 14,
+        "quantity": 17,
+        "value": 1615.0
+      },
+      {
+        "product_id": "7002",
+        "name": "Canvas Weekender Bag",
+        "carts": 8,
+        "quantity": 8,
+        "value": 960.0
+      }
+    ]
+  }
+}

@@ -1,0 +1,348 @@
+{
+  "$schema": "https://json.swell.store/content.json",
+  "collection": "discountreports",
+  "label": "Discount reports",
+  "description": "Discount and coupon usage for a single reporting period.",
+  "fields": [
+    {
+      "id": "period_label",
+      "label": "Period",
+      "type": "text",
+      "readonly": true,
+      "description": "Human-readable label for the reporting period."
+    },
+    {
+      "id": "period_start",
+      "label": "Period start",
+      "type": "datetime",
+      "readonly": true,
+      "description": "When the period starts (shown in your local time)."
+    },
+    {
+      "id": "period_end",
+      "label": "Period end",
+      "type": "datetime",
+      "readonly": true,
+      "description": "When the period ends (shown in your local time). Orders from this moment on fall in the next period."
+    },
+    {
+      "id": "currency",
+      "label": "Currency",
+      "type": "text",
+      "readonly": true,
+      "description": "Currency the amounts are reported in."
+    },
+    {
+      "id": "order_count",
+      "label": "Orders",
+      "type": "number",
+      "readonly": true,
+      "description": "All paid, non-cancelled orders in this period, with or without a discount."
+    },
+    {
+      "id": "grand_total",
+      "label": "Revenue",
+      "type": "currency",
+      "readonly": true,
+      "description": "Revenue from all orders in this period."
+    },
+    {
+      "id": "sub_total",
+      "label": "Subtotal",
+      "type": "currency",
+      "readonly": true,
+      "description": "Value of the items ordered, before discounts, shipping and tax."
+    },
+    {
+      "id": "discount_total",
+      "label": "Discounts given",
+      "type": "currency",
+      "readonly": true,
+      "description": "Total taken off by coupons, promotions and other discounts."
+    },
+    {
+      "id": "discounted_order_count",
+      "label": "Discounted orders",
+      "type": "number",
+      "readonly": true,
+      "description": "Orders that had any discount."
+    },
+    {
+      "id": "discounted_revenue",
+      "label": "Discounted order revenue",
+      "type": "currency",
+      "readonly": true,
+      "description": "Revenue from the orders that had a discount."
+    },
+    {
+      "id": "discounted_order_pct",
+      "label": "Discounted orders %",
+      "type": "percent",
+      "readonly": true,
+      "description": "Share of orders that had a discount."
+    },
+    {
+      "id": "discount_rate_pct",
+      "label": "Discount rate %",
+      "type": "percent",
+      "readonly": true,
+      "description": "How much was taken off discounted orders, as a share of what they would have cost at full price."
+    },
+    {
+      "id": "discounted_aov",
+      "label": "Discounted average order",
+      "type": "currency",
+      "readonly": true,
+      "description": "Average order value of orders with a discount."
+    },
+    {
+      "id": "full_price_aov",
+      "label": "Full-price average order",
+      "type": "currency",
+      "readonly": true,
+      "description": "Average order value of orders without a discount."
+    },
+    {
+      "id": "prev_discount_total",
+      "label": "Previous period discounts",
+      "type": "currency",
+      "readonly": true,
+      "description": "Discounts given in the period of equal length just before this one."
+    },
+    {
+      "id": "discount_change_pct",
+      "label": "Discount change %",
+      "type": "percent",
+      "readonly": true,
+      "description": "Percentage change in discounts given compared with the previous period."
+    },
+    {
+      "id": "summary",
+      "label": "Discount report summary",
+      "type": "component",
+      "component": "ReportSummary",
+      "readonly": true,
+      "description": "Headline figures for this period. Hover the info icon on a figure for what it counts.",
+      "params": {
+        "rows": [
+          [
+            {
+              "key": "discount_total",
+              "label": "Discounts given",
+              "type": "currency",
+              "hint": "Total taken off by coupons, promotions and other discounts."
+            },
+            {
+              "key": "prev_discount_total",
+              "label": "Previous period discounts",
+              "type": "currency",
+              "hint": "Discounts given in the period of equal length just before this one."
+            },
+            {
+              "key": "discount_change_pct",
+              "label": "Discount change",
+              "type": "change",
+              "hint": "Percentage change in discounts given compared with the previous period.",
+              "tone": "neutral"
+            }
+          ],
+          [
+            {
+              "key": "order_count",
+              "label": "Orders",
+              "hint": "All paid, non-cancelled orders in this period, with or without a discount."
+            },
+            {
+              "key": "discounted_order_count",
+              "label": "Discounted orders",
+              "hint": "Orders that had any discount."
+            },
+            {
+              "key": "discounted_order_pct",
+              "label": "Discounted orders %",
+              "type": "percent",
+              "hint": "Share of orders that had a discount."
+            }
+          ],
+          [
+            {
+              "key": "grand_total",
+              "label": "Revenue",
+              "type": "currency",
+              "hint": "Revenue from all orders in this period."
+            },
+            {
+              "key": "discounted_revenue",
+              "label": "Discounted order revenue",
+              "type": "currency",
+              "hint": "Revenue from the orders that had a discount."
+            },
+            {
+              "key": "discount_rate_pct",
+              "label": "Discount rate",
+              "type": "percent",
+              "hint": "How much was taken off discounted orders, as a share of what they would have cost at full price."
+            }
+          ],
+          [
+            {
+              "key": "discounted_aov",
+              "label": "Discounted average order",
+              "type": "currency",
+              "hint": "Average order value of orders with a discount."
+            },
+            {
+              "key": "full_price_aov",
+              "label": "Full-price average order",
+              "type": "currency",
+              "hint": "Average order value of orders without a discount."
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "discounts",
+      "label": "Coupons and promotions",
+      "type": "component",
+      "component": "ReportTable",
+      "readonly": true,
+      "description": "Each coupon and promotion used in this period, largest discount first.",
+      "params": {
+        "empty": "No coupons or promotions were used in this period.",
+        "columns": [
+          {
+            "key": "label",
+            "label": "Coupon or promotion"
+          },
+          {
+            "key": "discount",
+            "label": "Discount given",
+            "type": "currency"
+          },
+          {
+            "key": "orders",
+            "label": "Orders",
+            "type": "number"
+          },
+          {
+            "key": "revenue",
+            "label": "Order revenue",
+            "type": "currency"
+          },
+          {
+            "key": "average_discount",
+            "label": "Average discount",
+            "type": "currency"
+          },
+          {
+            "key": "type",
+            "label": "Type",
+            "values": {
+              "coupon": "Coupon",
+              "promotion": "Promotion",
+              "other": "Other"
+            }
+          }
+        ],
+        "collapsed_rows": 5,
+        "unlisted_key": "discounts_hidden",
+        "unlisted_note": "{n} more coupons and promotions were not listed. Each report lists up to 10."
+      }
+    },
+    {
+      "id": "discounts_hidden",
+      "label": "Not listed",
+      "type": "number",
+      "readonly": true
+    },
+    {
+      "id": "truncated",
+      "label": "Partial",
+      "type": "boolean",
+      "readonly": true,
+      "description": "Set when a read hit its page ceiling, so the breakdown is partial."
+    }
+  ],
+  "views": [
+    {
+      "id": "list",
+      "label": "Discount reports",
+      "nav": {
+        "parent": "reporting",
+        "label": "Discount reports"
+      },
+      "sort": {
+        "date_created": "desc"
+      },
+      "fields": [
+        {
+          "id": "period_label",
+          "label": "Period"
+        },
+        {
+          "id": "discount_total",
+          "label": "Discounts"
+        },
+        {
+          "id": "discounted_order_count",
+          "label": "Discounted orders"
+        },
+        {
+          "id": "discounted_order_pct",
+          "label": "% of orders"
+        },
+        {
+          "id": "discount_rate_pct",
+          "label": "Discount rate %"
+        },
+        {
+          "id": "discount_change_pct",
+          "label": "vs previous",
+          "template": "{% if discount_change_pct > 0 %}▲ {{ discount_change_pct }}%{% elsif discount_change_pct < 0 %}▼ {{ discount_change_pct | abs }}%{% else %}—{% endif %}"
+        },
+        {
+          "id": "date_created",
+          "label": "Generated"
+        }
+      ],
+      "actions": [
+        {
+          "id": "new",
+          "hidden": true
+        }
+      ]
+    },
+    {
+      "id": "edit",
+      "title": "{{ period_label }}",
+      "fields": [
+        {
+          "id": "summary"
+        },
+        {
+          "id": "discounts"
+        },
+        {
+          "type": "field_row",
+          "fields": [
+            {
+              "id": "period_start",
+              "admin_span": 2
+            },
+            {
+              "id": "period_end",
+              "admin_span": 2
+            }
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "id": "save",
+          "hidden": true
+        }
+      ]
+    }
+  ]
+}

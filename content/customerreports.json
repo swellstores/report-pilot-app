@@ -1,0 +1,294 @@
+{
+  "$schema": "https://json.swell.store/content.json",
+  "collection": "customerreports",
+  "label": "Customer reports",
+  "description": "Customer activity for a single reporting period.",
+  "fields": [
+    {
+      "id": "period_label",
+      "label": "Period",
+      "type": "text",
+      "readonly": true,
+      "description": "Human-readable label for the reporting period."
+    },
+    {
+      "id": "period_start",
+      "label": "Period start",
+      "type": "datetime",
+      "readonly": true,
+      "description": "When the period starts (shown in your local time)."
+    },
+    {
+      "id": "period_end",
+      "label": "Period end",
+      "type": "datetime",
+      "readonly": true,
+      "description": "When the period ends (shown in your local time). Orders from this moment on fall in the next period."
+    },
+    {
+      "id": "currency",
+      "label": "Currency",
+      "type": "text",
+      "readonly": true,
+      "description": "Currency the amounts are reported in."
+    },
+    {
+      "id": "customer_count",
+      "label": "Customers",
+      "type": "number",
+      "readonly": true,
+      "description": "Different customers who placed at least one paid order in this period."
+    },
+    {
+      "id": "prev_customer_count",
+      "label": "Previous period customers",
+      "type": "number",
+      "readonly": true,
+      "description": "The same count for the period of equal length just before this one."
+    },
+    {
+      "id": "customer_change_pct",
+      "label": "Change vs previous period",
+      "type": "percent",
+      "readonly": true,
+      "description": "Percentage change in customers compared with the previous period."
+    },
+    {
+      "id": "new_customer_count",
+      "label": "New customers",
+      "type": "number",
+      "readonly": true,
+      "description": "Customers whose first ever paid order was in this period."
+    },
+    {
+      "id": "returning_customer_count",
+      "label": "Returning customers",
+      "type": "number",
+      "readonly": true,
+      "description": "Customers who had already placed a paid order before this period."
+    },
+    {
+      "id": "repeat_buyer_count",
+      "label": "Repeat buyers",
+      "type": "number",
+      "readonly": true,
+      "description": "Customers who placed two or more paid orders in this period."
+    },
+    {
+      "id": "repeat_rate_pct",
+      "label": "Repeat rate %",
+      "type": "percent",
+      "readonly": true,
+      "description": "Share of this period's customers who are repeat buyers."
+    },
+    {
+      "id": "returning_rate_pct",
+      "label": "Returning rate %",
+      "type": "percent",
+      "readonly": true,
+      "description": "Share of this period's customers who are returning customers."
+    },
+    {
+      "id": "average_spend",
+      "label": "Average spend per customer",
+      "type": "currency",
+      "readonly": true,
+      "description": "Total spent by this period's customers, divided by the number of customers."
+    },
+    {
+      "id": "summary",
+      "label": "Customer report summary",
+      "type": "component",
+      "component": "ReportSummary",
+      "readonly": true,
+      "description": "Headline figures for this period. Hover the info icon on a figure for what it counts.",
+      "params": {
+        "rows": [
+          [
+            {
+              "key": "customer_count",
+              "label": "Customers",
+              "hint": "Different customers who placed at least one paid order in this period."
+            },
+            {
+              "key": "prev_customer_count",
+              "label": "Previous period",
+              "hint": "The same count for the period of equal length just before this one."
+            },
+            {
+              "key": "customer_change_pct",
+              "label": "Change vs previous period",
+              "type": "change",
+              "hint": "Percentage change in customers compared with the previous period."
+            }
+          ],
+          [
+            {
+              "key": "new_customer_count",
+              "label": "New customers",
+              "hint": "Customers whose first ever paid order was in this period."
+            },
+            {
+              "key": "returning_customer_count",
+              "label": "Returning customers",
+              "hint": "Customers who had already placed a paid order before this period."
+            },
+            {
+              "key": "returning_rate_pct",
+              "label": "Returning rate",
+              "type": "percent",
+              "hint": "Share of this period's customers who are returning customers."
+            }
+          ],
+          [
+            {
+              "key": "repeat_buyer_count",
+              "label": "Repeat buyers",
+              "hint": "Customers who placed two or more paid orders in this period."
+            },
+            {
+              "key": "repeat_rate_pct",
+              "label": "Repeat rate",
+              "type": "percent",
+              "hint": "Share of this period's customers who are repeat buyers."
+            },
+            {
+              "key": "average_spend",
+              "label": "Average spend per customer",
+              "type": "currency",
+              "hint": "Total spent by this period's customers, divided by the number of customers."
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "top_customers",
+      "label": "Top customers",
+      "type": "component",
+      "component": "ReportTable",
+      "readonly": true,
+      "description": "The customers who spent the most in this period, up to 10. Click a name to open their customer page.",
+      "params": {
+        "empty": "No customers placed a paid order in this period.",
+        "columns": [
+          {
+            "key": "name",
+            "label": "Customer",
+            "type": "link",
+            "href": "customers/{account_id}"
+          },
+          {
+            "key": "orders",
+            "label": "Orders",
+            "type": "number"
+          },
+          {
+            "key": "spend",
+            "label": "Amount",
+            "type": "currency"
+          },
+          {
+            "key": "lifetime_value",
+            "label": "Lifetime amount",
+            "type": "currency"
+          },
+          {
+            "key": "lifetime_orders",
+            "label": "Lifetime orders",
+            "type": "number"
+          }
+        ],
+        "collapsed_rows": 5
+      }
+    },
+    {
+      "id": "truncated",
+      "label": "Partial",
+      "type": "boolean",
+      "readonly": true,
+      "description": "Set when a read hit its page ceiling, so counts are a lower bound."
+    }
+  ],
+  "views": [
+    {
+      "id": "list",
+      "label": "Customer reports",
+      "nav": {
+        "parent": "reporting",
+        "label": "Customer reports"
+      },
+      "sort": {
+        "date_created": "desc"
+      },
+      "fields": [
+        {
+          "id": "period_label",
+          "label": "Period"
+        },
+        {
+          "id": "customer_count",
+          "label": "Customers"
+        },
+        {
+          "id": "new_customer_count",
+          "label": "New"
+        },
+        {
+          "id": "returning_customer_count",
+          "label": "Returning"
+        },
+        {
+          "id": "repeat_rate_pct",
+          "label": "Repeat rate %"
+        },
+        {
+          "id": "customer_change_pct",
+          "label": "vs previous",
+          "template": "{% if customer_change_pct > 0 %}▲ {{ customer_change_pct }}%{% elsif customer_change_pct < 0 %}▼ {{ customer_change_pct | abs }}%{% else %}—{% endif %}"
+        },
+        {
+          "id": "date_created",
+          "label": "Generated"
+        }
+      ],
+      "actions": [
+        {
+          "id": "new",
+          "hidden": true
+        }
+      ]
+    },
+    {
+      "id": "edit",
+      "title": "{{ period_label }}",
+      "fields": [
+        {
+          "id": "summary"
+        },
+        {
+          "id": "top_customers"
+        },
+        {
+          "type": "field_row",
+          "fields": [
+            {
+              "id": "period_start",
+              "admin_span": 2
+            },
+            {
+              "id": "period_end",
+              "admin_span": 2
+            }
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "id": "save",
+          "hidden": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json.swell.store/notification.json",
+  "collection": "subscriptionreports",
+  "label": "Subscription report",
+  "description": "Emails the subscription summary to the recipients listed in the Report Pilot app settings each time a report is generated.",
+  "method": "email",
+  "event": "created",
+  "enabled": true,
+  "admin": true,
+  "new": true,
+  "repeat": true,
+  "subject": "Subscriptions: {{ period_label }} — {{ active_count }} active, {{ new_count }} new, {{ canceled_count }} canceled",
+  "conditions": {
+    "id": {
+      "$exists": false
+    }
+  },
+  "fields": [
+    {
+      "id": "intro",
+      "label": "Intro line",
+      "type": "short_text",
+      "default": "Here's how subscriptions moved."
+    },
+    {
+      "id": "footer",
+      "label": "Footer note",
+      "type": "long_text",
+      "default": "You're receiving this because your address is listed as a recipient in the Report Pilot app settings. Change how often the subscription report is sent, turn it off, or remove your address there."
+    }
+  ],
+  "sample": {
+    "period_label": "Oct 5 – Oct 11, 2026",
+    "period_start": "2026-10-05T00:00:00.000Z",
+    "period_end": "2026-10-12T00:00:00.000Z",
+    "currency": "USD",
+    "active_count": 312,
+    "trial_count": 24,
+    "monthly_recurring_revenue": 7480.0,
+    "new_count": 31,
+    "prev_new_count": 27,
+    "new_change_pct": 14.81,
+    "canceled_count": 12,
+    "prev_canceled_count": 15,
+    "canceled_change_pct": -20.0,
+    "net_change": 19,
+    "canceled_monthly_value": 265.0,
+    "paused_count": 9,
+    "paused_in_period": 3,
+    "past_due_count": 4,
+    "renewals_next_7_days": 71,
+    "renewals_next_7_days_value": 1650.0,
+    "trials_ending_next_7_days": 6,
+    "truncated": false,
+    "canceled_hidden": 2,
+    "past_due_hidden": 0,
+    "plans": [
+      {
+        "plan": "Coffee Club — Monthly",
+        "paying": 240,
+        "trial": 20,
+        "monthly_revenue": 4800.0
+      },
+      {
+        "plan": "Coffee Club — Every 3 months",
+        "paying": 72,
+        "trial": 4,
+        "monthly_revenue": 1320.0
+      }
+    ],
+    "canceled_subscriptions": [
+      {
+        "subscription_id": "6001",
+        "account_id": "8003",
+        "customer": "Alan Turing",
+        "plan": "Coffee Club — Monthly",
+        "canceled_date": "2026-10-08",
+        "monthly_value": 20.0
+      }
+    ],
+    "past_due_subscriptions": [
+      {
+        "subscription_id": "6002",
+        "account_id": "8004",
+        "customer": "Katherine Johnson",
+        "plan": "Coffee Club — Monthly",
+        "amount": 20.0,
+        "status": "pastdue"
+      }
+    ]
+  }
+}

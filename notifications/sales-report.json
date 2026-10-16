@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json.swell.store/notification.json",
+  "collection": "reports",
+  "label": "Sales report",
+  "description": "Emails the sales and revenue summary to the recipients listed in the Report Pilot app settings each time a report is generated.",
+  "method": "email",
+  "event": "created",
+  "enabled": true,
+  "admin": true,
+  "new": true,
+  "repeat": true,
+  "subject": "Sales report: {{ period_label }} — {{ order_count }} orders, {{ grand_total | currency }}",
+  "conditions": { "id": { "$exists": false } },
+  "fields": [
+    {
+      "id": "intro",
+      "label": "Intro line",
+      "type": "short_text",
+      "default": "Here's how the store performed."
+    },
+    {
+      "id": "footer",
+      "label": "Footer note",
+      "type": "long_text",
+      "default": "You're receiving this because your address is listed as a recipient in the Report Pilot app settings. Change how often the sales report is sent, turn it off, or remove your address there."
+    }
+  ],
+  "sample": {
+    "period_label": "Aug 18 – Aug 24, 2026",
+    "period_start": "2026-08-18T00:00:00.000Z",
+    "period_end": "2026-08-25T00:00:00.000Z",
+    "currency": "USD",
+    "order_count": 128,
+    "item_quantity": 214,
+    "sub_total": 14320.5,
+    "discount_total": 640.25,
+    "shipping_total": 812,
+    "tax_total": 1145.6,
+    "grand_total": 15637.85,
+    "average_order_value": 122.17,
+    "cancelled_count": 4,
+    "unpaid_count": 7,
+    "new_customer_count": 46,
+    "returning_customer_count": 52,
+    "prev_order_count": 111,
+    "prev_grand_total": 13890.4,
+    "revenue_change_pct": 12.58,
+    "order_change_pct": 15.32,
+    "top_products": [
+      {
+        "product_id": "6001",
+        "name": "Merino Crew Sweater",
+        "quantity": 38,
+        "revenue": 3420
+      },
+      {
+        "product_id": "6002",
+        "name": "Canvas Weekender Bag",
+        "quantity": 21,
+        "revenue": 2519.79
+      },
+      {
+        "product_id": "6003",
+        "name": "Leather Card Holder",
+        "quantity": 44,
+        "revenue": 1759.56
+      }
+    ],
+    "top_products_truncated": false,
+    "daily_totals": [
+      { "date": "2026-08-18", "orders": 14, "revenue": 1702.4 },
+      { "date": "2026-08-19", "orders": 19, "revenue": 2288.15 },
+      { "date": "2026-08-20", "orders": 17, "revenue": 2011.9 },
+      { "date": "2026-08-21", "orders": 22, "revenue": 2745.6 },
+      { "date": "2026-08-22", "orders": 25, "revenue": 3012.35 },
+      { "date": "2026-08-23", "orders": 18, "revenue": 2109.45 },
+      { "date": "2026-08-24", "orders": 13, "revenue": 1768 }
+    ]
+  }
+}

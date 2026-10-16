@@ -1,59 +1,62 @@
 {
-	"id": "sales_report",
-	"name": "Sales Report",
-	"description": "Sales, inventory, customer, discount and product reports by email",
-	"version": "1.1.2",
-	"type": "admin",
-	"permissions": [
-		"read_orders",
-		"read_products",
-		"read_accounts",
-		"read_settings",
-		"write_notifications"
-	],
-	"full_description": "Sales Report turns your order data into a summary your team actually reads.\n\nEvery morning, week, or month — you choose — the app aggregates the orders in your reporting window and emails a clean, readable summary to your store admins. No dashboard to remember to check, no spreadsheet to export, no third-party analytics account to provision.\n\nWHAT'S IN EVERY REPORT\n\n• Revenue, with the full breakdown: subtotal, discounts, shipping, and tax\n• Order count, items sold, and average order value\n• New versus returning customers, so you can see whether growth is coming from acquisition or repeat business\n• Top products ranked by revenue, not just units, so a high-margin seller isn't buried under a cheap one\n• A day-by-day table of orders and revenue, zero-filled so quiet days are visible rather than missing\n• Revenue and order count measured against the previous period of equal length, so the headline figures show direction and not just totals\n• Cancelled and unpaid orders reported separately, never silently folded into revenue\n\nMORE THAN SALES\n\nTurn on any of four more reports, each on its own daily, weekly, or monthly schedule and delivered as its own email:\n\n• Inventory — what is out of stock or running low, and how many days the remaining stock will last at the recent rate of sale\n• Customers — new versus returning buyers, repeat-purchase rate, new accounts, and your top customers by spend\n• Discounts — how much was discounted, which coupons and promotions were used, and the revenue those orders brought in\n• Product performance — best and slowest sellers, the biggest movers against the previous period, and products that didn't sell at all\n\nNeed one right now? Send any report on demand from the app settings.\n\nACCURATE BY DEFAULT\n\nRevenue counts only orders that are paid and not cancelled. Reporting windows end at midnight UTC, so a report never includes a partial day and totals don't shift if you read the same report twice. Cancelled and unpaid orders are surfaced alongside the totals rather than quietly dropped, so the numbers reconcile.\n\nBUILT ON SWELL, NOT BOLTED ON\n\nTotals are aggregated server-side through Swell's Backend API rather than pulled down order by order, so reports stay fast as your volume grows. Each report is stored as a record in your store, giving you a browsable history under Reporting → Sales reports in the dashboard. Open any past period to see its full detail.\n\nBecause the email is driven by a standard Swell notification, you can edit the copy and subject line from the dashboard without touching code or waiting on a developer. Extra recipients are managed in the app settings.\n\nCONFIGURE IT ONCE\n\nPick daily, weekly, or monthly. Add extra recipients beyond your admins. Choose how many top products to list. Turn the daily breakdown on or off. Decide whether quiet periods with no orders should still send — off by default, so an empty week stays quiet.\n\nRead-only where it counts: the app requests read access to your orders, products, customers, and settings. The only things it writes are its own report records and the notifications that deliver them to you.",
-	"highlights": [
-		{
-			"id": "scheduled_email",
-			"title": "Arrives on its own schedule",
-			"description": "Daily, weekly, or monthly summaries emailed to your admins at 08:00 UTC. Set it once and stop remembering to check a dashboard."
-		},
-		{
-			"id": "revenue_with_context",
-			"title": "Revenue in context",
-			"description": "Revenue and order counts are measured against the previous period of equal length, so you see direction, not just totals."
-		},
-		{
-			"id": "top_products",
-			"title": "Top products ranked by revenue",
-			"description": "Best sellers ordered by what they actually earned rather than units moved, so high-margin products aren't hidden behind cheap volume."
-		},
-		{
-			"id": "customer_split",
-			"title": "New versus returning customers",
-			"description": "See whether a strong period came from winning new customers or from existing ones coming back."
-		},
-		{
-			"id": "honest_totals",
-			"title": "Totals that reconcile",
-			"description": "Only paid, non-cancelled orders count toward revenue. Cancelled and unpaid orders are reported separately instead of being silently dropped."
-		},
-		{
-			"id": "more_reports",
-			"title": "More reports, each on its own schedule",
-			"description": "Low stock with days of cover, new and repeat customers, coupon and promotion usage, and best, worst and unsold products."
-		},
-		{
-			"id": "report_history",
-			"title": "A browsable history in your dashboard",
-			"description": "Every report is stored as a record under Reporting, so you can reopen any past period and see its full detail."
-		}
-	],
-	"use_cases": [
-		"direct_to_consumer",
-		"wholesale",
-		"digital_goods"
-	],
-	"price": 0,
-	"price_external": false
+  "id": "report_pilot",
+  "name": "Report Pilot",
+  "description": "Scheduled store reports, delivered by email and kept in your dashboard",
+  "version": "1.0.4",
+  "type": "admin",
+  "permissions": [
+    "read_orders",
+    "read_products",
+    "read_accounts",
+    "read_carts",
+    "read_subscriptions",
+    "read_settings",
+    "write_notifications",
+    "read_:models"
+  ],
+  "full_description": "Report Pilot turns your store data into reports your team actually reads.\n\nEvery morning, week, two weeks, or month — you choose — the app aggregates the orders in your reporting window and emails a clean, readable summary to the addresses you choose. No dashboard to remember to check, no spreadsheet to export, no third-party analytics account to provision.\n\nWHAT'S IN EVERY REPORT\n\n• Revenue, with the full breakdown: subtotal, discounts, shipping, and tax\n• Order count, items sold, and average order value\n• New versus returning customers, so you can see whether growth is coming from acquisition or repeat business\n• Top products ranked by revenue, not just units, so a high-margin seller isn't buried under a cheap one\n• A day-by-day table of orders and revenue, zero-filled so quiet days are visible rather than missing\n• Revenue and order count measured against the previous period of equal length, so the headline figures show direction and not just totals\n• Cancelled and unpaid orders reported separately, never silently folded into revenue\n\nMORE THAN SALES\n\nTurn on any of six more reports, each on its own daily, weekly, two-weekly, or monthly schedule and delivered as its own email:\n\n• Inventory — what is out of stock or running low, and how many days the remaining stock will last at the recent rate of sale\n• Customers — new versus returning buyers, repeat-purchase rate, and your top customers by spend\n• Discounts — how much was discounted, which coupons and promotions were used, and the revenue those orders brought in\n• Products — best and slowest sellers, the biggest movers against the previous period, and products that didn't sell at all\n• Abandoned carts — how many carts were left without checking out, how many came back as orders, and the products most often left behind\n• Subscriptions — active subscriptions and monthly recurring revenue, new and canceled subscriptions, failed renewals, and what renews in the next week\n\nNeed one right now? Send any report on demand from the app settings.\n\nACCURATE BY DEFAULT\n\nRevenue counts only orders that are paid and not cancelled. Reporting windows end at midnight UTC, so a report never includes a partial day and totals don't shift if you read the same report twice. Cancelled and unpaid orders are surfaced alongside the totals rather than quietly dropped, so the numbers reconcile.\n\nBUILT ON SWELL, NOT BOLTED ON\n\nTotals are aggregated server-side through Swell's Backend API rather than pulled down order by order, so reports stay fast as your volume grows. Each report is stored as a record in your store, giving you a browsable history under Reporting → Sales reports in the dashboard. Open any past period to see its full detail.\n\nBecause the email is driven by a standard Swell notification, you can edit the copy and subject line from the dashboard without touching code or waiting on a developer. Recipients are managed in the app settings.\n\nCONFIGURE IT ONCE\n\nPick daily, weekly, every two weeks, or monthly. Choose who receives the emails. Choose how many top products to list. Turn the daily breakdown on or off. Decide whether quiet periods with no orders should still send — off by default, so an empty week stays quiet.\n\nRead-only where it counts: the app requests read access to your orders, products, customers, carts, subscriptions, and settings. The only things it writes are its own report records and the notifications that deliver them to you.",
+  "highlights": [
+    {
+      "id": "scheduled_email",
+      "title": "Arrives on its own schedule",
+      "description": "Daily, weekly, two-weekly or monthly summaries emailed to the addresses you choose at 08:00 UTC. Set it once and stop checking."
+    },
+    {
+      "id": "revenue_with_context",
+      "title": "Revenue in context",
+      "description": "Revenue and order counts are measured against the previous period of equal length, so you see direction, not just totals."
+    },
+    {
+      "id": "top_products",
+      "title": "Top products ranked by revenue",
+      "description": "Best sellers ordered by what they actually earned rather than units moved, so high-margin products aren't hidden behind cheap volume."
+    },
+    {
+      "id": "customer_split",
+      "title": "New versus returning customers",
+      "description": "See whether a strong period came from winning new customers or from existing ones coming back."
+    },
+    {
+      "id": "honest_totals",
+      "title": "Totals that reconcile",
+      "description": "Only paid, non-cancelled orders count toward revenue. Cancelled and unpaid orders are reported separately instead of being silently dropped."
+    },
+    {
+      "id": "more_reports",
+      "title": "More reports, each on its own schedule",
+      "description": "Low stock with days of cover, new and repeat customers, coupon and promotion usage, and best, worst and unsold products."
+    },
+    {
+      "id": "report_history",
+      "title": "A browsable history in your dashboard",
+      "description": "Every report is stored as a record under Reporting, so you can reopen any past period and see its full detail."
+    }
+  ],
+  "use_cases": [
+    "direct_to_consumer",
+    "wholesale",
+    "digital_goods"
+  ],
+  "price": 0,
+  "price_external": false
 }

@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json.swell.store/model.json",
+  "collection": "inventoryreports",
+  "description": "A snapshot of out-of-stock and low-stock products and variants.",
+  "label": "Inventory report",
+  "plural": "Inventory reports",
+  "name_field": "period_label",
+  "primary_field": "period_label",
+  "secondary_field": "out_of_stock_count",
+  "fields": {
+    "period_label": {
+      "type": "string",
+      "label": "Date",
+      "description": "Day the snapshot was taken.",
+      "required": true
+    },
+    "snapshot_at": {
+      "type": "date",
+      "label": "Snapshot taken",
+      "required": true
+    },
+    "low_stock_threshold": {
+      "type": "int",
+      "label": "Low stock threshold",
+      "default": 0
+    },
+    "tracked_count": {
+      "type": "int",
+      "label": "Tracked SKUs",
+      "description": "Active stock-tracked products and variants.",
+      "default": 0
+    },
+    "out_of_stock_count": {
+      "type": "int",
+      "label": "Out of stock",
+      "default": 0
+    },
+    "low_stock_count": {
+      "type": "int",
+      "label": "Low stock",
+      "description": "At or below the threshold but above zero.",
+      "default": 0
+    },
+    "attention_pct": {
+      "type": "float",
+      "label": "Needing attention %",
+      "description": "Share of tracked SKUs that are low or out.",
+      "scale": 2
+    },
+    "items": {
+      "type": "array",
+      "label": "Items",
+      "description": "Low and out-of-stock SKUs, out of stock first, then soonest to run out.",
+      "value_type": "object",
+      "fields": {
+        "product_id": {
+          "type": "string",
+          "label": "Product ID"
+        },
+        "variant_id": {
+          "type": "string",
+          "label": "Variant ID"
+        },
+        "name": {
+          "type": "string",
+          "label": "Product"
+        },
+        "sku": {
+          "type": "string",
+          "label": "SKU"
+        },
+        "stock_level": {
+          "type": "int",
+          "label": "Stock",
+          "default": 0
+        },
+        "status": {
+          "type": "string",
+          "label": "Status"
+        },
+        "sold_30d": {
+          "type": "int",
+          "label": "Sold, last 30 days",
+          "default": 0
+        },
+        "days_of_cover": {
+          "type": "int",
+          "label": "Days of cover",
+          "description": "Days the stock lasts at the 30-day rate; empty when nothing sold."
+        }
+      }
+    },
+    "items_hidden": {
+      "type": "int",
+      "label": "Not listed",
+      "description": "Low or out-of-stock SKUs beyond the list limit.",
+      "default": 0
+    },
+    "truncated": {
+      "type": "bool",
+      "label": "Partial",
+      "description": "Set when a read hit its page ceiling, so counts are a lower bound.",
+      "default": false
+    },
+    "summary": {
+      "type": "string",
+      "label": "Summary",
+      "description": "Display only: the dashboard draws the headline figures here from the report's other fields. Never stored."
+    }
+  },
+  "events": {
+    "types": [
+      {
+        "id": "created",
+        "description": "A new inventory snapshot was generated."
+      }
+    ]
+  }
+}

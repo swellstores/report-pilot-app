@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json.swell.store/model.json",
+  "collection": "discountreports",
+  "description": "Discount and coupon usage for a single reporting period.",
+  "label": "Discount report",
+  "plural": "Discount reports",
+  "name_field": "period_label",
+  "primary_field": "period_label",
+  "secondary_field": "discount_total",
+  "fields": {
+    "period_label": {
+      "type": "string",
+      "label": "Period",
+      "description": "Human-readable label for the reporting period.",
+      "required": true
+    },
+    "period_start": {
+      "type": "date",
+      "label": "Period start",
+      "description": "Inclusive start of the reporting window.",
+      "required": true
+    },
+    "period_end": {
+      "type": "date",
+      "label": "Period end",
+      "description": "Exclusive end of the reporting window.",
+      "required": true
+    },
+    "currency": {
+      "type": "string",
+      "label": "Currency",
+      "default": "USD"
+    },
+    "order_count": {
+      "type": "int",
+      "label": "Orders",
+      "description": "All paid, non-cancelled orders in the period.",
+      "default": 0
+    },
+    "grand_total": {
+      "type": "currency",
+      "label": "Revenue",
+      "default": 0
+    },
+    "sub_total": {
+      "type": "currency",
+      "label": "Subtotal",
+      "default": 0
+    },
+    "discount_total": {
+      "type": "currency",
+      "label": "Discounts given",
+      "default": 0
+    },
+    "discounted_order_count": {
+      "type": "int",
+      "label": "Discounted orders",
+      "default": 0
+    },
+    "discounted_revenue": {
+      "type": "currency",
+      "label": "Discounted order revenue",
+      "default": 0
+    },
+    "discounted_order_pct": {
+      "type": "float",
+      "label": "Discounted orders %",
+      "scale": 2
+    },
+    "discount_rate_pct": {
+      "type": "float",
+      "label": "Discount rate %",
+      "description": "Discount as a share of the undiscounted value of those orders.",
+      "scale": 2
+    },
+    "discounted_aov": {
+      "type": "currency",
+      "label": "Discounted average order",
+      "default": 0
+    },
+    "full_price_aov": {
+      "type": "currency",
+      "label": "Full-price average order",
+      "default": 0
+    },
+    "prev_discount_total": {
+      "type": "currency",
+      "label": "Previous period discounts",
+      "default": 0
+    },
+    "discount_change_pct": {
+      "type": "float",
+      "label": "Discount change %",
+      "scale": 2
+    },
+    "discounts": {
+      "type": "array",
+      "label": "Coupons and promotions",
+      "description": "Discounts used in the period, largest first.",
+      "value_type": "object",
+      "fields": {
+        "type": {
+          "type": "string",
+          "label": "Type"
+        },
+        "label": {
+          "type": "string",
+          "label": "Coupon or promotion"
+        },
+        "orders": {
+          "type": "int",
+          "label": "Orders",
+          "default": 0
+        },
+        "discount": {
+          "type": "currency",
+          "label": "Discount given",
+          "default": 0
+        },
+        "revenue": {
+          "type": "currency",
+          "label": "Order revenue",
+          "default": 0
+        },
+        "average_discount": {
+          "type": "currency",
+          "label": "Average discount",
+          "default": 0
+        }
+      }
+    },
+    "discounts_hidden": {
+      "type": "int",
+      "label": "Not listed",
+      "default": 0
+    },
+    "truncated": {
+      "type": "bool",
+      "label": "Partial",
+      "description": "Set when a read hit its page ceiling, so the breakdown is partial.",
+      "default": false
+    },
+    "summary": {
+      "type": "string",
+      "label": "Summary",
+      "description": "Display only: the dashboard draws the headline figures here from the report's other fields. Never stored."
+    }
+  },
+  "events": {
+    "types": [
+      {
+        "id": "created",
+        "description": "A new discount report was generated for a reporting period."
+      }
+    ]
+  }
+}

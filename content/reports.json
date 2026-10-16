@@ -1,0 +1,458 @@
+{
+  "$schema": "https://json.swell.store/content.json",
+  "collection": "reports",
+  "label": "Sales reports",
+  "description": "Generated sales and revenue summaries, one per reporting period.",
+  "fields": [
+    {
+      "id": "period_label",
+      "label": "Period",
+      "type": "text",
+      "description": "The date range this report covers.",
+      "readonly": true
+    },
+    {
+      "id": "period_start",
+      "label": "Period start",
+      "type": "datetime",
+      "admin_span": 2,
+      "readonly": true,
+      "description": "When the period starts (shown in your local time)."
+    },
+    {
+      "id": "period_end",
+      "label": "Period end",
+      "type": "datetime",
+      "description": "When the period ends (shown in your local time). Orders from this moment on fall in the next period.",
+      "admin_span": 2,
+      "readonly": true
+    },
+    {
+      "id": "currency",
+      "label": "Currency",
+      "type": "text",
+      "admin_span": 1,
+      "readonly": true,
+      "description": "Currency the amounts are reported in."
+    },
+    {
+      "id": "grand_total",
+      "label": "Revenue",
+      "type": "currency",
+      "description": "Total of paid, non-cancelled orders in this period, including shipping and tax, after discounts.",
+      "admin_span": 2,
+      "readonly": true
+    },
+    {
+      "id": "order_count",
+      "label": "Orders",
+      "type": "number",
+      "admin_span": 1,
+      "readonly": true,
+      "description": "Number of paid, non-cancelled orders in this period."
+    },
+    {
+      "id": "average_order_value",
+      "label": "Average order value",
+      "type": "currency",
+      "admin_span": 1,
+      "readonly": true,
+      "description": "Revenue divided by the number of orders."
+    },
+    {
+      "id": "item_quantity",
+      "label": "Items sold",
+      "type": "number",
+      "admin_span": 1,
+      "readonly": true,
+      "description": "Total units across all orders in this period."
+    },
+    {
+      "id": "sub_total",
+      "label": "Subtotal",
+      "type": "currency",
+      "admin_span": 1,
+      "readonly": true,
+      "description": "Value of the items ordered, before discounts, shipping and tax."
+    },
+    {
+      "id": "discount_total",
+      "label": "Discounts",
+      "type": "currency",
+      "admin_span": 1,
+      "readonly": true,
+      "description": "Total taken off by coupons, promotions and other discounts."
+    },
+    {
+      "id": "shipping_total",
+      "label": "Shipping",
+      "type": "currency",
+      "admin_span": 1,
+      "readonly": true,
+      "description": "Total shipping charged."
+    },
+    {
+      "id": "tax_total",
+      "label": "Tax",
+      "type": "currency",
+      "admin_span": 1,
+      "readonly": true,
+      "description": "Total tax charged."
+    },
+    {
+      "id": "new_customer_count",
+      "label": "New customers",
+      "type": "number",
+      "description": "Customers whose first ever paid order was in this period.",
+      "admin_span": 1,
+      "readonly": true
+    },
+    {
+      "id": "returning_customer_count",
+      "label": "Returning customers",
+      "type": "number",
+      "admin_span": 1,
+      "readonly": true,
+      "description": "Customers who had already placed a paid order before this period."
+    },
+    {
+      "id": "revenue_change_pct",
+      "label": "Revenue change",
+      "type": "percent",
+      "description": "Percentage change in revenue compared with the previous period of equal length.",
+      "admin_span": 1,
+      "readonly": true
+    },
+    {
+      "id": "order_change_pct",
+      "label": "Order change",
+      "type": "percent",
+      "admin_span": 1,
+      "readonly": true,
+      "description": "Percentage change in orders compared with the previous period of equal length."
+    },
+    {
+      "id": "prev_grand_total",
+      "label": "Previous revenue",
+      "type": "currency",
+      "admin_span": 1,
+      "readonly": true,
+      "description": "Revenue in the period of equal length just before this one."
+    },
+    {
+      "id": "prev_order_count",
+      "label": "Previous orders",
+      "type": "number",
+      "admin_span": 1,
+      "readonly": true,
+      "description": "Orders in the period of equal length just before this one."
+    },
+    {
+      "id": "cancelled_count",
+      "label": "Cancelled orders",
+      "type": "number",
+      "description": "Orders placed in this period that were cancelled. Not counted in revenue.",
+      "admin_span": 1,
+      "readonly": true
+    },
+    {
+      "id": "unpaid_count",
+      "label": "Unpaid orders",
+      "type": "number",
+      "description": "Orders placed in this period that are not paid yet. Not counted in revenue.",
+      "admin_span": 1,
+      "readonly": true
+    },
+    {
+      "id": "summary",
+      "label": "Sales report summary",
+      "type": "component",
+      "component": "ReportSummary",
+      "readonly": true,
+      "description": "Headline figures for this period. Hover the info icon on a figure for what it counts.",
+      "params": {
+        "rows": [
+          [
+            {
+              "key": "grand_total",
+              "label": "Revenue",
+              "type": "currency",
+              "hint": "Total of paid, non-cancelled orders in this period, including shipping and tax, after discounts."
+            },
+            {
+              "key": "prev_grand_total",
+              "label": "Previous revenue",
+              "type": "currency",
+              "hint": "Revenue in the period of equal length just before this one."
+            },
+            {
+              "key": "revenue_change_pct",
+              "label": "Revenue change",
+              "type": "change",
+              "hint": "Percentage change in revenue compared with the previous period of equal length."
+            }
+          ],
+          [
+            {
+              "key": "order_count",
+              "label": "Orders",
+              "hint": "Number of paid, non-cancelled orders in this period."
+            },
+            {
+              "key": "prev_order_count",
+              "label": "Previous orders",
+              "hint": "Orders in the period of equal length just before this one."
+            },
+            {
+              "key": "order_change_pct",
+              "label": "Order change",
+              "type": "change",
+              "hint": "Percentage change in orders compared with the previous period of equal length."
+            }
+          ],
+          [
+            {
+              "key": "average_order_value",
+              "label": "Average order value",
+              "type": "currency",
+              "hint": "Revenue divided by the number of orders."
+            },
+            {
+              "key": "item_quantity",
+              "label": "Items sold",
+              "hint": "Total units across all orders in this period."
+            }
+          ],
+          [
+            {
+              "key": "new_customer_count",
+              "label": "New customers",
+              "hint": "Customers whose first ever paid order was in this period."
+            },
+            {
+              "key": "returning_customer_count",
+              "label": "Returning customers",
+              "hint": "Customers who had already placed a paid order before this period."
+            }
+          ],
+          [
+            {
+              "key": "sub_total",
+              "label": "Subtotal",
+              "type": "currency",
+              "hint": "Value of the items ordered, before discounts, shipping and tax."
+            },
+            {
+              "key": "discount_total",
+              "label": "Discounts",
+              "type": "currency",
+              "hint": "Total taken off by coupons, promotions and other discounts."
+            },
+            {
+              "key": "shipping_total",
+              "label": "Shipping",
+              "type": "currency",
+              "hint": "Total shipping charged."
+            },
+            {
+              "key": "tax_total",
+              "label": "Tax",
+              "type": "currency",
+              "hint": "Total tax charged."
+            }
+          ],
+          [
+            {
+              "key": "cancelled_count",
+              "label": "Cancelled orders",
+              "hint": "Orders placed in this period that were cancelled. Not counted in revenue."
+            },
+            {
+              "key": "unpaid_count",
+              "label": "Unpaid orders",
+              "hint": "Orders placed in this period that are not paid yet. Not counted in revenue."
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "top_products",
+      "label": "Top products",
+      "type": "component",
+      "component": "ReportTable",
+      "readonly": true,
+      "description": "Best sellers in this period, ranked by revenue, up to 10.",
+      "params": {
+        "empty": "No products sold in this period.",
+        "columns": [
+          {
+            "key": "name",
+            "label": "Product"
+          },
+          {
+            "key": "quantity",
+            "label": "Quantity",
+            "type": "number"
+          },
+          {
+            "key": "revenue",
+            "label": "Revenue",
+            "type": "currency"
+          },
+          {
+            "key": "product_id",
+            "label": "",
+            "type": "product_link",
+            "link_label": "View product"
+          }
+        ],
+        "collapsed_rows": 5,
+        "unlisted_key": "top_products_truncated",
+        "unlisted_note": "This period had more orders than the ranking reads, so the list covers only part of it."
+      }
+    },
+    {
+      "id": "top_products_truncated",
+      "label": "Top products partial",
+      "type": "boolean",
+      "description": "More paid orders than the ranking reads; the list covers only part of the period.",
+      "readonly": true
+    },
+    {
+      "id": "daily_totals",
+      "label": "Daily breakdown",
+      "type": "component",
+      "component": "ReportTable",
+      "readonly": true,
+      "description": "Orders and revenue for each day in the period.",
+      "params": {
+        "empty": "The daily breakdown is turned off in the app settings.",
+        "columns": [
+          {
+            "key": "date",
+            "label": "Date",
+            "type": "date"
+          },
+          {
+            "key": "orders",
+            "label": "Orders",
+            "type": "number"
+          },
+          {
+            "key": "revenue",
+            "label": "Revenue",
+            "type": "currency"
+          }
+        ],
+        "collapsed_rows": 7
+      }
+    }
+  ],
+  "views": [
+    {
+      "id": "list",
+      "label": "Sales reports",
+      "nav": {
+        "parent": "reporting",
+        "label": "Sales reports"
+      },
+      "sort": {
+        "period_end": "desc"
+      },
+      "tabs": [
+        {
+          "id": "with_sales",
+          "label": "With sales",
+          "query": {
+            "order_count": {
+              "$gt": 0
+            }
+          }
+        },
+        {
+          "id": "no_sales",
+          "label": "No sales",
+          "query": {
+            "order_count": 0
+          }
+        }
+      ],
+      "fields": [
+        {
+          "id": "period_label",
+          "label": "Period"
+        },
+        {
+          "id": "order_count",
+          "label": "Orders"
+        },
+        {
+          "id": "grand_total",
+          "label": "Revenue"
+        },
+        {
+          "id": "average_order_value",
+          "label": "Avg order"
+        },
+        {
+          "id": "revenue_change_pct",
+          "label": "vs previous",
+          "template": "{% if revenue_change_pct > 0 %}▲ {{ revenue_change_pct }}%{% elsif revenue_change_pct < 0 %}▼ {{ revenue_change_pct | abs }}%{% else %}—{% endif %}"
+        },
+        {
+          "id": "new_customer_count",
+          "label": "New customers"
+        },
+        {
+          "id": "item_quantity",
+          "label": "Items"
+        },
+        {
+          "id": "date_created",
+          "label": "Generated"
+        }
+      ],
+      "actions": [
+        {
+          "id": "new",
+          "hidden": true
+        }
+      ]
+    },
+    {
+      "id": "edit",
+      "title": "{{ period_label }}",
+      "fields": [
+        {
+          "id": "summary"
+        },
+        {
+          "id": "top_products"
+        },
+        {
+          "id": "daily_totals"
+        },
+        {
+          "type": "field_row",
+          "fields": [
+            {
+              "id": "period_start",
+              "admin_span": 2
+            },
+            {
+              "id": "period_end",
+              "admin_span": 2
+            }
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "id": "save",
+          "hidden": true
+        }
+      ]
+    }
+  ]
+}
