@@ -9,8 +9,8 @@
   "name": "report_pilot",
   "private": true,
   "scripts": {
-    "assets": "npm run icon && npm run cover",
-    "cover": "node scripts/make-cover.js assets/image.png",
+    "assets": "npm run icon && npm run listing",
+    "listing": "sh design/listing/render.sh",
     "icon": "node scripts/make-icon.js assets/icon.png",
     "typecheck": "tsc --noEmit && tsc --noEmit -p components"
   },

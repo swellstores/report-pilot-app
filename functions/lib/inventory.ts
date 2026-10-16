@@ -9,6 +9,7 @@
  */
 
 import { formatPeriodLabel, revenueWhere, rollingWindow, round } from './report';
+import { addDays, localDay, startOfLocalDay } from './time';
 import type { InventorySettings } from './report-settings';
 import { chunk, RECORD_ID, scan } from './scan';
 
@@ -204,11 +205,13 @@ export async function buildInventoryReport(
   });
 
   const outOfStock = items.filter((item) => item.status === 'out_of_stock').length;
-  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  const tomorrow = new Date(today.getTime() + 86400000);
+  // The snapshot is labelled with the store's own date.
+  const day = localDay(now, settings.timeZone);
+  const today = startOfLocalDay(day, settings.timeZone);
+  const tomorrow = startOfLocalDay(addDays(day, 1), settings.timeZone);
 
   return {
-    period_label: formatPeriodLabel(today, tomorrow),
+    period_label: formatPeriodLabel(today, tomorrow, settings.timeZone),
     snapshot_at: now.toISOString(),
     low_stock_threshold: threshold,
     tracked_count: trackedCount,

@@ -7,6 +7,19 @@
  * and that read is bounded to paid orders inside the reporting window.
  */
 
+import {
+  addDays,
+  addMonths,
+  dayAsUtcDate,
+  dayKey,
+  daysBetween,
+  DEFAULT_TIME_ZONE,
+  localDay,
+  startOfLocalDay,
+  validTimeZone,
+  weekday,
+} from './time';
+
 /** The reporting periods a merchant can choose. */
 export const PERIODS = ['daily', 'weekly', 'biweekly', 'monthly'];
 
@@ -26,26 +39,31 @@ const MAX_DAILY_ROWS = 31;
 export interface ReportWindow {
   /** Inclusive start of the reporting window. */
   start: Date;
-  /** Exclusive end — always midnight UTC, so no partial day is included. */
+  /** Exclusive end — always the store's midnight, so no partial day is included. */
   end: Date;
   /** Start of the equal-length window before it, for the comparison. */
   prevStart: Date;
+  /** The store's time zone (app setting), which dates on the report use. */
+  timeZone: string;
 }
 
-/** Midnight UTC on the day `now` falls in. */
-function startOfUTCDay(now: Date): Date {
-  const day = new Date(now);
-  day.setUTCHours(0, 0, 0, 0);
-  return day;
-}
-
-/** A window of `days` ending at midnight today, preceded by one the same length. */
-export function rollingWindow(days: number, now: Date = new Date()): ReportWindow {
-  const end = startOfUTCDay(now);
-  const start = new Date(end.getTime() - days * 86400000);
-  const prevStart = new Date(start.getTime() - days * 86400000);
-
-  return { start, end, prevStart };
+/**
+ * A window of `days` whole days ending at the store's midnight today, preceded
+ * by one the same length. Counted in calendar days, so a day that gains or
+ * loses an hour to daylight saving is still one day.
+ */
+export function rollingWindow(
+  days: number,
+  now: Date = new Date(),
+  timeZone: string = DEFAULT_TIME_ZONE,
+): ReportWindow {
+  const today = localDay(now, timeZone);
+  return {
+    start: startOfLocalDay(addDays(today, -days), timeZone),
+    end: startOfLocalDay(today, timeZone),
+    prevStart: startOfLocalDay(addDays(today, -2 * days), timeZone),
+    timeZone,
+  };
 }
 
 /**
@@ -57,24 +75,30 @@ export function rollingWindow(days: number, now: Date = new Date()): ReportWindo
  * never appear in any monthly report — and after a 28-day February it reaches
  * back into January and counts those days twice.
  */
-export function calendarMonthWindow(now: Date = new Date()): ReportWindow {
-  const today = startOfUTCDay(now);
-  const end = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
-  const start = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth() - 1, 1));
-  const prevStart = new Date(
-    Date.UTC(start.getUTCFullYear(), start.getUTCMonth() - 1, 1),
-  );
-
-  return { start, end, prevStart };
+export function calendarMonthWindow(
+  now: Date = new Date(),
+  timeZone: string = DEFAULT_TIME_ZONE,
+): ReportWindow {
+  const today = localDay(now, timeZone);
+  return {
+    start: startOfLocalDay(addMonths(today, -1), timeZone),
+    end: startOfLocalDay(addMonths(today, 0), timeZone),
+    prevStart: startOfLocalDay(addMonths(today, -2), timeZone),
+    timeZone,
+  };
 }
 
-/** The window a configured period asks for. */
-export function resolveWindow(period: string, now: Date = new Date()): ReportWindow {
+/** The window a configured period asks for, in the store's time zone. */
+export function resolveWindow(
+  period: string,
+  now: Date = new Date(),
+  timeZone: string = DEFAULT_TIME_ZONE,
+): ReportWindow {
   if (period === 'monthly') {
-    return calendarMonthWindow(now);
+    return calendarMonthWindow(now, timeZone);
   }
 
-  return rollingWindow(ROLLING_DAYS[period] ?? ROLLING_DAYS.weekly, now);
+  return rollingWindow(ROLLING_DAYS[period] ?? ROLLING_DAYS.weekly, now, timeZone);
 }
 
 export interface ReportSettings {
@@ -85,6 +109,8 @@ export interface ReportSettings {
   top_products_limit: number;
   include_daily_breakdown: boolean;
   send_when_empty: boolean;
+  /** The store's time zone, from the app's "Time zone" setting. */
+  timeZone: string;
 }
 
 const DEFAULTS: ReportSettings = {
@@ -94,6 +120,7 @@ const DEFAULTS: ReportSettings = {
   top_products_limit: 10,
   include_daily_breakdown: true,
   send_when_empty: false,
+  timeZone: DEFAULT_TIME_ZONE,
 };
 
 /** Top products stored on a sales report when the switch is on. */
@@ -211,11 +238,12 @@ export function resolveSettings(raw: SwellSettings | undefined | null): ReportSe
       DEFAULTS.include_daily_breakdown,
     ),
     send_when_empty: bool(settings.send_when_empty, DEFAULTS.send_when_empty),
+    timeZone: validTimeZone(settings.timezone),
   };
 }
 
-/** A Monday from which every-two-weeks reports count: Jan 5, 1970 (UTC). */
-const BIWEEKLY_ANCHOR = Date.UTC(1970, 0, 5);
+/** A Monday from which every-two-weeks reports count: Jan 5, 1970. */
+const BIWEEKLY_ANCHOR = { year: 1970, month: 1, day: 5 };
 
 /**
  * Whether `now` falls in a week that gets an every-two-weeks report. A daily
@@ -223,9 +251,8 @@ const BIWEEKLY_ANCHOR = Date.UTC(1970, 0, 5);
  * from one Monday: weeks 0, 2, 4… after it. Every store runs on the same
  * Mondays, and the result never depends on when the app was installed.
  */
-export function isBiweeklyMonday(now: Date): boolean {
-  const day = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-  const weeks = Math.floor((day - BIWEEKLY_ANCHOR) / (7 * 86400000));
+export function isBiweeklyMonday(now: Date, timeZone: string = DEFAULT_TIME_ZONE): boolean {
+  const weeks = Math.floor(daysBetween(BIWEEKLY_ANCHOR, localDay(now, timeZone)) / 7);
   return weeks % 2 === 0;
 }
 
@@ -234,17 +261,22 @@ export function isBiweeklyMonday(now: Date): boolean {
  * actually wants a report today. Weekly lands on Monday, every two weeks on
  * alternate Mondays (see `isBiweeklyMonday`), monthly on the 1st.
  */
-export function isDueToday(period: string, now: Date): boolean {
+export function isDueToday(
+  period: string,
+  now: Date,
+  timeZone: string = DEFAULT_TIME_ZONE,
+): boolean {
+  const today = localDay(now, timeZone);
   switch (period) {
     case 'daily':
       return true;
     case 'monthly':
-      return now.getUTCDate() === 1;
+      return today.day === 1;
     case 'biweekly':
-      return now.getUTCDay() === 1 && isBiweeklyMonday(now);
+      return weekday(today) === 1 && isBiweeklyMonday(now, timeZone);
     case 'weekly':
     default:
-      return now.getUTCDay() === 1;
+      return weekday(today) === 1;
   }
 }
 
@@ -260,8 +292,9 @@ export function percentChange(current: number, previous: number): number | null 
   return round(((current - previous) / previous) * 100);
 }
 
-export function isoDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
+/** `YYYY-MM-DD` for the day `date` falls on in the store's time zone. */
+export function isoDate(date: Date, timeZone: string = DEFAULT_TIME_ZONE): string {
+  return dayKey(localDay(date, timeZone));
 }
 
 /** Orders that count toward revenue: paid, and not cancelled. */
@@ -351,46 +384,59 @@ async function fetchExcludedCounts(
 }
 
 /**
- * Per-day orders and revenue, grouped server-side by calendar date, then
- * padded so days with no orders still appear as zero rows.
+ * Per-day orders and revenue, with days that had no orders as zero rows.
+ *
+ * In UTC, one server-side read grouped by calendar date. In any other time
+ * zone the server's date grouping (UTC) would put evening orders on the wrong
+ * day, so each local day is totalled with its own small grouped read instead
+ * (a month is at most 31 reads, a few at a time).
  */
-async function fetchDailyTotals(swell: SwellAPI, start: Date, end: Date) {
-  const response = await swell.get('/orders', {
-    where: revenueWhere(start, end),
-    group: {
-      orders: { $sum: 1 },
-      revenue: { $sum: 'grand_total' },
-      year: { $year: 'date_created' },
-      month: { $month: 'date_created' },
-      day: { $dayOfMonth: 'date_created' },
-    },
-  });
-
-  const byDate = new Map<string, { date: string; orders: number; revenue: number }>();
-
-  for (
-    let cursor = new Date(start);
-    cursor < end;
-    cursor.setUTCDate(cursor.getUTCDate() + 1)
-  ) {
-    const key = isoDate(cursor);
-    byDate.set(key, { date: key, orders: 0, revenue: 0 });
+async function fetchDailyTotals(swell: SwellAPI, start: Date, end: Date, timeZone: string) {
+  const days: { key: string; from: Date; to: Date }[] = [];
+  for (let day = localDay(start, timeZone); ; day = addDays(day, 1)) {
+    const from = startOfLocalDay(day, timeZone);
+    if (from >= end) break;
+    days.push({ key: dayKey(day), from, to: startOfLocalDay(addDays(day, 1), timeZone) });
   }
 
-  for (const row of response?.results ?? []) {
-    const month = String(row.month).padStart(2, '0');
-    const day = String(row.day).padStart(2, '0');
-    const key = `${row.year}-${month}-${day}`;
+  const byDate = new Map(days.map((d) => [d.key, { date: d.key, orders: 0, revenue: 0 }]));
 
-    if (byDate.has(key)) {
-      byDate.set(key, {
-        date: key,
-        orders: Number(row.orders) || 0,
-        revenue: round(row.revenue),
-      });
+  if (timeZone === DEFAULT_TIME_ZONE) {
+    const response = await swell.get('/orders', {
+      where: revenueWhere(start, end),
+      group: {
+        orders: { $sum: 1 },
+        revenue: { $sum: 'grand_total' },
+        year: { $year: 'date_created' },
+        month: { $month: 'date_created' },
+        day: { $dayOfMonth: 'date_created' },
+      },
+    });
+
+    for (const row of response?.results ?? []) {
+      const key = dayKey({ year: Number(row.year), month: Number(row.month), day: Number(row.day) });
+      if (byDate.has(key)) {
+        byDate.set(key, { date: key, orders: Number(row.orders) || 0, revenue: round(row.revenue) });
+      }
     }
+    return [...byDate.values()];
   }
 
+  const BATCH = 8;
+  for (let i = 0; i < days.length; i += BATCH) {
+    await Promise.all(
+      days.slice(i, i + BATCH).map(async (d) => {
+        const response = await swell.get('/orders', {
+          where: revenueWhere(d.from, d.to),
+          group: { orders: { $sum: 1 }, revenue: { $sum: 'grand_total' } },
+        });
+        const row = response?.results?.[0];
+        if (row) {
+          byDate.set(d.key, { date: d.key, orders: Number(row.orders) || 0, revenue: round(row.revenue) });
+        }
+      }),
+    );
+  }
   return [...byDate.values()];
 }
 
@@ -588,19 +634,24 @@ export async function fetchCurrency(swell: SwellAPI, start: Date, end: Date): Pr
   return last?.currency || 'USD';
 }
 
-/** True when the window is exactly one calendar month. */
-function isCalendarMonth(start: Date, end: Date): boolean {
-  const months =
-    (end.getUTCFullYear() - start.getUTCFullYear()) * 12 +
-    (end.getUTCMonth() - start.getUTCMonth());
+/** True when the window is exactly one calendar month in the store's time zone. */
+function isCalendarMonth(start: Date, end: Date, timeZone: string): boolean {
+  const first = localDay(start, timeZone);
+  const after = localDay(end, timeZone);
+  const months = (after.year - first.year) * 12 + (after.month - first.month);
 
-  return start.getUTCDate() === 1 && end.getUTCDate() === 1 && months === 1;
+  return first.day === 1 && after.day === 1 && months === 1;
 }
 
-export function formatPeriodLabel(start: Date, end: Date): string {
+/** "Oct 9 – Oct 15, 2026", "Oct 16, 2026" or "September 2026", in the store's days. */
+export function formatPeriodLabel(
+  start: Date,
+  end: Date,
+  timeZone: string = DEFAULT_TIME_ZONE,
+): string {
   // A whole month reads better by name than as a date range.
-  if (isCalendarMonth(start, end)) {
-    return start.toLocaleDateString('en-US', {
+  if (isCalendarMonth(start, end, timeZone)) {
+    return dayAsUtcDate(localDay(start, timeZone)).toLocaleDateString('en-US', {
       month: 'long',
       year: 'numeric',
       timeZone: 'UTC',
@@ -614,11 +665,14 @@ export function formatPeriodLabel(start: Date, end: Date): string {
   };
 
   // `end` is exclusive, so the last day actually covered is the day before.
-  const lastDay = new Date(end.getTime() - 1);
-  const startYear = start.getUTCFullYear();
-  const endYear = lastDay.getUTCFullYear();
+  const firstDay = localDay(start, timeZone);
+  const lastLocal = localDay(new Date(end.getTime() - 1), timeZone);
+  const first = dayAsUtcDate(firstDay);
+  const lastDay = dayAsUtcDate(lastLocal);
+  const startYear = firstDay.year;
+  const endYear = lastLocal.year;
 
-  if (end.getTime() - start.getTime() <= 86400000) {
+  if (daysBetween(firstDay, lastLocal) <= 0) {
     return `${lastDay.toLocaleDateString('en-US', opts)}, ${endYear}`;
   }
 
@@ -626,8 +680,8 @@ export function formatPeriodLabel(start: Date, end: Date): string {
   // one, so "Dec 29, 2025 – Jan 4, 2026" stays unambiguous.
   const from =
     startYear === endYear
-      ? start.toLocaleDateString('en-US', opts)
-      : `${start.toLocaleDateString('en-US', opts)}, ${startYear}`;
+      ? first.toLocaleDateString('en-US', opts)
+      : `${first.toLocaleDateString('en-US', opts)}, ${startYear}`;
 
   return `${from} – ${lastDay.toLocaleDateString('en-US', opts)}, ${endYear}`;
 }
@@ -754,7 +808,7 @@ export async function buildReport(
   reportWindow: ReportWindow,
   settings: ReportSettings,
 ) {
-  const { start: periodStart, end: periodEnd, prevStart } = reportWindow;
+  const { start: periodStart, end: periodEnd, prevStart, timeZone } = reportWindow;
 
   // Whole days in the window. A calendar month is 28–31, so the day-by-day
   // table still fits inside MAX_DAILY_ROWS.
@@ -771,12 +825,12 @@ export async function buildReport(
       // A day-by-day table stops being readable past about a month, and would
       // bloat both the stored record and the email.
       settings.include_daily_breakdown && days <= MAX_DAILY_ROWS
-        ? fetchDailyTotals(swell, periodStart, periodEnd)
+        ? fetchDailyTotals(swell, periodStart, periodEnd, timeZone)
         : Promise.resolve([]),
     ]);
 
   return {
-    period_label: formatPeriodLabel(periodStart, periodEnd),
+    period_label: formatPeriodLabel(periodStart, periodEnd, timeZone),
     period_start: periodStart.toISOString(),
     period_end: periodEnd.toISOString(),
     currency,

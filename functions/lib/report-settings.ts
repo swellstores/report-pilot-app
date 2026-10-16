@@ -16,6 +16,8 @@ export interface TypeSettings {
   period: string;
   recipients: string[];
   send_when_empty: boolean;
+  /** The store's time zone, from the app's "Time zone" setting. */
+  timeZone: string;
 }
 
 export interface InventorySettings extends TypeSettings {
@@ -60,6 +62,7 @@ function common(raw: SwellSettings | undefined | null, prefix: string): TypeSett
     // The main list plus this report's own list (e.g. `inventory_recipients`).
     recipients: recipientsFor(settings, prefix),
     send_when_empty: shared.send_when_empty,
+    timeZone: shared.timeZone,
   };
 }
 

@@ -107,7 +107,7 @@
       "label": "Previous period discounts",
       "type": "currency",
       "readonly": true,
-      "description": "Discounts given in the period of equal length just before this one."
+      "description": "Discounts given in the period just before this one: the previous day, week or 14 days, or the previous calendar month."
     },
     {
       "id": "discount_change_pct",
@@ -136,7 +136,7 @@
               "key": "prev_discount_total",
               "label": "Previous period discounts",
               "type": "currency",
-              "hint": "Discounts given in the period of equal length just before this one."
+              "hint": "Discounts given in the period just before this one: the previous day, week or 14 days, or the previous calendar month."
             },
             {
               "key": "discount_change_pct",

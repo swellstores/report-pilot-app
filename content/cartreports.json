@@ -92,7 +92,7 @@
             {
               "key": "open_count",
               "label": "Still open",
-              "hint": "Abandoned carts in this period that have not become an order."
+              "hint": "Abandoned carts in this period that haven't been recovered: they haven't become an order, or their order was cancelled."
             }
           ],
           [

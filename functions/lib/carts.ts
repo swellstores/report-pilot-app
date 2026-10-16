@@ -180,7 +180,7 @@ export async function buildCartReport(swell: SwellAPI, reportWindow: ReportWindo
   const names = await fetchProductNames(swell, topProducts.map(([id]) => id));
 
   return {
-    period_label: formatPeriodLabel(start, end),
+    period_label: formatPeriodLabel(start, end, reportWindow.timeZone),
     period_start: start.toISOString(),
     period_end: end.toISOString(),
     currency,
@@ -192,7 +192,9 @@ export async function buildCartReport(swell: SwellAPI, reportWindow: ReportWindo
     recovered_count: recovered.length,
     recovery_rate_pct: abandonedCount ? round((recovered.length / abandonedCount) * 100) : 0,
     recovered_revenue: recoveredRevenue,
-    open_count: carts.filter((cart) => !cart.order).length,
+    // Not recovered: never became an order, or its order was cancelled. Matches
+    // the table's Open status, so Recovered + Still open = Abandoned.
+    open_count: abandonedCount - recovered.length,
     abandoned_carts: listed.map((cart) => ({
       cart_id: cart.id,
       number: cart.number,
@@ -200,7 +202,7 @@ export async function buildCartReport(swell: SwellAPI, reportWindow: ReportWindo
       customer: cart.account_id ? accountName(accounts.get(cart.account_id), 'Unknown customer') : 'Guest',
       items: cart.quantity,
       value: cart.value,
-      abandoned_date: isoDate(new Date(cart.abandoned_at)),
+      abandoned_date: isoDate(new Date(cart.abandoned_at), reportWindow.timeZone),
       status: cart.order && !cart.order.canceled ? 'recovered' : 'open',
     })),
     carts_hidden: Math.max(0, ranked.length - LIST_LIMIT),

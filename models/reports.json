@@ -107,13 +107,13 @@
     "prev_order_count": {
       "type": "int",
       "label": "Previous period orders",
-      "description": "Order count for the immediately preceding period of equal length.",
+      "description": "Order count for the previous period (day, week, 14 days or calendar month).",
       "default": 0
     },
     "prev_grand_total": {
       "type": "currency",
       "label": "Previous period revenue",
-      "description": "Revenue for the immediately preceding period of equal length.",
+      "description": "Revenue for the previous period (day, week, 14 days or calendar month).",
       "default": 0
     },
     "revenue_change_pct": {

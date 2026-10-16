@@ -44,7 +44,7 @@
       "label": "Previous period customers",
       "type": "number",
       "readonly": true,
-      "description": "The same count for the period of equal length just before this one."
+      "description": "The same count for the period just before this one: the previous day, week or 14 days, or the previous calendar month."
     },
     {
       "id": "customer_change_pct",
@@ -113,7 +113,7 @@
             {
               "key": "prev_customer_count",
               "label": "Previous period",
-              "hint": "The same count for the period of equal length just before this one."
+              "hint": "The same count for the period just before this one: the previous day, week or 14 days, or the previous calendar month."
             },
             {
               "key": "customer_change_pct",

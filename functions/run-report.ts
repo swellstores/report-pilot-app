@@ -58,8 +58,8 @@ async function handle(req: SwellRequest, save: boolean) {
   const requestedDays = Number(req.query?.days ?? req.data?.days);
   const reportWindow =
     Number.isFinite(requestedDays) && requestedDays > 0
-      ? rollingWindow(Math.min(730, Math.trunc(requestedDays)))
-      : resolveWindow(period);
+      ? rollingWindow(Math.min(730, Math.trunc(requestedDays)), new Date(), settings.timeZone)
+      : resolveWindow(period, new Date(), settings.timeZone);
 
   const report = await buildReport(swell, reportWindow, settings);
 

@@ -148,7 +148,7 @@ export async function buildProductReport(
   const topRevenue = round(top.reduce((sum, entry) => sum + entry.revenue, 0));
 
   return {
-    period_label: formatPeriodLabel(start, end),
+    period_label: formatPeriodLabel(start, end, reportWindow.timeZone),
     period_start: start.toISOString(),
     period_end: end.toISOString(),
     currency,

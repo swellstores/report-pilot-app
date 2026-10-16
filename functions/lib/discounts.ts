@@ -182,7 +182,7 @@ export async function buildDiscountReport(
   const undiscountedRevenue = totals.grand_total - discounted.revenue;
 
   return {
-    period_label: formatPeriodLabel(start, end),
+    period_label: formatPeriodLabel(start, end, reportWindow.timeZone),
     period_start: start.toISOString(),
     period_end: end.toISOString(),
     currency,

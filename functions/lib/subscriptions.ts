@@ -113,7 +113,7 @@ export async function buildSubscriptionReport(swell: SwellAPI, reportWindow: Rep
   ]);
   const customer = (sub: any) =>
     sub.account_id ? accountName(accounts.get(sub.account_id), 'Unknown customer') : 'Unknown customer';
-  const day = (date: unknown) => (date ? isoDate(new Date(String(date))) : null);
+  const day = (date: unknown) => (date ? isoDate(new Date(String(date)), reportWindow.timeZone) : null);
 
   const canceledCount = canceled.rows.length;
   const currency =
@@ -122,7 +122,7 @@ export async function buildSubscriptionReport(swell: SwellAPI, reportWindow: Rep
     'USD';
 
   return {
-    period_label: formatPeriodLabel(start, end),
+    period_label: formatPeriodLabel(start, end, reportWindow.timeZone),
     period_start: start.toISOString(),
     period_end: end.toISOString(),
     currency,

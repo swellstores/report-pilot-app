@@ -119,7 +119,7 @@
       "id": "revenue_change_pct",
       "label": "Revenue change",
       "type": "percent",
-      "description": "Percentage change in revenue compared with the previous period of equal length.",
+      "description": "Percentage change in revenue compared with the previous period: the previous day, week or 14 days, or the previous calendar month.",
       "admin_span": 1,
       "readonly": true
     },
@@ -129,7 +129,7 @@
       "type": "percent",
       "admin_span": 1,
       "readonly": true,
-      "description": "Percentage change in orders compared with the previous period of equal length."
+      "description": "Percentage change in orders compared with the previous period: the previous day, week or 14 days, or the previous calendar month."
     },
     {
       "id": "prev_grand_total",
@@ -137,7 +137,7 @@
       "type": "currency",
       "admin_span": 1,
       "readonly": true,
-      "description": "Revenue in the period of equal length just before this one."
+      "description": "Revenue in the period just before this one: the previous day, week or 14 days, or the previous calendar month."
     },
     {
       "id": "prev_order_count",
@@ -145,7 +145,7 @@
       "type": "number",
       "admin_span": 1,
       "readonly": true,
-      "description": "Orders in the period of equal length just before this one."
+      "description": "Orders in the period just before this one: the previous day, week or 14 days, or the previous calendar month."
     },
     {
       "id": "cancelled_count",
@@ -183,13 +183,13 @@
               "key": "prev_grand_total",
               "label": "Previous revenue",
               "type": "currency",
-              "hint": "Revenue in the period of equal length just before this one."
+              "hint": "Revenue in the period just before this one: the previous day, week or 14 days, or the previous calendar month."
             },
             {
               "key": "revenue_change_pct",
               "label": "Revenue change",
               "type": "change",
-              "hint": "Percentage change in revenue compared with the previous period of equal length."
+              "hint": "Percentage change in revenue compared with the previous period: the previous day, week or 14 days, or the previous calendar month."
             }
           ],
           [
@@ -201,13 +201,13 @@
             {
               "key": "prev_order_count",
               "label": "Previous orders",
-              "hint": "Orders in the period of equal length just before this one."
+              "hint": "Orders in the period just before this one: the previous day, week or 14 days, or the previous calendar month."
             },
             {
               "key": "order_change_pct",
               "label": "Order change",
               "type": "change",
-              "hint": "Percentage change in orders compared with the previous period of equal length."
+              "hint": "Percentage change in orders compared with the previous period: the previous day, week or 14 days, or the previous calendar month."
             }
           ],
           [

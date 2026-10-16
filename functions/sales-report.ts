@@ -5,13 +5,15 @@ import {
   resolveWindow,
   sendToExtraRecipients,
 } from './lib/report';
+import { isSendHour } from './lib/time';
 
 export const config: SwellConfig = {
   description: 'Compute sales and revenue analytics and trigger the email report',
-  // Runs daily; the configured period decides which days actually produce a
+  // Runs hourly; only the store's 08:00 hour (app "Time zone" setting) can
+  // send, and the configured period decides which days actually produce a
   // report, so changing the setting takes effect without redeploying.
   cron: {
-    schedule: '0 8 * * *',
+    schedule: '0 * * * *',
   },
   timeout: 10000,
 };
@@ -28,12 +30,17 @@ export default async function (req: SwellRequest) {
 
   const now = new Date();
 
-  if (!isDueToday(settings.period, now)) {
+  // The cron runs hourly; only the store's 08:00 hour sends.
+  if (!isSendHour(now, settings.timeZone)) {
+    return { skipped: 'not_send_hour', timezone: settings.timeZone };
+  }
+
+  if (!isDueToday(settings.period, now, settings.timeZone)) {
     console.log(`Sales report skipped: ${settings.period} report is not due today.`);
     return { skipped: 'not_due', period: settings.period };
   }
 
-  const report = await buildReport(swell, resolveWindow(settings.period, now), settings);
+  const report = await buildReport(swell, resolveWindow(settings.period, now, settings.timeZone), settings);
 
   if (report.order_count === 0 && !settings.send_when_empty) {
     console.log(`Sales report skipped: no paid orders in ${report.period_label}.`);

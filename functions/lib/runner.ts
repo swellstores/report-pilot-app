@@ -30,6 +30,7 @@ import {
   resolveProductSettings,
   resolveSubscriptionSettings,
 } from './report-settings';
+import { isSendHour } from './time';
 
 export const REPORT_TYPES = [
   'sales',
@@ -51,6 +52,7 @@ interface Resolved {
   period: string;
   recipients: string[];
   send_when_empty: boolean;
+  timeZone: string;
 }
 
 interface Definition {
@@ -71,7 +73,7 @@ const DEFINITIONS: Record<ReportType, Definition> = {
     collection: 'reports',
     template: NOTIFICATION_TEMPLATE,
     settings: resolveSettings,
-    build: (swell, settings, now, period) => buildReport(swell, resolveWindow(period, now), settings),
+    build: (swell, settings, now, period) => buildReport(swell, resolveWindow(period, now, settings.timeZone), settings),
     isEmpty: (report) => report.order_count === 0,
     summary: (report) => `${report.order_count} orders, ${report.grand_total} ${report.currency}`,
   },
@@ -91,7 +93,7 @@ const DEFINITIONS: Record<ReportType, Definition> = {
     template: 'customerreports.customer-report',
     settings: resolveCustomerSettings,
     build: (swell, settings, now, period) =>
-      buildCustomerReport(swell, resolveWindow(period, now), settings),
+      buildCustomerReport(swell, resolveWindow(period, now, settings.timeZone), settings),
     isEmpty: customersIsEmpty,
     summary: (report) =>
       `${report.customer_count} customers, ${report.new_customer_count} new`,
@@ -102,7 +104,7 @@ const DEFINITIONS: Record<ReportType, Definition> = {
     template: 'discountreports.discount-report',
     settings: resolveDiscountSettings,
     build: (swell, settings, now, period) =>
-      buildDiscountReport(swell, resolveWindow(period, now), settings),
+      buildDiscountReport(swell, resolveWindow(period, now, settings.timeZone), settings),
     isEmpty: discountsIsEmpty,
     summary: (report) =>
       `${report.discounted_order_count} discounted orders, ${report.discount_total} ${report.currency} off`,
@@ -113,7 +115,7 @@ const DEFINITIONS: Record<ReportType, Definition> = {
     template: 'productreports.product-report',
     settings: resolveProductSettings,
     build: (swell, settings, now, period) =>
-      buildProductReport(swell, resolveWindow(period, now), settings),
+      buildProductReport(swell, resolveWindow(period, now, settings.timeZone), settings),
     isEmpty: productsIsEmpty,
     summary: (report) => `${report.products_sold_count} products sold, ${report.unsold_count} unsold`,
   },
@@ -122,7 +124,7 @@ const DEFINITIONS: Record<ReportType, Definition> = {
     collection: 'cartreports',
     template: 'cartreports.cart-report',
     settings: resolveCartSettings,
-    build: (swell, _settings, now, period) => buildCartReport(swell, resolveWindow(period, now)),
+    build: (swell, settings, now, period) => buildCartReport(swell, resolveWindow(period, now, settings.timeZone)),
     isEmpty: cartsIsEmpty,
     summary: (report) =>
       `${report.abandoned_count} abandoned carts, ${report.recovered_count} recovered`,
@@ -132,7 +134,7 @@ const DEFINITIONS: Record<ReportType, Definition> = {
     collection: 'subscriptionreports',
     template: 'subscriptionreports.subscription-report',
     settings: resolveSubscriptionSettings,
-    build: (swell, _settings, now, period) => buildSubscriptionReport(swell, resolveWindow(period, now)),
+    build: (swell, settings, now, period) => buildSubscriptionReport(swell, resolveWindow(period, now, settings.timeZone)),
     isEmpty: subscriptionsIsEmpty,
     summary: (report) =>
       `${report.active_count} active, ${report.new_count} new, ${report.canceled_count} canceled`,
@@ -198,7 +200,11 @@ export async function generate(swell: SwellAPI, type: ReportType, options: Gener
   };
 }
 
-/** Entry point for a type's daily cron: honour the toggles and the schedule. */
+/**
+ * Entry point for a type's cron, which runs every hour: honour the toggles,
+ * then send only in the store's send hour (08:00 local) on a day the period
+ * is due.
+ */
 export async function runScheduled(swell: SwellAPI, type: ReportType, now: Date = new Date()) {
   const definition = DEFINITIONS[type];
   const settings = definition.settings(await swell.settings());
@@ -208,7 +214,13 @@ export async function runScheduled(swell: SwellAPI, type: ReportType, now: Date 
     return { type, skipped: 'disabled' };
   }
 
-  if (!isDueToday(settings.period, now)) {
+  // Every other hour of the day returns here without a log line, to keep the
+  // hourly runs quiet.
+  if (!isSendHour(now, settings.timeZone)) {
+    return { type, skipped: 'not_send_hour', timezone: settings.timeZone };
+  }
+
+  if (!isDueToday(settings.period, now, settings.timeZone)) {
     return { type, skipped: 'not_due', period: settings.period };
   }
 

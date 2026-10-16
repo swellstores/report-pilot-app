@@ -1,11 +1,15 @@
 /**
  * Generate the Report Pilot app icon as a PNG, with no image dependencies.
  *
- * Renders a rounded-square mark with three ascending report bars and a paper
+ * Renders a full square mark with three ascending report bars and a paper
  * plane taking off above them (the reports, and them being sent), at 4x, then
  * box downsamples for antialiasing. Writes 512x512 RGBA.
  *
  * Shapes are laid out on a 512-unit grid and scaled by the supersample factor.
+ *
+ * The icon is a full, opaque square with no corners of its own, like every
+ * other app's: swell.is/apps, the App Store and the dashboard each round it
+ * themselves (swell.is uses an 8px radius on a 72px frame).
  */
 const { inRoundRect, render, writePNG } = require('./lib/draw');
 const { BG, BG_DEEP, BAR, BAR_DIM } = require('./lib/brand');
@@ -15,8 +19,6 @@ const SIZE = 512;
 const SS = 4; // supersample factor
 const S = SIZE * SS;
 const u = (n) => n * SS; // 512-unit grid -> supersampled pixels
-
-const cardRadius = u(113);
 
 // Three ascending bars: the shortest dimmed, the other two full strength.
 const barRadius = u(18);
@@ -32,10 +34,6 @@ const PLANE_SCALE = 0.62;
 const planeAt = makePlane(([x, y]) => [u(PLANE_AT[0] + x * PLANE_SCALE), u(PLANE_AT[1] + y * PLANE_SCALE)]);
 
 function shade(px, py) {
-  if (!inRoundRect(px, py, 0, 0, S, S, cardRadius)) {
-    return null;
-  }
-
   const planeColor = planeAt(px, py);
   if (planeColor) {
     return planeColor;

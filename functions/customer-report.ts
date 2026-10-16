@@ -2,10 +2,11 @@ import { runScheduled } from './lib/runner';
 
 export const config: SwellConfig = {
   description: 'Email the customer report on its schedule',
-  // Runs daily; the report's own period setting decides which days send.
+  // Runs hourly; only the store's 08:00 hour (app "Time zone" setting) can
+  // send, and the report's own period setting decides which days send.
   // Staggered a few minutes after the sales report so the runs do not overlap.
   cron: {
-    schedule: '10 8 * * *',
+    schedule: '10 * * * *',
   },
   timeout: 10000,
 };

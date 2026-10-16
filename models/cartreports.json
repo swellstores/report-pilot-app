@@ -78,7 +78,7 @@
     "open_count": {
       "type": "int",
       "label": "Still open",
-      "description": "Abandoned carts that have not become an order.",
+      "description": "Abandoned carts that have not been recovered (no order, or the order was cancelled).",
       "default": 0
     },
     "abandoned_carts": {
