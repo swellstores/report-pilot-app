@@ -11,7 +11,7 @@
       "loading_label": "Sending…",
       "modal": {
         "title": "Send a report now",
-        "description": "The report covers the most recent full period, ending at midnight today, and goes to the recipients for that report.",
+        "description": "Each report covers its most recent full period, ending at midnight today (the inventory report shows stock as it is now), and goes to the recipients for that report.",
         "submit_label": "Send",
         "fields": [
           {
@@ -498,7 +498,7 @@
           "default": "weekly",
           "options": [
             {
-              "label": "Daily (last 24 hours)",
+              "label": "Daily (previous day)",
               "value": "daily"
             },
             {
@@ -559,7 +559,7 @@
           "default": "weekly",
           "options": [
             {
-              "label": "Daily (last 24 hours)",
+              "label": "Daily (previous day)",
               "value": "daily"
             },
             {
@@ -666,7 +666,7 @@
           "default": "weekly",
           "options": [
             {
-              "label": "Daily (last 24 hours)",
+              "label": "Daily (previous day)",
               "value": "daily"
             },
             {
@@ -719,7 +719,7 @@
           "default": "weekly",
           "options": [
             {
-              "label": "Daily (last 24 hours)",
+              "label": "Daily (previous day)",
               "value": "daily"
             },
             {
@@ -764,7 +764,7 @@
           "default": "weekly",
           "options": [
             {
-              "label": "Daily (last 24 hours)",
+              "label": "Daily (previous day)",
               "value": "daily"
             },
             {
@@ -809,7 +809,7 @@
           "default": "weekly",
           "options": [
             {
-              "label": "Daily (last 24 hours)",
+              "label": "Daily (previous day)",
               "value": "daily"
             },
             {

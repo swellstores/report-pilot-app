@@ -37,7 +37,7 @@
       "label": "Customers",
       "type": "number",
       "readonly": true,
-      "description": "Different customers who placed at least one paid order in this period."
+      "description": "Different customers who placed at least one paid order in this period. Guest checkouts aren't counted."
     },
     {
       "id": "prev_customer_count",
@@ -103,12 +103,14 @@
       "readonly": true,
       "description": "Headline figures for this period. Hover the info icon on a figure for what it counts.",
       "params": {
+        "note_key": "truncated",
+        "note": "This period, or the one before it used for comparison, had more customers or orders than the report reads, so some figures cover only part of it and the counts are a lower bound.",
         "rows": [
           [
             {
               "key": "customer_count",
               "label": "Customers",
-              "hint": "Different customers who placed at least one paid order in this period."
+              "hint": "Different customers who placed at least one paid order in this period. Guest checkouts aren't counted."
             },
             {
               "key": "prev_customer_count",
@@ -170,7 +172,7 @@
       "readonly": true,
       "description": "The customers who spent the most in this period, up to 10. Click a name to open their customer page.",
       "params": {
-        "empty": "No customers placed a paid order in this period.",
+        "empty": "No customers placed a paid order in this period, or Include top customers is turned off in the app settings.",
         "columns": [
           {
             "key": "name",

@@ -9,7 +9,7 @@
   "admin": true,
   "new": true,
   "repeat": true,
-  "subject": "Abandoned carts: {{ period_label }} — {{ abandoned_count }} abandoned, {{ recovered_count }} recovered",
+  "subject": "Abandoned carts: {{ period_label }} — {% assign rp_n = abandoned_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %} abandoned, {% assign rp_n = recovered_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %} recovered",
   "conditions": {
     "id": {
       "$exists": false
@@ -44,7 +44,7 @@
     "recovered_revenue": 1104.5,
     "open_count": 33,
     "truncated": false,
-    "carts_hidden": 32,
+    "carts_hidden": 39,
     "abandoned_carts": [
       {
         "cart_id": "9001",

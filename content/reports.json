@@ -39,7 +39,7 @@
       "id": "grand_total",
       "label": "Revenue",
       "type": "currency",
-      "description": "Total of paid, non-cancelled orders in this period, including shipping and tax, after discounts and refunds.",
+      "description": "Total of paid, non-canceled orders in this period, including shipping and tax, after discounts and refunds.",
       "admin_span": 2,
       "readonly": true
     },
@@ -49,7 +49,7 @@
       "type": "number",
       "admin_span": 1,
       "readonly": true,
-      "description": "Number of paid, non-cancelled orders in this period."
+      "description": "Number of paid, non-canceled orders in this period."
     },
     {
       "id": "average_order_value",
@@ -81,7 +81,7 @@
       "type": "currency",
       "admin_span": 1,
       "readonly": true,
-      "description": "Total taken off by coupons, promotions and other discounts."
+      "description": "Total taken off items by coupons, promotions and other discounts. Shipping discounts aren't included: Shipping is already after them."
     },
     {
       "id": "shipping_total",
@@ -89,7 +89,7 @@
       "type": "currency",
       "admin_span": 1,
       "readonly": true,
-      "description": "Total shipping charged."
+      "description": "Total shipping charged, after shipping discounts."
     },
     {
       "id": "tax_total",
@@ -149,9 +149,9 @@
     },
     {
       "id": "cancelled_count",
-      "label": "Cancelled orders",
+      "label": "Canceled orders",
       "type": "number",
-      "description": "Orders placed in this period that were cancelled. Not counted in revenue.",
+      "description": "Orders placed in this period that were canceled. Not counted in revenue.",
       "admin_span": 1,
       "readonly": true
     },
@@ -187,7 +187,7 @@
               "key": "grand_total",
               "label": "Revenue",
               "type": "currency",
-              "hint": "Total of paid, non-cancelled orders in this period, including shipping and tax, after discounts and refunds."
+              "hint": "Total of paid, non-canceled orders in this period, including shipping and tax, after discounts and refunds."
             },
             {
               "key": "prev_grand_total",
@@ -206,7 +206,7 @@
             {
               "key": "order_count",
               "label": "Orders",
-              "hint": "Number of paid, non-cancelled orders in this period."
+              "hint": "Number of paid, non-canceled orders in this period."
             },
             {
               "key": "prev_order_count",
@@ -256,7 +256,7 @@
               "key": "discount_total",
               "label": "Discounts",
               "type": "currency",
-              "hint": "Total taken off by coupons, promotions and other discounts."
+              "hint": "Total taken off items by coupons, promotions and other discounts. Shipping discounts aren't included: Shipping is already after them."
             },
             {
               "key": "shipping_total",
@@ -274,8 +274,8 @@
           [
             {
               "key": "cancelled_count",
-              "label": "Cancelled orders",
-              "hint": "Orders placed in this period that were cancelled. Not counted in revenue."
+              "label": "Canceled orders",
+              "hint": "Orders placed in this period that were canceled. Not counted in revenue."
             },
             {
               "key": "unpaid_count",
@@ -298,9 +298,9 @@
       "type": "component",
       "component": "ReportTable",
       "readonly": true,
-      "description": "Best sellers in this period, ranked by revenue, up to 10.",
+      "description": "Best sellers in this period, ranked by what the items sold for (before shipping, tax and refunds), up to 10.",
       "params": {
-        "empty": "No products sold in this period.",
+        "empty": "No products sold in this period, or Include top products is turned off in the app settings.",
         "columns": [
           {
             "key": "name",

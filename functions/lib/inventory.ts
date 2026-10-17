@@ -12,6 +12,7 @@ import { formatPeriodLabel, revenueWhere, rollingWindow, round } from './report'
 import { addDays, localDay, startOfLocalDay } from './time';
 import type { InventorySettings } from './report-settings';
 import { chunk, RECORD_ID, scan } from './scan';
+import { plainText } from './text';
 
 /** Days of sales used for the rate of sale. */
 const VELOCITY_DAYS = 30;
@@ -162,10 +163,12 @@ export async function buildInventoryReport(
           {
             product_id: product.id,
             variant_id: variant.id,
-            name: variant.name
-              ? `${product.name || 'Unnamed product'} — ${variant.name}`
-              : product.name || 'Unnamed product',
-            sku: variant.sku ?? product.sku ?? null,
+            name: plainText(
+              variant.name
+                ? `${product.name || 'Unnamed product'} — ${variant.name}`
+                : product.name || 'Unnamed product',
+            ),
+            sku: plainText(variant.sku ?? product.sku) || null,
             stock_level: Number(variant.stock_level) || 0,
           },
           threshold,
@@ -183,8 +186,8 @@ export async function buildInventoryReport(
       {
         product_id: product.id,
         variant_id: null,
-        name: product.name || 'Unnamed product',
-        sku: product.sku ?? null,
+        name: plainText(product.name) || 'Unnamed product',
+        sku: plainText(product.sku) || null,
         stock_level: Number(product.stock_level) || 0,
       },
       threshold,

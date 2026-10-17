@@ -13,6 +13,7 @@
  */
 
 import { accountName, fetchAccounts } from './customers';
+import { plainText } from './text';
 import { fetchCurrency, formatPeriodLabel, isoDate, percentChange, round, type ReportWindow } from './report';
 import { chunk, RECORD_ID, scan } from './scan';
 
@@ -69,7 +70,7 @@ async function fetchProductNames(swell: SwellAPI, ids: string[]) {
       limit: batch.length,
     });
     for (const product of response?.results ?? []) {
-      byId.set(product.id, product.name || 'Unnamed product');
+      byId.set(product.id, plainText(product.name) || 'Unnamed product');
     }
   }
   return byId;

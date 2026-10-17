@@ -61,6 +61,8 @@
       "readonly": true,
       "description": "Headline figures for this snapshot. Hover the info icon on a figure for what it counts.",
       "params": {
+        "note_key": "truncated",
+        "note": "This store has more products, variants or recent orders than the report reads, so some items may be missing and the counts and days left are approximate.",
         "rows": [
           [
             {
@@ -83,7 +85,7 @@
       "type": "component",
       "component": "ReportTable",
       "readonly": true,
-      "description": "Out-of-stock items first, then the ones that will run out soonest. Up to 50 are listed.",
+      "description": "Out-of-stock items first, then the ones that will run out soonest. Up to 50 are listed. Est. days left is current stock divided by the average sold per day over the last 30 days.",
       "params": {
         "empty": "No products or variants are out of stock or running low.",
         "columns": [

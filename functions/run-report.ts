@@ -1,12 +1,5 @@
-import {
-  buildReport,
-  PERIODS,
-  resolveSettings,
-  resolveWindow,
-  rollingWindow,
-  sendToExtraRecipients,
-} from './lib/report';
-import { generate, isEnabled, isReportType, REPORT_TYPES } from './lib/runner';
+import { buildReport, PERIODS, resolveSettings, resolveWindow, rollingWindow } from './lib/report';
+import { generate, isEnabled, isReportType, REPORT_TYPES, startSend } from './lib/runner';
 
 export const config: SwellConfig = {
   description: 'Preview or generate any report on demand',
@@ -19,73 +12,46 @@ export const config: SwellConfig = {
 
 /**
  * GET  — build the report and return it without sending anything.
- * POST — build the report and save it, which sends the email.
+ * POST — start the `send-report` workflow, which builds, saves and emails it
+ *        (the same path as the schedule), and return straight away. Building
+ *        inline could run past the 10-second limit on a busy store.
  *
- * Both accept `?period=daily|weekly|biweekly|monthly`, or `?days=N` for an arbitrary
- * window, so a report can be sanity-checked before trusting the schedule.
+ * Both accept `?period=daily|weekly|biweekly|monthly`. GET also accepts
+ * `?days=N` for an arbitrary window, so a report can be sanity-checked before
+ * trusting the schedule.
  *
- * `?type=inventory|customers|discounts|products` runs one of the other report
- * types instead; without it the route behaves exactly as it always has and
- * runs the sales report. `?days=N` applies to the sales report only.
+ * `?type=inventory|customers|discounts|products|carts|subscriptions` runs one
+ * of the other report types instead; without it the route runs the sales
+ * report. `?days=N` applies to the sales report only.
  */
-async function handle(req: SwellRequest, save: boolean) {
+
+/** GET: build a report and return it, without saving or sending anything. */
+async function preview(req: SwellRequest) {
   const { swell } = req;
 
   const type = req.query?.type ?? req.data?.type;
   if (type !== undefined && type !== 'sales') {
-    return handleType(req, type, save);
+    return previewType(req, type);
   }
 
   const settings = resolveSettings(await swell.settings());
-
-  // Previewing only reads, so it stays available whatever the settings say.
-  // Saving is what sends the email, and `enabled` is the merchant's switch for
-  // exactly that — honouring it here keeps the manual route from doing what the
-  // schedule has been told not to.
-  if (save && !settings.enabled) {
-    return {
-      skipped: 'disabled',
-      message:
-        'Sales reports are switched off in app settings. Use GET to preview without sending.',
-    };
-  }
-
   const requested = (req.query?.period ?? req.data?.period) as string | undefined;
   const period = requested && PERIODS.includes(requested) ? requested : settings.period;
 
   // An explicit `days` always means a rolling window, even when the period is
   // `monthly` — an arbitrary day count has no calendar month to anchor to.
-  const requestedDays = Number(req.query?.days ?? req.data?.days);
+  const requestedDays = Math.trunc(Number(req.query?.days ?? req.data?.days));
   const reportWindow =
-    Number.isFinite(requestedDays) && requestedDays > 0
-      ? rollingWindow(Math.min(730, Math.trunc(requestedDays)), new Date(), settings.timeZone)
+    Number.isFinite(requestedDays) && requestedDays >= 1
+      ? rollingWindow(Math.min(730, requestedDays), new Date(), settings.timeZone)
       : resolveWindow(period, new Date(), settings.timeZone);
 
   const report = await buildReport(swell, reportWindow, settings);
-
-  if (!save) {
-    return { preview: true, period, ...report };
-  }
-
-  const created = await swell.post('/reports', report);
-
-  const copies =
-    created?.id && settings.recipients.length > 0
-      ? await sendToExtraRecipients(swell, created.id, settings.recipients)
-      : { sent: 0, failed: 0, errors: [] as string[] };
-
-  return {
-    preview: false,
-    period,
-    report_id: created?.id,
-    extra_recipients_sent: copies.sent,
-    extra_recipients_failed: copies.failed,
-    extra_recipient_errors: copies.errors,
-    ...report,
-  };
+  return { preview: true, period, ...report };
 }
 
-async function handleType(req: SwellRequest, type: unknown, save: boolean) {
+/** POST: honour the merchant's switch, then hand the report to the workflow. */
+async function startFromRoute(req: SwellRequest, type: unknown) {
   const { swell } = req;
 
   if (!isReportType(type)) {
@@ -95,27 +61,60 @@ async function handleType(req: SwellRequest, type: unknown, save: boolean) {
     };
   }
 
-  // Same rule as the sales report: previews always work, sending honours the
-  // merchant's switch for that report.
-  if (save && !(await isEnabled(swell, type))) {
+  // Previews always work; sending honours the merchant's switch for that
+  // report, so the route can't do what the schedule has been told not to.
+  if (!(await isEnabled(swell, type))) {
     return {
       skipped: 'disabled',
       message: `The ${type} report is switched off in app settings. Use GET to preview without sending.`,
     };
   }
 
+  if (req.query?.days ?? req.data?.days) {
+    return { error: 'days_preview_only', message: '`days` works with GET (preview) only. Use `period` to send.' };
+  }
+
+  const requested = (req.query?.period ?? req.data?.period) as string | undefined;
+  if (requested !== undefined && !PERIODS.includes(requested)) {
+    return { error: 'unknown_period', message: `Unknown period. Use one of: ${PERIODS.join(', ')}.` };
+  }
+  const period = requested;
+
+  let run;
+  try {
+    run = await startSend(swell, { type, now: new Date().toISOString(), period, source: 'route' });
+  } catch (error) {
+    console.error(`run-report: could not start send-report for ${type}:`, error);
+    return { error: 'not_started', message: error instanceof Error ? error.message : String(error) };
+  }
+  return {
+    started: run?.id,
+    type,
+    period: period ?? 'from settings',
+    message: 'Building, saving and emailing the report in the send-report workflow. See the app\'s Workflows tab.',
+  };
+}
+
+async function previewType(req: SwellRequest, type: unknown) {
+  if (!isReportType(type)) {
+    return {
+      error: 'unknown_type',
+      message: `Unknown report type. Use one of: ${REPORT_TYPES.join(', ')}.`,
+    };
+  }
+
   const requested = (req.query?.period ?? req.data?.period) as string | undefined;
   const period = requested && PERIODS.includes(requested) ? requested : undefined;
 
-  const result = await generate(swell, type, { save, period });
+  const result = await generate(req.swell, type, { period });
   const { report, ...meta } = result;
   return { ...meta, ...report };
 }
 
 export async function get(req: SwellRequest) {
-  return handle(req, false);
+  return preview(req);
 }
 
 export async function post(req: SwellRequest) {
-  return handle(req, true);
+  return startFromRoute(req, req.query?.type ?? req.data?.type ?? 'sales');
 }

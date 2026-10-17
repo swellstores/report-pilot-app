@@ -62,7 +62,7 @@ Revenue and orders for the period, compared with the period before.
 
 - **Summary:** Revenue, Previous revenue and Revenue change; Orders, Previous
   orders and Order change; Average order value and Items sold; New and
-  Returning customers; Subtotal, Discounts, Shipping and Tax; Cancelled orders,
+  Returning customers; Subtotal, Discounts, Shipping and Tax; Canceled orders,
   Unpaid orders and Refunds.
 - **Top products:** the 10 products that earned the most, with their quantity
   and revenue. Can be turned off.
@@ -71,10 +71,11 @@ Revenue and orders for the period, compared with the period before.
   any report longer than 31 days.
 - The **Sales reports** list has **With sales** and **No sales** tabs.
 
-Revenue counts orders that are paid and not cancelled, less anything refunded
+Revenue counts orders that are paid and not canceled, less anything refunded
 on them so far. On stores whose prices don't include tax, Subtotal − Discounts +
 Shipping + Tax − Refunds = Revenue.
-Shipping is after any shipping discount. Cancelled and unpaid orders are counted
+Shipping is after any shipping discount, so Discounts here are discounts on items
+only (the discount report counts both). Canceled and unpaid orders are counted
 separately and aren't in revenue; draft orders aren't counted at all. Refunds
 count against the period the order was placed in, as they stand when the report
 is built: a refund made after a report was sent isn't in that report. A customer is
@@ -98,7 +99,13 @@ Who bought in the period.
   customer. Turning this off keeps customer names out of the report and email
   entirely.
 
-Only orders linked to a customer account are counted. Spend is less any refunds.
+Customers are shown by name, in this report and in the cart and subscription
+reports. A customer with no name on their account is shown as "Unnamed
+customer": email addresses are never put in a report, because reports can go to
+people outside your business.
+
+Only orders linked to a customer account are counted, so guest checkouts aren't
+in Customers. Spend is less any refunds.
 
 ### Inventory report
 
@@ -131,7 +138,7 @@ How each product did in the period.
   sellers is never repeated here, so a store that sold 10 products or fewer sees
   this list empty.
 - **No sales:** active products, older than the period, that sold nothing in it.
-  Can be turned off.
+  Can be turned off; Products with no sales then shows — instead of a count.
 
 Revenue here is item revenue, worked out the same way as the sales report's top
 products. Swell doesn't split refunds by product, so item revenue is before
@@ -174,12 +181,12 @@ Swell marks a cart abandoned after about 3 hours without activity. A cart counts
 if it was abandoned in the period, including carts that later became an order.
 Empty and draft carts are left out.
 
-A cart is **recovered** when it later became an order that wasn't cancelled,
+A cart is **recovered** when it later became an order that wasn't canceled,
 however the customer came back: through Swell's abandoned cart email, on their
 own, or because staff turned the cart into an order. The report doesn't show how
 many came back because of the email. **Recovered revenue** counts only those
 orders that are paid, less any refunds. **Still open** counts the rest: carts that never became an
-order, or whose order was cancelled, so Recovered carts and Still open add up to
+order, or whose order was canceled, so Recovered carts and Still open add up to
 Abandoned carts. Abandoned change is shown in grey.
 
 ### Subscription report
@@ -203,7 +210,8 @@ recurring revenue adds up active subscriptions; plans billed daily, weekly or
 yearly are converted to a monthly amount. Canceled change is shown in grey.
 
 Because the report shows your current subscriptions, it's only skipped as
-"nothing to report" when the store has no subscriptions at all.
+"nothing to report" when nothing is active, on trial, paused or past due, and
+none were started or canceled in the period.
 
 ### Recipients
 
@@ -222,6 +230,7 @@ report immediately. The dialog closes straight away. The report is listed
 under **Reporting** once it's built, and the email usually arrives within a few
 minutes. It covers the most recent full period, ending at midnight
 today: the previous day, the last 7 or 14 days, or the previous calendar month.
+The inventory report, which has no period, shows stock as it is when it runs.
 On any day but Monday, a weekly report sent this way covers a different week from
 the scheduled one. It sends even if that report is switched off or the period was
 empty.
@@ -235,7 +244,8 @@ order. The differences:
 - summary rows of four cards show as two rows of two, and on phones the cards
   stack;
 - long lists show their first rows and say how many more are in the dashboard;
-- empty or switched-off lists are left out.
+- empty or switched-off lists are left out, except the inventory report's Items,
+  which says when nothing is out of stock or running low.
 
 You can change each email's intro line and footer note under **Settings →
 Notifications**. The subject line is fixed.
@@ -281,21 +291,21 @@ Some tabs have more:
   a fixed amount of data:
   - 2,500 orders for top products, the product report and the discount report
   - 20,000 customers for the customer report and the new and returning split
-  - 2,000 products for the inventory report and the No sales list
+  - 2,000 products for the inventory report and the No sales list, plus their
+    variants (500 per 100 products) and 2,500 orders for the last 30 days' sales
   - 2,500 carts and 2,500 subscriptions
 
   Totals such as revenue and order counts have no limit. When a report reaches a
-  limit, its email says the figures are partial. On the page, only the sales
-  report's Top products and New and Returning customers, and the product
-  report's Best sellers, show that note.
+  limit, its page and email say the figures are partial.
 - **The time zone is set in the app.** Swell doesn't let apps read your store's
   time zone, so the app has its own setting. If the two differ, reports follow
   the app's. Estimated days left on the inventory report counts the last 30 days
   in UTC.
 - **Stores that sell in more than one currency:** amounts are added up without
   converting them, and the report shows the currency of the most recent paid
-  order in the period (or USD if there are none). The subscription report uses
-  the subscriptions' currency. Treat totals on these stores as approximate.
+  order in the period. If the period has none, it uses the currency of the
+  store's most recent order (or USD for a store with no orders). The
+  subscription report uses the subscriptions' currency. Treat totals on these stores as approximate.
 - **Billing intervals:** plans billed daily, weekly, monthly or yearly are
   converted to a monthly amount. Any other interval is counted as monthly.
 - **Send times:** reports are sent once a day, in the 08:00 hour of your time
@@ -418,9 +428,11 @@ swell api get '/functions/report_pilot/run-report?type=carts&period=monthly'
 - `period`: `daily`, `weekly`, `biweekly` or `monthly`.
 - `days=N`: any number of days up to 730, sales report only.
 
-`swell api post` on the same path saves and emails the report, if that report is
-switched on. Other report types are still skipped when empty unless **Send even
-when there is nothing to report** is on; the sales report is always saved. When
+`swell api post` on the same path starts the `send-report` workflow, which
+saves and emails the report as the schedule would, if that report is switched
+on. It returns straight away; follow the run on the app's **Workflows** tab. A
+report is skipped when empty unless **Send even when there is nothing to report**
+is on. `days` works with GET only. When
 sending while developing, use `example.com` addresses: Swell processes those
 emails but never delivers them, and a store that sends too many real emails can
 be deactivated.
@@ -455,12 +467,14 @@ be deactivated.
 - **Daily breakdown in other time zones.** The server groups dates in UTC, so
   outside UTC each local day is totalled with its own small read (up to 31).
 - **Limits per run:** each function has a 10-second timeout, so the crons and
-  the action only start the `send-report` workflow, whose build step has 5
-  minutes. `run-report` still builds inline, so on a large store it can time
-  out. Recipients are emailed one at a time, and each send is checked about 5
-  seconds later (2.5 seconds in `run-report`).
-- **Logs:** `swell logs -f --app report_pilot`. Logs may be unavailable in the
-  test environment, so `run-report` returns errors in its response as well.
+  the action, and `run-report` when it sends, only start the `send-report`
+  workflow, whose build step has 5 minutes. A `run-report` preview (GET) still
+  builds inline, so on a very large store it can time out. Recipients are
+  emailed one at a time, and each send is checked about 5 seconds later.
+- **Logs:** `swell logs -f --app report_pilot`, or **Developer → Console → Logs**
+  filtered by the app. Each `send-report` run, its steps and any errors are on the
+  app's **Workflows** tab. A `run-report` preview returns its errors in its
+  response.
 
 ## Support
 

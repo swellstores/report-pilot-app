@@ -58,7 +58,7 @@
       "label": "Item revenue",
       "type": "currency",
       "readonly": true,
-      "description": "Revenue from items sold, before shipping and tax."
+      "description": "Revenue from items sold, before shipping, tax and refunds."
     },
     {
       "id": "top_share_pct",
@@ -75,6 +75,8 @@
       "readonly": true,
       "description": "Headline figures for this period. Hover the info icon on a figure for what it counts.",
       "params": {
+        "note_key": "truncated",
+        "note": "This store has more orders or products than the report reads, so some figures and lists cover only part of the period.",
         "rows": [
           [
             {
@@ -90,7 +92,7 @@
             {
               "key": "unsold_count",
               "label": "Products with no sales",
-              "hint": "Active products, created before this period, that sold nothing in it."
+              "hint": "Active products, created before this period, that sold nothing in it. Shows — when List products with no sales is off."
             }
           ],
           [
@@ -103,7 +105,7 @@
               "key": "item_revenue",
               "label": "Item revenue",
               "type": "currency",
-              "hint": "Revenue from items sold, before shipping and tax."
+              "hint": "Revenue from items sold, before shipping, tax and refunds."
             },
             {
               "key": "top_share_pct",
@@ -156,9 +158,7 @@
             "link_label": "View product"
           }
         ],
-        "collapsed_rows": 5,
-        "unlisted_key": "truncated",
-        "unlisted_note": "This period had more orders than one report reads, so these rankings cover only part of it."
+        "collapsed_rows": 5
       }
     },
     {

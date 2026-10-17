@@ -14,7 +14,8 @@
  */
 
 import { accountName, fetchAccounts } from './customers';
-import { formatPeriodLabel, isoDate, percentChange, round, type ReportWindow } from './report';
+import { plainText } from './text';
+import { formatPeriodLabel, isoDate, percentChange, round, storeCurrency, type ReportWindow } from './report';
 import { scan } from './scan';
 
 /** Rows stored per table; the dashboard shows 5 with "Show more", the email 5. */
@@ -50,7 +51,7 @@ async function read(swell: SwellAPI, where: Record<string, unknown>) {
 }
 
 const planLabel = (sub: any) =>
-  [sub?.product_name, sub?.plan_name].filter(Boolean).join(' — ') || 'Unknown plan';
+  plainText([sub?.product_name, sub?.plan_name].filter(Boolean).join(' — ')) || 'Unknown plan';
 
 export async function buildSubscriptionReport(swell: SwellAPI, reportWindow: ReportWindow) {
   const { start, end, prevStart } = reportWindow;
@@ -119,7 +120,7 @@ export async function buildSubscriptionReport(swell: SwellAPI, reportWindow: Rep
   const currency =
     running.rows.find((sub) => sub.currency)?.currency ||
     canceled.rows.find((sub) => sub.currency)?.currency ||
-    'USD';
+    (await storeCurrency(swell));
 
   return {
     period_label: formatPeriodLabel(start, end, reportWindow.timeZone),

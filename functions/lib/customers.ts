@@ -3,6 +3,7 @@
  * biggest customers were.
  */
 
+import { plainText } from './text';
 import {
   fetchCurrency,
   fetchCustomerSplit,
@@ -126,7 +127,7 @@ export async function fetchAccounts(swell: SwellAPI, ids: string[]) {
   for (const batch of chunk(ids.filter((id) => RECORD_ID.test(id)), 100)) {
     const response = await swell.get('/accounts', {
       where: { id: { $in: batch } },
-      fields: 'id,name,first_name,last_name,email,order_count,order_value,date_first_order',
+      fields: 'id,name,first_name,last_name,order_count,order_value,date_first_order',
       limit: batch.length,
     });
     for (const account of response?.results ?? []) {
@@ -138,20 +139,20 @@ export async function fetchAccounts(swell: SwellAPI, ids: string[]) {
 }
 
 /**
- * A customer's display name: their name, else their email, else `fallback`.
+ * A customer's display name: their name, else "Unnamed customer".
  *
- * Shoppers write their own names, and these are mailed to the store's team, so
- * `<` and `>` are removed: a name can't carry a link or other HTML into an
- * email whether or not the template escapes it.
+ * Never their email address: reports are mailed to anyone on the recipient
+ * lists, who may be outside the business. The customer link on the page still
+ * opens their record.
  */
 export function accountName(account: any, fallback: string): string {
-  const name =
-    account?.name ||
-    [account?.first_name, account?.last_name].filter(Boolean).join(' ') ||
-    account?.email ||
-    '';
-  return String(name).replace(/[<>]/g, '').trim() || fallback;
+  if (!account) {
+    return fallback;
+  }
+  const name = account.name || [account.first_name, account.last_name].filter(Boolean).join(' ');
+  return plainText(name) || 'Unnamed customer';
 }
+
 
 export async function buildCustomerReport(
   swell: SwellAPI,

@@ -3,12 +3,14 @@ import {
   checkRecipientDelivery,
   createRecipientNotification,
   isReportType,
+  isTemplateFor,
   notificationTemplate,
   reportLabel,
   reportSummary,
   saveForSend,
   type SendParams,
 } from './lib/runner';
+import { PERIODS } from './lib/report';
 
 export const config: SwellConfig = {
   kind: 'workflow',
@@ -28,8 +30,14 @@ const DELIVERY_CHECK = '5 seconds';
 export default class SendReport {
   async run(req: SwellWorkflowRequest, step: SwellWorkflowStep) {
     const params = req.data as SendParams;
-    if (!isReportType(params?.type) || typeof params.now !== 'string') {
-      console.error(`send-report started without a valid report type and time: ${JSON.stringify(req.data)}`);
+    const validPeriod = params?.period === undefined || PERIODS.includes(params.period);
+    if (
+      !isReportType(params?.type) ||
+      typeof params.now !== 'string' ||
+      !Number.isFinite(Date.parse(params.now)) ||
+      !validPeriod
+    ) {
+      console.error(`send-report started without a valid report type, time or period: ${JSON.stringify(req.data)}`);
       return { error: 'invalid_params' };
     }
 
@@ -67,7 +75,8 @@ export default class SendReport {
 
     // Looked up by the function that started this run: a workflow can't read
     // `/:models`. The short name is only a fallback for runs started without it.
-    const template = params.template ?? notificationTemplate(type);
+    // Only this report's own notification is accepted.
+    const template = isTemplateFor(type, params.template) ? params.template : notificationTemplate(type);
 
     // A step per address, never retried, so nobody is emailed twice. A failed
     // or timed-out address is recorded and the rest still go out.

@@ -75,6 +75,8 @@
       "readonly": true,
       "description": "Headline figures for this period. Hover the info icon on a figure for what it counts.",
       "params": {
+        "note_key": "truncated",
+        "note": "This store has more subscriptions than the report reads, so some figures and lists cover only part of them.",
         "rows": [
           [
             {

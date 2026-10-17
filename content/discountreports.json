@@ -37,7 +37,7 @@
       "label": "Orders",
       "type": "number",
       "readonly": true,
-      "description": "All paid, non-cancelled orders in this period, with or without a discount."
+      "description": "All paid, non-canceled orders in this period, with or without a discount."
     },
     {
       "id": "grand_total",
@@ -124,6 +124,8 @@
       "readonly": true,
       "description": "Headline figures for this period. Hover the info icon on a figure for what it counts.",
       "params": {
+        "note_key": "truncated",
+        "note": "This period had more discounted orders than the report reads, so the coupons and promotions list covers only part of it. The figures above are complete.",
         "rows": [
           [
             {
@@ -150,7 +152,7 @@
             {
               "key": "order_count",
               "label": "Orders",
-              "hint": "All paid, non-cancelled orders in this period, with or without a discount."
+              "hint": "All paid, non-canceled orders in this period, with or without a discount."
             },
             {
               "key": "discounted_order_count",

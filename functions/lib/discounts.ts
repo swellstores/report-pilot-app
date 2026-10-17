@@ -14,6 +14,7 @@ import {
 } from './report';
 import type { DiscountSettings } from './report-settings';
 import { chunk, RECORD_ID, scan } from './scan';
+import { plainText } from './text';
 
 interface DiscountLine {
   key: string;
@@ -70,7 +71,7 @@ async function fetchPromotionNames(swell: SwellAPI, ids: string[]) {
       });
       for (const promotion of response?.results ?? []) {
         if (promotion?.id && promotion.name) {
-          names.set(promotion.id, promotion.name);
+          names.set(promotion.id, plainText(promotion.name));
         }
       }
     }
@@ -130,7 +131,7 @@ export async function buildDiscountReport(
 
         const promotionId = promotionIdOf(discount);
         if (discount?.type === 'coupon' || (!promotionId && order.coupon_code && discount?.id === 'coupon')) {
-          const code = String(order.coupon_code || discount?.id || 'coupon').toUpperCase();
+          const code = plainText(order.coupon_code || discount?.id || 'coupon').toUpperCase();
           add({ key: `coupon:${code}`, type: 'coupon', label: code, promotion_id: null }, amount, revenue);
         } else if (promotionId) {
           add(
@@ -140,7 +141,7 @@ export async function buildDiscountReport(
           );
         } else {
           const id = String(discount?.id || discount?.type || 'other');
-          add({ key: `other:${id}`, type: 'other', label: discount?.name || id, promotion_id: null }, amount, revenue);
+          add({ key: `other:${id}`, type: 'other', label: plainText(discount?.name || id), promotion_id: null }, amount, revenue);
         }
       }
 

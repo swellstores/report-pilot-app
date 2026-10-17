@@ -26,7 +26,6 @@ import {
   resolveSettings,
   resolveTemplate,
   resolveWindow,
-  sendToExtraRecipients,
 } from './report';
 export { checkRecipientDelivery, createRecipientNotification, resolveTemplate } from './report';
 import {
@@ -124,7 +123,9 @@ const DEFINITIONS: Record<ReportType, Definition> = {
     build: (swell, settings, now, period) =>
       buildProductReport(swell, resolveWindow(period, now, settings.timeZone), settings),
     isEmpty: productsIsEmpty,
-    summary: (report) => `${report.products_sold_count} products sold, ${report.unsold_count} unsold`,
+    summary: (report) =>
+      `${report.products_sold_count} products sold` +
+      (report.unsold_count === null ? '' : `, ${report.unsold_count} unsold`),
   },
   carts: {
     label: 'Abandoned cart report',
@@ -153,58 +154,23 @@ export function reportLabel(type: ReportType): string {
 }
 
 export interface GenerateOptions {
-  /** Store the record and email the recipients in the app settings. */
-  save: boolean;
   /** Override the configured period for this run. */
   period?: string;
-  /** Store and send even when the report has nothing in it. */
-  force?: boolean;
   now?: Date;
 }
 
-/** Build one report and, when asked, store and send it. */
-export async function generate(swell: SwellAPI, type: ReportType, options: GenerateOptions) {
+/**
+ * Build one report without saving or sending it (the `run-report` preview).
+ * Saving and emailing happen in the `send-report` workflow.
+ */
+export async function generate(swell: SwellAPI, type: ReportType, options: GenerateOptions = {}) {
   const definition = DEFINITIONS[type];
   const now = options.now ?? new Date();
   const settings = definition.settings(await swell.settings());
   const period = options.period ?? settings.period;
 
   const report = await definition.build(swell, settings, now, period);
-  const empty = definition.isEmpty(report);
-
-  if (!options.save) {
-    return { type, preview: true, period, empty, report };
-  }
-
-  if (empty && !options.force && !settings.send_when_empty) {
-    return { type, preview: false, period, empty, skipped: 'empty' as const, report };
-  }
-
-  const created = await swell.post(`/${definition.collection}`, report);
-
-  const copies =
-    created?.id && settings.recipients.length > 0
-      ? await sendToExtraRecipients(swell, created.id, settings.recipients, definition.template)
-      : { sent: 0, failed: 0, errors: [] as string[] };
-
-  console.log(
-    `${definition.label} created for ${report.period_label}: ${definition.summary(report)}.` +
-      (copies.sent || copies.failed
-        ? ` Copied to ${copies.sent} extra recipient(s), ${copies.failed} failed.`
-        : ''),
-  );
-
-  return {
-    type,
-    preview: false,
-    period,
-    empty,
-    report_id: created?.id as string | undefined,
-    extra_recipients_sent: copies.sent,
-    extra_recipients_failed: copies.failed,
-    extra_recipient_errors: copies.errors,
-    report,
-  };
+  return { type, preview: true, period, empty: definition.isEmpty(report), report };
 }
 
 /** The workflow that builds, saves and emails one report (`functions/send-report.ts`). */
@@ -220,7 +186,7 @@ export interface SendParams {
   /** Save and send even when the report has nothing in it. */
   force?: boolean;
   /** What started it, for the logs. */
-  source: 'schedule' | 'action';
+  source: 'schedule' | 'action' | 'route';
   /**
    * The notification's full name. Looked up before the run starts, because a
    * workflow isn't allowed to read `/:models` ("Workflow runtime API path is
@@ -271,6 +237,19 @@ export async function saveForSend(swell: SwellAPI, type: ReportType, report: Rec
 /** `<collection>.<notification>` for a type, to resolve before emailing. */
 export function notificationTemplate(type: ReportType) {
   return DEFINITIONS[type].template;
+}
+
+/**
+ * Whether `template` is this type's notification: its short name, or the full
+ * `app_<id>.apps_<id>_<collection>.<name>` form `resolveTemplate` returns.
+ */
+export function isTemplateFor(type: ReportType, template: unknown): template is string {
+  const short = DEFINITIONS[type].template;
+  if (template === short) {
+    return true;
+  }
+  const match = typeof template === 'string' && /^app_([0-9a-f]{24})\.apps_([0-9a-f]{24})_(.+)$/i.exec(template);
+  return Boolean(match && match[1] === match[2] && match[3] === short);
 }
 
 /** The one-line summary used in log lines. */

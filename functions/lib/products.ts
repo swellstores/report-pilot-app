@@ -13,6 +13,7 @@ import {
 } from './report';
 import type { ProductSettings } from './report-settings';
 import { scan } from './scan';
+import { plainText } from './text';
 
 interface ProductSales {
   product_id: string;
@@ -42,7 +43,7 @@ async function fetchProductSales(swell: SwellAPI, start: Date, end: Date) {
         }
         const entry = byProduct.get(item.product_id) ?? {
           product_id: item.product_id,
-          name: item.product_name || 'Unknown product',
+          name: plainText(item.product_name) || 'Unknown product',
           quantity: 0,
           revenue: 0,
         };
@@ -74,7 +75,7 @@ async function fetchEstablishedProducts(swell: SwellAPI, start: Date) {
     },
     (product) => {
       if (product?.id) {
-        products.push({ id: product.id, name: product.name || 'Unnamed product' });
+        products.push({ id: product.id, name: plainText(product.name) || 'Unnamed product' });
       }
     },
     20,
@@ -162,7 +163,8 @@ export async function buildProductReport(
     slow_products: slow,
     movers,
     include_unsold: settings.include_unsold,
-    unsold_count: unsold.length,
+    // Not counted when the No sales list is off, so it shows — rather than 0.
+    unsold_count: settings.include_unsold ? unsold.length : null,
     unsold_products: unsold.slice(0, settings.limit).map((product) => ({
       product_id: product.id,
       name: product.name,

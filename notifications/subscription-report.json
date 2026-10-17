@@ -9,7 +9,7 @@
   "admin": true,
   "new": true,
   "repeat": true,
-  "subject": "Subscriptions: {{ period_label }} — {{ active_count }} active, {{ new_count }} new, {{ canceled_count }} canceled",
+  "subject": "Subscriptions: {{ period_label }} — {% assign rp_n = active_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %} active, {% assign rp_n = new_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %} new, {% assign rp_n = canceled_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %} canceled",
   "conditions": {
     "id": {
       "$exists": false
@@ -36,7 +36,7 @@
     "currency": "USD",
     "active_count": 312,
     "trial_count": 24,
-    "monthly_recurring_revenue": 7480.0,
+    "monthly_recurring_revenue": 6120,
     "new_count": 31,
     "prev_new_count": 27,
     "new_change_pct": 14.81,
@@ -52,7 +52,7 @@
     "renewals_next_7_days_value": 1650.0,
     "trials_ending_next_7_days": 6,
     "truncated": false,
-    "canceled_hidden": 2,
+    "canceled_hidden": 11,
     "past_due_hidden": 0,
     "plans": [
       {

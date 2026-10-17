@@ -35,7 +35,7 @@
     "order_count": {
       "type": "int",
       "label": "Orders",
-      "description": "Number of paid, non-cancelled orders in the period.",
+      "description": "Number of paid, non-canceled orders in the period.",
       "default": 0
     },
     "item_quantity": {
@@ -82,8 +82,8 @@
     },
     "cancelled_count": {
       "type": "int",
-      "label": "Cancelled orders",
-      "description": "Orders created in the period that were cancelled.",
+      "label": "Canceled orders",
+      "description": "Orders created in the period that were canceled.",
       "default": 0
     },
     "unpaid_count": {

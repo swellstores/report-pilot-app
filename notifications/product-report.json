@@ -9,7 +9,7 @@
   "admin": true,
   "new": true,
   "repeat": true,
-  "subject": "Products: {{ period_label }} — {{ products_sold_count }} sold, {{ unsold_count }} with no sales",
+  "subject": "Products: {{ period_label }} — {% assign rp_n = products_sold_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %} sold{% if unsold_count != nil %}, {% assign rp_n = unsold_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %} with no sales{% endif %}",
   "conditions": { "id": { "$exists": false } },
   "fields": [
     {
@@ -37,6 +37,7 @@
     "top_share_pct": 61.4,
     "include_unsold": true,
     "unsold_count": 6,
+    "unsold_hidden": 4,
     "truncated": false,
     "top_products": [
       {

@@ -34,7 +34,7 @@
     "order_count": {
       "type": "int",
       "label": "Orders",
-      "description": "All paid, non-cancelled orders in the period.",
+      "description": "All paid, non-canceled orders in the period.",
       "default": 0
     },
     "grand_total": {

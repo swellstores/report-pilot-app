@@ -9,7 +9,7 @@
   "admin": true,
   "new": true,
   "repeat": true,
-  "subject": "Discounts: {{ period_label }} — {{ discount_total | currency }} off {{ discounted_order_count }} orders",
+  "subject": "Discounts: {{ period_label }} — {{ discount_total | currency }} off {% assign rp_n = discounted_order_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %} order{% if discounted_order_count != 1 %}s{% endif %}",
   "conditions": { "id": { "$exists": false } },
   "fields": [
     {
@@ -39,7 +39,7 @@
     "discounted_order_pct": 24.22,
     "discount_rate_pct": 14.1,
     "discounted_aov": 125.87,
-    "full_price_aov": 121.04,
+    "full_price_aov": 120.99,
     "prev_discount_total": 512.8,
     "discount_change_pct": 24.85,
     "discounts_hidden": 0,

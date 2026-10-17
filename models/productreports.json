@@ -184,8 +184,7 @@
     "unsold_count": {
       "type": "int",
       "label": "Products with no sales",
-      "description": "Active products older than the period that sold nothing in it.",
-      "default": 0
+      "description": "Active products older than the period that sold nothing in it. Empty when the No sales list is turned off."
     },
     "unsold_products": {
       "type": "array",

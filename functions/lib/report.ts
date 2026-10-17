@@ -7,6 +7,7 @@
  * and that read is bounded to paid orders inside the reporting window.
  */
 
+import { plainText } from './text';
 import {
   addDays,
   addMonths,
@@ -512,7 +513,7 @@ async function fetchTopProducts(
 
         const entry = byProduct.get(productId) ?? {
           product_id: productId,
-          name: item.product_name || 'Unknown product',
+          name: plainText(item.product_name) || 'Unknown product',
           quantity: 0,
           revenue: 0,
         };
@@ -658,13 +659,23 @@ export async function fetchCustomerSplit(swell: SwellAPI, start: Date, end: Date
   };
 }
 
-/** Currency of the most recent order in the window; falls back to store default. */
+/** Currency of the most recent paid order in the window, else the store's (see `storeCurrency`). */
 export async function fetchCurrency(swell: SwellAPI, start: Date, end: Date): Promise<string> {
   const last = await swell.get('/orders/:last', {
     where: revenueWhere(start, end),
     fields: 'currency',
   });
 
+  return last?.currency || (await storeCurrency(swell));
+}
+
+/**
+ * The store's currency when a period has no paid orders to take it from: the
+ * currency of its most recent order of any date, else USD. (The store's own
+ * setting is at `/:currencies`, which would need another permission.)
+ */
+export async function storeCurrency(swell: SwellAPI): Promise<string> {
+  const last = await swell.get('/orders/:last', { fields: 'currency' });
   return last?.currency || 'USD';
 }
 
@@ -721,51 +732,12 @@ export function formatPeriodLabel(
 }
 
 /**
- * Mail a stored report to the recipients listed in the app settings.
- *
- * These are the only people emailed. The notifications' conditions can never
- * match (`id` must not exist), so storing a record no longer mails every store
- * admin automatically. (`"conditions": false` was tried first, but Swell stores
- * it as `{}`, which matches every record.)
- * each recipient gets an explicit notification record instead, where `to`
- * overrides the notification's default (admin) routing.
- *
- * Failures are logged and swallowed on purpose: the report is already stored,
- * so one bad address must not take the whole run down with it.
- */
-export async function sendToExtraRecipients(
-  swell: SwellAPI,
-  recordId: string,
-  recipients: string[],
-  template: string = NOTIFICATION_TEMPLATE,
-): Promise<{ sent: number; failed: number; errors: string[] }> {
-  const fullTemplate = await resolveTemplate(swell, template);
-  const created: { to: string; id: string }[] = [];
-  const errors: string[] = [];
-
-  for (const to of recipients) {
-    const result = await createRecipientNotification(swell, fullTemplate, recordId, to);
-    if (result.id) {
-      created.push({ to, id: result.id });
-    } else {
-      errors.push(`${to}: ${result.error}`);
-    }
-  }
-
-  // A created notification record is not a delivered email: Swell renders it a
-  // moment later and records a problem (such as "Notification template not
-  // found") on the record's `error` field. Check once so the result is honest.
-  if (created.length) {
-    await new Promise((resolve) => setTimeout(resolve, DELIVERY_CHECK_MS));
-    errors.push(...(await checkRecipientDelivery(swell, fullTemplate, created)));
-  }
-
-  return { sent: recipients.length - errors.length, failed: errors.length, errors };
-}
-
-/**
  * Create the notification record that emails one stored report to one
- * address. Never throws: a failure comes back as `error`, so one bad address
+ * address. These are the only emails sent: the notifications' conditions never
+ * match (`id` must not exist), so storing a report emails nobody by itself.
+ * (`"conditions": false` was tried first, but Swell stores it as `{}`, which
+ * matches every record.)
+ * Never throws: a failure comes back as `error`, so one bad address
  * can't stop the others.
  */
 export async function createRecipientNotification(
@@ -817,8 +789,6 @@ export async function checkRecipientDelivery(
   return errors;
 }
 
-/** How long to wait before checking whether Swell accepted the notifications. */
-const DELIVERY_CHECK_MS = 2500;
 
 /**
  * Turn `<collection>.<notification name>` into the id Swell uses for an app's
