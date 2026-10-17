@@ -44,7 +44,7 @@
       "label": "Monthly revenue",
       "type": "currency",
       "readonly": true,
-      "description": "What active subscriptions bring in per month."
+      "description": "What active subscriptions bring in per month, leaving out any set to cancel or pause when their billing period ends."
     },
     {
       "id": "new_count",
@@ -88,7 +88,7 @@
               "key": "monthly_recurring_revenue",
               "label": "Monthly recurring revenue",
               "type": "currency",
-              "hint": "What active subscriptions bring in per month. Plans billed daily, weekly, every few months or yearly are converted to a monthly amount."
+              "hint": "What active subscriptions bring in per month, leaving out any set to cancel or pause when their billing period ends. Plans billed daily, weekly, every few months or yearly are converted to a monthly amount."
             },
             {
               "key": "trial_count",
@@ -142,7 +142,7 @@
             {
               "key": "renewals_next_7_days",
               "label": "Renewals in the next 7 days",
-              "hint": "Active subscriptions due to bill in the 7 days after this period."
+              "hint": "Active subscriptions due to bill in the 7 days after this period. Any set to cancel or pause instead aren't counted."
             },
             {
               "key": "trials_ending_next_7_days",

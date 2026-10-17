@@ -9,6 +9,8 @@
  *   `date_period_end` (the next billing date).
  * - `recurring_total` (each period's charge), `interval` (daily, weekly,
  *   monthly or yearly) and `interval_count`.
+ * - `canceled` and `paused`: set at once when a subscription is canceled or
+ *   paused for the end of its period, while `status` stays `active` until then.
  * Counts of the current state (active, on trial, paused, past due) describe the
  * store when the report runs; new, canceled and paused describe the period.
  */
@@ -24,8 +26,8 @@ const LIST_LIMIT = 10;
 const DAY = 24 * 3600 * 1000;
 
 const FIELDS =
-  'id,status,account_id,product_name,plan_name,recurring_total,grand_total,interval,interval_count,' +
-  'date_created,date_canceled,date_paused,date_trial_end,date_period_end,currency';
+  'id,status,canceled,paused,account_id,product_name,plan_name,recurring_total,grand_total,interval,' +
+  'interval_count,date_created,date_canceled,date_paused,date_trial_end,date_period_end,currency';
 
 /** One period's charge, expressed per month, so plans of any length add up. */
 export function monthlyValue(sub: any): number {
@@ -73,13 +75,17 @@ export async function buildSubscriptionReport(swell: SwellAPI, reportWindow: Rep
 
   const paying = running.rows.filter((sub) => sub.status === 'active');
   const trials = running.rows.filter((sub) => sub.status === 'trial');
-  const mrr = round(paying.reduce((sum, sub) => sum + monthlyValue(sub), 0));
+  // Still active, but set to cancel or pause when the paid period ends, so they
+  // won't bill again: left out of recurring revenue and upcoming renewals.
+  const stopping = (sub: any) => sub.canceled === true || sub.paused === true;
+  const continuing = paying.filter((sub) => !stopping(sub));
+  const mrr = round(continuing.reduce((sum, sub) => sum + monthlyValue(sub), 0));
 
   const due = (date: unknown) => {
     const time = date ? new Date(String(date)).getTime() : NaN;
     return time >= end.getTime() && time < weekAhead.getTime();
   };
-  const renewing = paying.filter((sub) => due(sub.date_period_end));
+  const renewing = continuing.filter((sub) => due(sub.date_period_end));
   const trialsEnding = trials.filter((sub) => due(sub.date_trial_end));
 
   // Running subscriptions by plan.
@@ -89,7 +95,7 @@ export async function buildSubscriptionReport(swell: SwellAPI, reportWindow: Rep
     const entry = byPlan.get(key) ?? { plan: key, paying: 0, trial: 0, monthly: 0 };
     if (sub.status === 'active') {
       entry.paying += 1;
-      entry.monthly += monthlyValue(sub);
+      if (!stopping(sub)) entry.monthly += monthlyValue(sub);
     } else {
       entry.trial += 1;
     }

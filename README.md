@@ -138,8 +138,9 @@ How each product did in the period.
 - **Slowest sellers:** the 10 products that earned the least. A product in Best
   sellers is never repeated here, so a store that sold 10 products or fewer sees
   this list empty.
-- **No sales:** active products, older than the period, that sold nothing in it.
-  Can be turned off; Products with no sales then shows — instead of a count.
+- **No sales:** active products, older than the period, that sold nothing in it,
+  up to 10. Past 10, a note says how many more there are. Can be turned off;
+  Products with no sales then shows — instead of a count.
 
 Revenue here is item revenue, worked out the same way as the sales report's top
 products. Swell doesn't split refunds by product, so item revenue is before
@@ -197,8 +198,8 @@ Recurring revenue and how your subscribers changed.
 - **Summary:** Active subscriptions, Monthly recurring revenue and On trial; New
   subscriptions, New change and Net change; Canceled, Canceled change and Paused;
   Past due, Renewals in the next 7 days and Trials ending in the next 7 days.
-- **By plan:** paying and trial subscriptions, and monthly revenue, for each
-  plan.
+- **By plan:** paying and trial subscriptions, and monthly revenue, for up to
+  10 plans, highest monthly revenue first.
 - **Canceled subscriptions:** who canceled in the period, their plan, the date
   and the monthly value lost. Past 10, a note says how many more there are.
 - **Failed renewals:** subscriptions whose last renewal payment failed, shown as
@@ -208,7 +209,10 @@ Recurring revenue and how your subscribers changed.
 Active, on trial, paused and past due show your subscriptions as they are when
 the report runs. New, canceled and net change describe the period. Monthly
 recurring revenue adds up active subscriptions; plans billed daily, weekly or
-yearly are converted to a monthly amount. Canceled change is shown in grey.
+yearly are converted to a monthly amount. A subscription set to cancel or pause
+when its billing period ends still counts as active, but is left out of monthly
+recurring revenue, plan revenue and Renewals in the next 7 days, because it won't
+bill again. Canceled change is shown in grey.
 
 Because the report shows your current subscriptions, it's only skipped as
 "nothing to report" when nothing is active, on trial, paused or past due, and
@@ -229,8 +233,8 @@ but nobody is emailed. Store admins aren't emailed unless they're on a list.
 **Actions → Send a report now** on the app's page builds, saves and emails a
 report immediately. The dialog closes straight away. The report is listed
 under **Reporting** once it's built, and the email usually arrives within a few
-minutes. It covers the most recent full period, ending at midnight
-today: the previous day, the last 7 or 14 days, or the previous calendar month.
+minutes. It covers the most recent full period: the previous day, the 7 or 14
+days before today, or the previous calendar month.
 The inventory report, which has no period, shows stock as it is when it runs.
 On any day but Monday, a weekly report sent this way covers a different week from
 the scheduled one. It sends even if that report is switched off or the period was
@@ -336,8 +340,10 @@ Check **Time zone** in the app's settings matches **Settings → General**.
 ### The figures say they're partial
 
 The period had more data than the report reads. See Large stores under
-Limitations. A shorter schedule, such as weekly instead of monthly, keeps each
-report within the limits.
+Limitations. For the sales, customer, product, discount and abandoned cart
+reports, a shorter schedule, such as weekly instead of monthly, keeps each report
+within the limits. The inventory and subscription reports read every product or
+subscription whatever the schedule, so a shorter schedule doesn't change them.
 
 ## Uninstalling
 

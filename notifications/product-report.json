@@ -26,7 +26,7 @@
       "id": "footer",
       "label": "Footer note",
       "type": "long_text",
-      "default": "You're receiving this because your address is listed as a recipient in the Report Pilot app settings. Change how often the product report is sent, turn it off, or remove your address there."
+      "default": "You're receiving this because a store admin added your address to the Report Pilot app settings. To change how often you get the product report, or to stop getting it, ask them to update those settings."
     }
   ],
   "sample": {
@@ -34,11 +34,11 @@
     "period_start": "2026-10-05T00:00:00.000Z",
     "period_end": "2026-10-12T00:00:00.000Z",
     "currency": "USD",
-    "products_sold_count": 37,
-    "prev_products_sold_count": 34,
+    "products_sold_count": 12,
+    "prev_products_sold_count": 12,
     "units_sold": 214,
-    "item_revenue": 14320.5,
-    "top_share_pct": 61.4,
+    "item_revenue": 13734.35,
+    "top_share_pct": 99.05,
     "include_unsold": true,
     "unsold_count": 6,
     "unsold_hidden": 0,
@@ -70,6 +70,69 @@
         "prev_quantity": 0,
         "prev_revenue": 0,
         "revenue_change_pct": null
+      },
+      {
+        "product_id": "6004",
+        "name": "Waxed Field Jacket",
+        "quantity": 6,
+        "revenue": 1440,
+        "prev_quantity": 5,
+        "prev_revenue": 1200,
+        "revenue_change_pct": 20
+      },
+      {
+        "product_id": "6005",
+        "name": "Linen Button Shirt",
+        "quantity": 18,
+        "revenue": 1170,
+        "prev_quantity": 20,
+        "prev_revenue": 1300,
+        "revenue_change_pct": -10
+      },
+      {
+        "product_id": "6006",
+        "name": "Selvedge Denim Jeans",
+        "quantity": 9,
+        "revenue": 990,
+        "prev_quantity": 12,
+        "prev_revenue": 1320,
+        "revenue_change_pct": -25
+      },
+      {
+        "product_id": "6007",
+        "name": "Cotton Crew Socks",
+        "quantity": 40,
+        "revenue": 720,
+        "prev_quantity": 35,
+        "prev_revenue": 630,
+        "revenue_change_pct": 14.29
+      },
+      {
+        "product_id": "6008",
+        "name": "Leather Belt",
+        "quantity": 11,
+        "revenue": 605,
+        "prev_quantity": 9,
+        "prev_revenue": 495,
+        "revenue_change_pct": 22.22
+      },
+      {
+        "product_id": "6009",
+        "name": "Canvas Sneakers",
+        "quantity": 7,
+        "revenue": 560,
+        "prev_quantity": 8,
+        "prev_revenue": 640,
+        "revenue_change_pct": -12.5
+      },
+      {
+        "product_id": "6010",
+        "name": "Silk Pocket Square",
+        "quantity": 14,
+        "revenue": 420,
+        "prev_quantity": 10,
+        "prev_revenue": 300,
+        "revenue_change_pct": 40
       }
     ],
     "movers": [
@@ -90,48 +153,113 @@
         "revenue_change_pct": 26.67
       },
       {
-        "product_id": "6004",
+        "product_id": "6011",
         "name": "Wool Beanie",
         "revenue": 120,
         "prev_revenue": 540,
         "change": -420,
         "revenue_change_pct": -77.78
+      },
+      {
+        "product_id": "6002",
+        "name": "Canvas Weekender Bag",
+        "revenue": 2519.79,
+        "prev_revenue": 2879.76,
+        "change": -359.97,
+        "revenue_change_pct": -12.5
+      },
+      {
+        "product_id": "6006",
+        "name": "Selvedge Denim Jeans",
+        "revenue": 990,
+        "prev_revenue": 1320,
+        "change": -330,
+        "revenue_change_pct": -25
+      },
+      {
+        "product_id": "6004",
+        "name": "Waxed Field Jacket",
+        "revenue": 1440,
+        "prev_revenue": 1200,
+        "change": 240,
+        "revenue_change_pct": 20
+      },
+      {
+        "product_id": "6013",
+        "name": "Rain Poncho",
+        "revenue": 0,
+        "prev_revenue": 135,
+        "change": -135,
+        "revenue_change_pct": -100
+      },
+      {
+        "product_id": "6005",
+        "name": "Linen Button Shirt",
+        "revenue": 1170,
+        "prev_revenue": 1300,
+        "change": -130,
+        "revenue_change_pct": -10
+      },
+      {
+        "product_id": "6010",
+        "name": "Silk Pocket Square",
+        "revenue": 420,
+        "prev_revenue": 300,
+        "change": 120,
+        "revenue_change_pct": 40
+      },
+      {
+        "product_id": "6008",
+        "name": "Leather Belt",
+        "revenue": 605,
+        "prev_revenue": 495,
+        "change": 110,
+        "revenue_change_pct": 22.22
       }
     ],
     "slow_products": [
       {
-        "product_id": "6009",
+        "product_id": "6012",
         "name": "Gift Wrap",
         "quantity": 2,
         "revenue": 10,
         "prev_quantity": 3,
         "prev_revenue": 15,
         "revenue_change_pct": -33.33
+      },
+      {
+        "product_id": "6011",
+        "name": "Wool Beanie",
+        "quantity": 4,
+        "revenue": 120,
+        "prev_quantity": 18,
+        "prev_revenue": 540,
+        "revenue_change_pct": -77.78
       }
     ],
     "unsold_products": [
       {
-        "product_id": "6010",
-        "name": "Linen Apron"
-      },
-      {
-        "product_id": "6011",
-        "name": "Travel Mug"
-      },
-      {
-        "product_id": "6012",
-        "name": "Wool Scarf"
-      },
-      {
         "product_id": "6013",
-        "name": "Canvas Tote"
+        "name": "Rain Poncho"
       },
       {
         "product_id": "6014",
-        "name": "Enamel Mug"
+        "name": "Linen Apron"
       },
       {
         "product_id": "6015",
+        "name": "Travel Mug"
+      },
+      {
+        "product_id": "6016",
+        "name": "Wool Scarf"
+      },
+      {
+        "product_id": "6017",
+        "name": "Enamel Mug"
+      },
+      {
+        "product_id": "6018",
         "name": "Brass Bookmark"
       }
     ]

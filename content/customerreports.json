@@ -93,7 +93,7 @@
       "label": "Average spend per customer",
       "type": "currency",
       "readonly": true,
-      "description": "Total spent by this period's customers, divided by the number of customers."
+      "description": "Total spent by this period's customers, less refunds, divided by the number of customers."
     },
     {
       "id": "summary",
@@ -158,7 +158,7 @@
               "key": "average_spend",
               "label": "Average spend per customer",
               "type": "currency",
-              "hint": "Total spent by this period's customers, divided by the number of customers."
+              "hint": "Total spent by this period's customers, less refunds, divided by the number of customers."
             }
           ]
         ]
@@ -170,7 +170,7 @@
       "type": "component",
       "component": "ReportTable",
       "readonly": true,
-      "description": "The customers who spent the most in this period, up to 10. Click a name to open their customer page.",
+      "description": "The customers who spent the most in this period, up to 10. Amounts are paid orders less refunds. Click a name to open their customer page.",
       "params": {
         "empty": "No customers placed a paid order in this period, or Include top customers is turned off in the app settings.",
         "columns": [

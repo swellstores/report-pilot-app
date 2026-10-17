@@ -22,13 +22,13 @@
       "id": "footer",
       "label": "Footer note",
       "type": "long_text",
-      "default": "You're receiving this because your address is listed as a recipient in the Report Pilot app settings. Change how often the sales report is sent, turn it off, or remove your address there."
+      "default": "You're receiving this because a store admin added your address to the Report Pilot app settings. To change how often you get the sales report, or to stop getting it, ask them to update those settings."
     }
   ],
   "sample": {
-    "period_label": "Aug 18 – Aug 24, 2026",
-    "period_start": "2026-08-18T00:00:00.000Z",
-    "period_end": "2026-08-25T00:00:00.000Z",
+    "period_label": "Aug 17 – Aug 23, 2026",
+    "period_start": "2026-08-17T00:00:00.000Z",
+    "period_end": "2026-08-24T00:00:00.000Z",
     "currency": "USD",
     "order_count": 128,
     "item_quantity": 214,
@@ -70,13 +70,13 @@
     "customers_truncated": false,
     "top_products_truncated": false,
     "daily_totals": [
-      { "date": "2026-08-18", "orders": 14, "revenue": 1702.4 },
-      { "date": "2026-08-19", "orders": 19, "revenue": 2288.15 },
-      { "date": "2026-08-20", "orders": 17, "revenue": 2011.9 },
-      { "date": "2026-08-21", "orders": 22, "revenue": 2745.6 },
-      { "date": "2026-08-22", "orders": 25, "revenue": 2802.35 },
-      { "date": "2026-08-23", "orders": 18, "revenue": 2109.45 },
-      { "date": "2026-08-24", "orders": 13, "revenue": 1768 }
+      { "date": "2026-08-17", "orders": 14, "revenue": 1702.4 },
+      { "date": "2026-08-18", "orders": 19, "revenue": 2288.15 },
+      { "date": "2026-08-19", "orders": 17, "revenue": 2011.9 },
+      { "date": "2026-08-20", "orders": 22, "revenue": 2745.6 },
+      { "date": "2026-08-21", "orders": 25, "revenue": 2802.35 },
+      { "date": "2026-08-22", "orders": 18, "revenue": 2109.45 },
+      { "date": "2026-08-23", "orders": 13, "revenue": 1768 }
     ]
   }
 }

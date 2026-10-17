@@ -168,9 +168,14 @@ export async function buildCartReport(swell: SwellAPI, reportWindow: ReportWindo
   // Products left behind, across every abandoned cart in the period.
   const byProduct = new Map<string, { carts: number; quantity: number; value: number }>();
   for (const cart of carts) {
+    // A cart with two variants of one product counts once for that product.
+    const counted = new Set<string>();
     for (const item of cart.items) {
       const entry = byProduct.get(item.product_id) ?? { carts: 0, quantity: 0, value: 0 };
-      entry.carts += 1;
+      if (!counted.has(item.product_id)) {
+        counted.add(item.product_id);
+        entry.carts += 1;
+      }
       entry.quantity += item.quantity;
       entry.value += item.value;
       byProduct.set(item.product_id, entry);

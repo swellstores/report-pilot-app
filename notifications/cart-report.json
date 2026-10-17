@@ -26,7 +26,7 @@
       "id": "footer",
       "label": "Footer note",
       "type": "long_text",
-      "default": "You're receiving this because your address is listed as a recipient in the Report Pilot app settings. Change how often the abandoned cart report is sent, turn it off, or remove your address there."
+      "default": "You're receiving this because a store admin added your address to the Report Pilot app settings. To change how often you get the abandoned cart report, or to stop getting it, ask them to update those settings."
     }
   ],
   "sample": {

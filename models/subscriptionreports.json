@@ -46,7 +46,7 @@
     "monthly_recurring_revenue": {
       "type": "currency",
       "label": "Monthly recurring revenue",
-      "description": "What paying subscriptions bring in per month.",
+      "description": "What paying subscriptions bring in per month, leaving out any set to cancel or pause when their billing period ends.",
       "default": 0
     },
     "new_count": {

@@ -11,7 +11,7 @@
       "loading_label": "Sending…",
       "modal": {
         "title": "Send a report now",
-        "description": "Each report covers its most recent full period, ending at midnight today (the inventory report shows stock as it is now), and goes to the recipients for that report.",
+        "description": "Each report covers its most recent full period: the previous day, the 7 or 14 days before today, or the previous calendar month. The inventory report shows stock as it is now. It goes to the recipients for that report.",
         "submit_label": "Send",
         "fields": [
           {
@@ -69,7 +69,7 @@
       "type": "boolean",
       "ui": "toggle",
       "label": "Send even when there is nothing to report",
-      "description": "When off, a report is skipped if its period had nothing in it — no paid orders, no discounted orders, no customers, no stock running low, no abandoned carts, or no subscription activity.",
+      "description": "When off, a report is skipped if its period had nothing in it — no paid orders, no products sold, no discounted orders, no customers, no stock running low, no abandoned carts, or no subscription activity.",
       "default": false
     },
     {
@@ -793,7 +793,7 @@
     {
       "type": "field_group",
       "label": "Subscriptions",
-      "description": "Active subscriptions and monthly recurring revenue, what started, was canceled or paused, failed renewals, and what renews in the next 7 days.",
+      "description": "Active subscriptions and monthly recurring revenue, what started or was canceled in the period, how many are paused or have failed renewals, and what renews in the next 7 days.",
       "fields": [
         {
           "id": "subscriptions_enabled",
