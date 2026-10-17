@@ -7,7 +7,7 @@
  * and that read is bounded to paid orders inside the reporting window.
  */
 
-import { plainText } from './text';
+import { maskAddress, plainText } from './text';
 import {
   addDays,
   addMonths,
@@ -551,7 +551,7 @@ const ACCOUNT_PAGE_LIMIT = 1000;
 /** Ceiling on grouped account pages, mirroring the top-products bound. */
 const ACCOUNT_MAX_PAGES = 20;
 /** Batch size for `$in` lookups, so the query string stays a sane length. */
-const ACCOUNT_CHUNK = 500;
+const ACCOUNT_CHUNK = 100;
 
 /**
  * Every distinct `account_id` matching a query.
@@ -759,7 +759,7 @@ export async function createRecipientNotification(
   } catch (error) {
     // Kept and returned as well as logged: a swallowed failure with no
     // visible reason is how this feature stayed broken unnoticed before.
-    console.error(`Report copy to ${to} failed:`, error);
+    console.error(`Report copy to ${maskAddress(to)} failed:`, error);
     return { error: error instanceof Error ? error.message : String(error) };
   }
 }
@@ -778,12 +778,12 @@ export async function checkRecipientDelivery(
     try {
       const record = await swell.get(`/notifications/${id}`);
       if (record?.error) {
-        errors.push(`${to}: ${record.error}`);
-        console.error(`Report copy to ${to} failed: ${record.error} (template ${fullTemplate})`);
+        errors.push(`${maskAddress(to)}: ${record.error}`);
+        console.error(`Report copy to ${maskAddress(to)} failed: ${record.error} (template ${fullTemplate})`);
       }
     } catch (error) {
       // Could not read it back; leave it counted as sent.
-      console.warn(`Could not check delivery to ${to}:`, error);
+      console.warn(`Could not check delivery to ${maskAddress(to)}:`, error);
     }
   }
   return errors;

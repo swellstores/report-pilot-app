@@ -41,7 +41,7 @@ You don't need any other accounts or keys. You need:
 
 1. **Install the app.** Install Report Pilot from the Swell App Store and approve
    the access it asks for. It reads your orders, products, customers, carts,
-   subscriptions and settings, and sends its own emails. It never changes your
+   subscriptions and promotions, and sends its own emails. It never changes your
    store data.
 2. **Add recipients.** In **Apps → Report Pilot → Settings**, add the addresses
    that should get every report under **Recipients**.
@@ -121,7 +121,8 @@ runs, not a period; its schedule only sets how often it's taken.
 Only active products and variants that track stock are checked. Archived
 variants (option combinations a product no longer offers) are left out. An item is low
 when its stock is at or below **Low stock threshold**. Estimated days left is the
-current stock divided by the average sold per day over the last 30 days.
+current stock divided by the average sold per day over the last 30 days; it
+shows — for an item that sold nothing in that time.
 
 ### Product report
 
@@ -295,12 +296,12 @@ Some tabs have more:
     variants (500 per 100 products) and 2,500 orders for the last 30 days' sales
   - 2,500 carts and 2,500 subscriptions
 
-  Totals such as revenue and order counts have no limit. When a report reaches a
-  limit, its page and email say the figures are partial.
+  Order totals (revenue, order counts and discounts given) have no limit; cart,
+  customer and subscription counts do. When a report reaches a limit, its page
+  and email say the figures are partial.
 - **The time zone is set in the app.** Swell doesn't let apps read your store's
   time zone, so the app has its own setting. If the two differ, reports follow
-  the app's. Estimated days left on the inventory report counts the last 30 days
-  in UTC.
+  the app's.
 - **Stores that sell in more than one currency:** amounts are added up without
   converting them, and the report shows the currency of the most recent paid
   order in the period. If the period has none, it uses the currency of the
@@ -309,8 +310,9 @@ Some tabs have more:
 - **Billing intervals:** plans billed daily, weekly, monthly or yearly are
   converted to a monthly amount. Any other interval is counted as monthly.
 - **Send times:** reports are sent once a day, in the 08:00 hour of your time
-  zone. The exact minute varies by report, from 08:00 to 08:30 (08:30 to 09:00 in
-  half-hour time zones such as India).
+  zone. The exact minute varies by report, from 08:00 to 08:30. In time zones
+  offset by a half or quarter hour, such as India, they arrive anywhere in the
+  08:00 hour.
 - **Environments:** works in Swell's test and live environments. Settings and
   reports are separate for each.
 

@@ -209,7 +209,7 @@
       "type": "component",
       "component": "ReportTable",
       "readonly": true,
-      "description": "Each coupon and promotion used in this period, largest discount first.",
+      "description": "Each coupon and promotion used in this period, largest discount first, up to 10.",
       "params": {
         "empty": "No coupons or promotions were used in this period.",
         "columns": [

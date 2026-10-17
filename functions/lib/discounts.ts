@@ -101,11 +101,18 @@ export async function buildDiscountReport(
   const { start, end, prevStart } = reportWindow;
   const lines = new Map<string, DiscountLine>();
 
+  // Lines the current order has already been counted on: one coupon or
+  // promotion can appear as several `discounts` entries on the same order, and
+  // the order should count once (and its revenue once) on that line.
+  let counted = new Set<string>();
   const add = (line: Omit<DiscountLine, 'orders' | 'discount' | 'revenue'>, amount: number, revenue: number) => {
     const entry = lines.get(line.key) ?? { ...line, orders: 0, discount: 0, revenue: 0 };
-    entry.orders += 1;
+    if (!counted.has(line.key)) {
+      counted.add(line.key);
+      entry.orders += 1;
+      entry.revenue += revenue;
+    }
     entry.discount += amount;
-    entry.revenue += revenue;
     lines.set(line.key, entry);
   };
 
@@ -117,6 +124,7 @@ export async function buildDiscountReport(
       fields: 'coupon_code,discounts,discount_total,shipment_discount,grand_total',
     },
     (order) => {
+      counted = new Set<string>();
       const revenue = Number(order.grand_total) || 0;
       const shippingDiscount = Number(order.shipment_discount) || 0;
       const total = (Number(order.discount_total) || 0) + shippingDiscount;

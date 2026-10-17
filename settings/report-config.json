@@ -588,7 +588,7 @@
           "type": "boolean",
           "ui": "toggle",
           "label": "Include top customers",
-          "description": "Lists the 10 customers who spent the most. The report shows 5, with Show more for the rest; the email lists 5. Turn off to leave customer names and emails out of the report and email.",
+          "description": "Lists the 10 customers who spent the most. The report shows 5, with Show more for the rest; the email lists 5. Turn off to leave customer names out of the report and email.",
           "default": true
         }
       ]

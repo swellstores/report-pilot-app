@@ -97,7 +97,7 @@ export function resolveCustomerSettings(raw: SwellSettings | undefined | null): 
     ...common(raw, 'customers'),
     // The top 10 are stored when "Include top customers" is on (the default).
     // The dashboard shows the first 5 with "Show more"; the email lists 5.
-    // Off stores none, so no customer names or emails reach the report or email.
+    // Off stores none, so no customer names reach the report or email.
     top_customers_limit: topCustomersOn(settings) ? TOP_CUSTOMERS : 0,
   };
 }

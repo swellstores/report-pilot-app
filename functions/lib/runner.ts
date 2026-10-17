@@ -198,7 +198,12 @@ export interface SendParams {
 /** Start the `send-report` workflow. Returns as soon as the run is created. */
 export async function startSend(swell: SwellAPI, params: Omit<SendParams, 'template'>) {
   const template = await resolveTemplate(swell, DEFINITIONS[params.type].template);
-  const run = await swell.workflows.create(SEND_WORKFLOW, { ...params, template });
+  // Workflow params must be JSON-safe: an `undefined` value (such as a period
+  // that wasn't given) is rejected with workflow_params_unserializable.
+  const data = Object.fromEntries(
+    Object.entries({ ...params, template }).filter(([, value]) => value !== undefined),
+  );
+  const run = await swell.workflows.create(SEND_WORKFLOW, data);
   console.log(`${DEFINITIONS[params.type].label}: started ${SEND_WORKFLOW} run ${run?.id} (${params.source}).`);
   return run;
 }

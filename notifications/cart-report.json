@@ -37,14 +37,14 @@
     "abandoned_count": 42,
     "prev_abandoned_count": 37,
     "abandoned_change_pct": 13.51,
-    "abandoned_value": 5320.4,
-    "average_cart_value": 126.68,
+    "abandoned_value": 4374.4,
+    "average_cart_value": 104.15,
     "recovered_count": 9,
     "recovery_rate_pct": 21.43,
     "recovered_revenue": 1104.5,
     "open_count": 33,
     "truncated": false,
-    "carts_hidden": 39,
+    "carts_hidden": 32,
     "abandoned_carts": [
       {
         "cart_id": "9001",
@@ -67,6 +67,56 @@
         "status": "recovered"
       },
       {
+        "cart_id": "9004",
+        "number": "100240",
+        "account_id": "8010",
+        "customer": "Grace Hopper",
+        "items": 2,
+        "value": 198.5,
+        "abandoned_date": "2026-10-05",
+        "status": "open"
+      },
+      {
+        "cart_id": "9005",
+        "number": "100241",
+        "account_id": "8011",
+        "customer": "Margaret Hamilton",
+        "items": 3,
+        "value": 176.0,
+        "abandoned_date": "2026-10-06",
+        "status": "recovered"
+      },
+      {
+        "cart_id": "9006",
+        "number": "100242",
+        "account_id": "8012",
+        "customer": "Hedy Lamarr",
+        "items": 4,
+        "value": 154.25,
+        "abandoned_date": "2026-10-07",
+        "status": "open"
+      },
+      {
+        "cart_id": "9007",
+        "number": "100243",
+        "account_id": "8013",
+        "customer": "Mary Jackson",
+        "items": 2,
+        "value": 139.0,
+        "abandoned_date": "2026-10-08",
+        "status": "open"
+      },
+      {
+        "cart_id": "9008",
+        "number": "100244",
+        "account_id": "8014",
+        "customer": "Dorothy Vaughan",
+        "items": 3,
+        "value": 121.4,
+        "abandoned_date": "2026-10-09",
+        "status": "recovered"
+      },
+      {
         "cart_id": "9003",
         "number": "100240",
         "account_id": null,
@@ -74,6 +124,26 @@
         "items": 1,
         "value": 120.0,
         "abandoned_date": "2026-10-10",
+        "status": "open"
+      },
+      {
+        "cart_id": "9009",
+        "number": "100245",
+        "account_id": "8015",
+        "customer": "Radia Perlman",
+        "items": 4,
+        "value": 108.0,
+        "abandoned_date": "2026-10-10",
+        "status": "open"
+      },
+      {
+        "cart_id": "9010",
+        "number": "100246",
+        "account_id": "8016",
+        "customer": "Barbara Liskov",
+        "items": 2,
+        "value": 96.75,
+        "abandoned_date": "2026-10-05",
         "status": "open"
       }
     ],

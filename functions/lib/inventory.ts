@@ -40,8 +40,9 @@ function key(productId: string, variantId?: string | null) {
 }
 
 /** Units sold per product (and per variant) over the last 30 days. */
-async function fetchUnitsSold(swell: SwellAPI, now: Date) {
-  const { start, end } = rollingWindow(VELOCITY_DAYS, now);
+async function fetchUnitsSold(swell: SwellAPI, now: Date, timeZone: string) {
+  // The last 30 whole days in the store's time zone, like every other window.
+  const { start, end } = rollingWindow(VELOCITY_DAYS, now, timeZone);
   const sold = new Map<string, number>();
 
   const { truncated } = await scan(
@@ -112,7 +113,7 @@ export async function buildInventoryReport(
   );
 
   const [{ truncated: productsTruncated }, { sold, truncated: salesTruncated }] =
-    await Promise.all([productRead, fetchUnitsSold(swell, now)]);
+    await Promise.all([productRead, fetchUnitsSold(swell, now, settings.timeZone)]);
 
   const items: StockItem[] = [];
   let trackedCount = 0;

@@ -21,8 +21,10 @@ export default async function (req: SwellRequest) {
   const { swell } = req;
   const type = req.data?.report_type;
 
+  // A thrown SwellError keeps the dialog open with its message, so the admin
+  // can try again; a returned message would close it as if it had worked.
   if (!isReportType(type)) {
-    return { message: 'Choose a report type to send.' };
+    throw new SwellError('Choose a report type to send.', { status: 400 });
   }
 
   const label = reportLabel(type);
@@ -33,7 +35,9 @@ export default async function (req: SwellRequest) {
     await startSend(swell, { type, now: new Date().toISOString(), force: true, source: 'action' });
   } catch (error) {
     console.error(`${label}: could not start send-report:`, error);
-    return { message: `${label} could not be started, so nothing was sent. Try again in a minute.` };
+    throw new SwellError(`${label} could not be started, so nothing was sent. Try again in a minute.`, {
+      status: 503,
+    });
   }
 
   const where = `It will be listed under Reporting → ${label}s.`;

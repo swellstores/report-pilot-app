@@ -120,7 +120,7 @@ function netSpend(row: { spend?: unknown; refunds?: unknown }) {
   return round((Number(row.spend) || 0) - (Number(row.refunds) || 0));
 }
 
-/** Accounts by id, for names and emails. Also used by the cart and subscription reports. */
+/** Accounts by id, for their names. Also used by the cart and subscription reports. */
 export async function fetchAccounts(swell: SwellAPI, ids: string[]) {
   const byId = new Map<string, any>();
 

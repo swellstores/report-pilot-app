@@ -85,7 +85,7 @@
       "type": "component",
       "component": "ReportTable",
       "readonly": true,
-      "description": "Out-of-stock items first, then the ones that will run out soonest. Up to 50 are listed. Est. days left is current stock divided by the average sold per day over the last 30 days.",
+      "description": "Out-of-stock items first, then the ones that will run out soonest. Up to 50 are listed. Est. days left is current stock divided by the average sold per day over the last 30 days; — means none sold in that time.",
       "params": {
         "empty": "No products or variants are out of stock or running low.",
         "columns": [

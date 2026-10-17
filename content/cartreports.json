@@ -51,7 +51,7 @@
       "label": "Recovered",
       "type": "number",
       "readonly": true,
-      "description": "Abandoned carts that later became an order."
+      "description": "Abandoned carts that later became an order that wasn't canceled."
     },
     {
       "id": "recovery_rate_pct",
@@ -115,7 +115,7 @@
             {
               "key": "recovered_count",
               "label": "Recovered carts",
-              "hint": "Abandoned carts in this period that later became an order, up to when the report ran."
+              "hint": "Abandoned carts in this period that later became an order that wasn't canceled, up to when the report ran."
             },
             {
               "key": "recovery_rate_pct",

@@ -44,7 +44,7 @@
     "prev_canceled_count": 15,
     "canceled_change_pct": -20.0,
     "net_change": 19,
-    "canceled_monthly_value": 265.0,
+    "canceled_monthly_value": 231.65,
     "paused_count": 9,
     "paused_in_period": 3,
     "past_due_count": 4,
@@ -52,7 +52,7 @@
     "renewals_next_7_days_value": 1650.0,
     "trials_ending_next_7_days": 6,
     "truncated": false,
-    "canceled_hidden": 11,
+    "canceled_hidden": 2,
     "past_due_hidden": 0,
     "plans": [
       {
@@ -76,6 +76,78 @@
         "plan": "Coffee Club — Monthly",
         "canceled_date": "2026-10-08",
         "monthly_value": 20.0
+      },
+      {
+        "subscription_id": "6011",
+        "account_id": "8021",
+        "customer": "Margaret Hamilton",
+        "plan": "Coffee Club — Monthly",
+        "canceled_date": "2026-10-06",
+        "monthly_value": 20.0
+      },
+      {
+        "subscription_id": "6012",
+        "account_id": "8022",
+        "customer": "Hedy Lamarr",
+        "plan": "Coffee Club — Monthly",
+        "canceled_date": "2026-10-07",
+        "monthly_value": 20.0
+      },
+      {
+        "subscription_id": "6014",
+        "account_id": "8024",
+        "customer": "Dorothy Vaughan",
+        "plan": "Coffee Club — Monthly",
+        "canceled_date": "2026-10-09",
+        "monthly_value": 20.0
+      },
+      {
+        "subscription_id": "6015",
+        "account_id": "8025",
+        "customer": "Radia Perlman",
+        "plan": "Coffee Club — Monthly",
+        "canceled_date": "2026-10-10",
+        "monthly_value": 20.0
+      },
+      {
+        "subscription_id": "6017",
+        "account_id": "8027",
+        "customer": "Frances Allen",
+        "plan": "Coffee Club — Monthly",
+        "canceled_date": "2026-10-05",
+        "monthly_value": 20.0
+      },
+      {
+        "subscription_id": "6018",
+        "account_id": "8028",
+        "customer": "Karen Spärck Jones",
+        "plan": "Coffee Club — Monthly",
+        "canceled_date": "2026-10-06",
+        "monthly_value": 20.0
+      },
+      {
+        "subscription_id": "6010",
+        "account_id": "8020",
+        "customer": "Grace Hopper",
+        "plan": "Coffee Club — Every 3 months",
+        "canceled_date": "2026-10-05",
+        "monthly_value": 18.33
+      },
+      {
+        "subscription_id": "6013",
+        "account_id": "8023",
+        "customer": "Mary Jackson",
+        "plan": "Coffee Club — Every 3 months",
+        "canceled_date": "2026-10-08",
+        "monthly_value": 18.33
+      },
+      {
+        "subscription_id": "6016",
+        "account_id": "8026",
+        "customer": "Barbara Liskov",
+        "plan": "Coffee Club — Every 3 months",
+        "canceled_date": "2026-10-11",
+        "monthly_value": 18.33
       }
     ],
     "past_due_subscriptions": [
@@ -86,6 +158,30 @@
         "plan": "Coffee Club — Monthly",
         "amount": 20.0,
         "status": "pastdue"
+      },
+      {
+        "subscription_id": "6030",
+        "account_id": "8030",
+        "customer": "Annie Easley",
+        "plan": "Coffee Club — Monthly",
+        "amount": 20.0,
+        "status": "pastdue"
+      },
+      {
+        "subscription_id": "6031",
+        "account_id": "8031",
+        "customer": "Karen Spärck Jones",
+        "plan": "Coffee Club — Monthly",
+        "amount": 20.0,
+        "status": "pastdue"
+      },
+      {
+        "subscription_id": "6032",
+        "account_id": "8032",
+        "customer": "Frances Allen",
+        "plan": "Coffee Club — Monthly",
+        "amount": 20.0,
+        "status": "unpaid"
       }
     ]
   }

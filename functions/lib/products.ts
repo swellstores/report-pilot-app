@@ -167,7 +167,7 @@ export async function buildProductReport(
     unsold_count: settings.include_unsold ? unsold.length : null,
     unsold_products: unsold.slice(0, settings.limit).map((product) => ({
       product_id: product.id,
-      name: product.name,
+      name: plainText(product.name) || 'Unnamed product',
     })),
     // Products with no sales beyond the 10 listed, for the note under the table.
     unsold_hidden: Math.max(0, unsold.length - settings.limit),

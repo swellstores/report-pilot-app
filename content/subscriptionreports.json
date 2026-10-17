@@ -88,7 +88,7 @@
               "key": "monthly_recurring_revenue",
               "label": "Monthly recurring revenue",
               "type": "currency",
-              "hint": "What active subscriptions bring in per month. Plans billed weekly, every few months or yearly are converted to a monthly amount."
+              "hint": "What active subscriptions bring in per month. Plans billed daily, weekly, every few months or yearly are converted to a monthly amount."
             },
             {
               "key": "trial_count",

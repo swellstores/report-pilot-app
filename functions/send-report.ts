@@ -11,6 +11,7 @@ import {
   type SendParams,
 } from './lib/runner';
 import { PERIODS } from './lib/report';
+import { maskAddress } from './lib/text';
 
 export const config: SwellConfig = {
   kind: 'workflow',
@@ -96,7 +97,7 @@ export default class SendReport {
       if (result.id) {
         created.push({ to, id: result.id });
       } else {
-        errors.push(`${to}: ${result.error}`);
+        errors.push(`${maskAddress(to)}: ${result.error}`);
       }
     }
 
