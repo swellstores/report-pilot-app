@@ -36,7 +36,11 @@ import {
   resolveProductSettings,
   resolveSubscriptionSettings,
 } from './report-settings';
+import { isDashboardAdmin } from './dashboard';
 import { isSendHour } from './time';
+
+/** The app's id, as it appears in dashboard addresses (`apps.report_pilot.reports`). */
+const APP_ID = 'report_pilot';
 
 export const REPORT_TYPES = [
   'sales',
@@ -188,6 +192,12 @@ export interface SendParams {
   /** What started it, for the logs. */
   source: 'schedule' | 'action' | 'route';
   /**
+   * The dashboard's address (`https://…/admin`, or `…/admin/test`), so the email
+   * can link to the saved report. Worked out by the function that starts the
+   * run: a workflow can't tell the test environment from live.
+   */
+  dashboard?: string;
+  /**
    * The notification's full name. Looked up before the run starts, because a
    * workflow isn't allowed to read `/:models` ("Workflow runtime API path is
    * not allowed").
@@ -217,7 +227,11 @@ export async function buildForSend(swell: SwellAPI, params: SendParams) {
   const definition = DEFINITIONS[params.type];
   const settings = definition.settings(await swell.settings());
   const period = params.period ?? settings.period;
-  const report = await definition.build(swell, settings, new Date(params.now), period);
+  const report: Record<string, any> = await definition.build(swell, settings, new Date(params.now), period);
+  // Where this type's reports are listed; the email adds the saved report's id.
+  if (isDashboardAdmin(params.dashboard)) {
+    report.dashboard_url = `${params.dashboard}/collections/apps.${APP_ID}.${definition.collection}`;
+  }
 
   return {
     report,
@@ -267,7 +281,12 @@ export function reportSummary(type: ReportType, report: any) {
  * then start the `send-report` workflow only in the store's send hour (08:00
  * local) on a day the period is due.
  */
-export async function runScheduled(swell: SwellAPI, type: ReportType, now: Date = new Date()) {
+export async function runScheduled(
+  swell: SwellAPI,
+  type: ReportType,
+  dashboard?: string,
+  now: Date = new Date(),
+) {
   const definition = DEFINITIONS[type];
   const settings = definition.settings(await swell.settings());
 
@@ -287,7 +306,7 @@ export async function runScheduled(swell: SwellAPI, type: ReportType, now: Date 
     return { type, skipped: 'not_due', period: settings.period };
   }
 
-  const run = await startSend(swell, { type, now: now.toISOString(), source: 'schedule' });
+  const run = await startSend(swell, { type, now: now.toISOString(), source: 'schedule', dashboard });
   return { type, started: run?.id };
 }
 

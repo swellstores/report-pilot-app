@@ -9,6 +9,8 @@
  * environment.
  */
 
+import { dashboardAdmin } from './lib/dashboard';
+
 export const config: SwellConfig = {
   description: 'Dashboard address for links in report tables',
   // No `public`: only this app's own admin components may call it.
@@ -21,26 +23,7 @@ export async function get(req: SwellRequest) {
     throw new SwellError('Admin component calls only', { status: 403 });
   }
 
-  const origin = dashboardOrigin(req);
-  // The installed app's public key carries `_test_` in the test environment.
-  const environment: 'test' | 'live' = /_test_/.test(req.publicKey ?? '') ? 'test' : 'live';
-  console.log(`Dashboard links use the ${environment} dashboard.`);
-
-  return {
-    environment,
-    admin: `${origin}/admin${environment === 'test' ? '/test' : ''}`,
-  };
-}
-
-function dashboardOrigin(req: SwellRequest): string {
-  for (const candidate of [req.store?.admin_url, req.store?.url]) {
-    try {
-      if (candidate) {
-        return new URL(candidate).origin;
-      }
-    } catch {
-      // Not a full URL; try the next one.
-    }
-  }
-  return `https://${req.swellContext?.storeId ?? req.storeId}.swell.store`;
+  const dashboard = dashboardAdmin(req);
+  console.log(`Dashboard links use the ${dashboard.environment} dashboard.`);
+  return dashboard;
 }

@@ -1,3 +1,4 @@
+import { dashboardAdmin } from './lib/dashboard';
 import { runScheduled } from './lib/runner';
 
 export const config: SwellConfig = {
@@ -12,5 +13,5 @@ export const config: SwellConfig = {
 };
 
 export default async function (req: SwellRequest) {
-  return runScheduled(req.swell, 'subscriptions');
+  return runScheduled(req.swell, 'subscriptions', dashboardAdmin(req).admin ?? undefined);
 }

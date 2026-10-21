@@ -39,6 +39,7 @@
     "units_sold": 214,
     "item_revenue": 13734.35,
     "top_share_pct": 99.05,
+    "top_products_count": 10,
     "include_unsold": true,
     "unsold_count": 6,
     "unsold_hidden": 0,

@@ -288,20 +288,23 @@
         },
         {
           "id": "discounted_order_count",
-          "label": "Discounted orders"
+          "label": "Discounted orders",
+          "template": "{% if discounted_order_count == nil %}—{% else %}{% assign rp_n = discounted_order_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %}{% endif %}"
         },
         {
           "id": "discounted_order_pct",
-          "label": "% of orders"
+          "label": "% of orders",
+          "template": "{% if discounted_order_pct == nil %}—{% else %}{{ discounted_order_pct }}{% endif %}"
         },
         {
           "id": "discount_rate_pct",
-          "label": "Discount rate %"
+          "label": "Discount rate %",
+          "template": "{% if discount_rate_pct == nil %}—{% else %}{{ discount_rate_pct }}{% endif %}"
         },
         {
           "id": "discount_change_pct",
           "label": "vs previous",
-          "template": "{% if discount_change_pct > 0 %}▲ {{ discount_change_pct }}%{% elsif discount_change_pct < 0 %}▼ {{ discount_change_pct | abs }}%{% else %}—{% endif %}"
+          "template": "{% if discount_change_pct == nil %}—{% elsif discount_change_pct > 0 %}▲ {% assign rp_v = discount_change_pct | abs | round: 2 %}{% assign rp_w = rp_v | floor %}{% assign rp_f = rp_v | minus: rp_w | round: 2 %}{% if rp_w >= 1000000 %}{{ rp_w | divided_by: 1000000 | floor }},{{ rp_w | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_w | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_w >= 1000 %}{{ rp_w | divided_by: 1000 | floor }},{{ rp_w | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_w }}{% endif %}{{ rp_f | remove_first: \"0\" }}%{% elsif discount_change_pct < 0 %}▼ {% assign rp_v = discount_change_pct | abs | round: 2 %}{% assign rp_w = rp_v | floor %}{% assign rp_f = rp_v | minus: rp_w | round: 2 %}{% if rp_w >= 1000000 %}{{ rp_w | divided_by: 1000000 | floor }},{{ rp_w | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_w | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_w >= 1000 %}{{ rp_w | divided_by: 1000 | floor }},{{ rp_w | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_w }}{% endif %}{{ rp_f | remove_first: \"0\" }}%{% else %}0%{% endif %}"
         },
         {
           "id": "date_created",

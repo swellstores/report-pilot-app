@@ -8,6 +8,11 @@
   "primary_field": "period_label",
   "secondary_field": "abandoned_count",
   "fields": {
+    "dashboard_url": {
+      "type": "string",
+      "label": "Dashboard address",
+      "description": "Where this type of report is listed in the dashboard, for the link in its email. The email adds the report's id."
+    },
     "period_label": {
       "type": "string",
       "label": "Period",

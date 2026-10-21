@@ -159,6 +159,8 @@ export async function buildProductReport(
     item_revenue: totalRevenue,
     // How concentrated sales are in the top of the range.
     top_share_pct: totalRevenue ? round((topRevenue / totalRevenue) * 100) : 0,
+    // How many best sellers that share covers, for the card's "10 of 37 products".
+    top_products_count: top.length,
     top_products: top,
     slow_products: slow,
     movers,

@@ -1,3 +1,4 @@
+import { dashboardAdmin } from './lib/dashboard';
 import { isReportType, recipientsFor, reportLabel, startSend } from './lib/runner';
 
 export const config: SwellConfig = {
@@ -32,7 +33,13 @@ export default async function (req: SwellRequest) {
 
   try {
     recipients = await recipientsFor(swell, type);
-    await startSend(swell, { type, now: new Date().toISOString(), force: true, source: 'action' });
+    await startSend(swell, {
+      type,
+      now: new Date().toISOString(),
+      force: true,
+      source: 'action',
+      dashboard: dashboardAdmin(req).admin ?? undefined,
+    });
   } catch (error) {
     console.error(`${label}: could not start send-report:`, error);
     throw new SwellError(`${label} could not be started, so nothing was sent. Try again in a minute.`, {

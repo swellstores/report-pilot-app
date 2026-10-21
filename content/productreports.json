@@ -111,7 +111,8 @@
               "key": "top_share_pct",
               "label": "Best sellers' share",
               "type": "percent",
-              "hint": "Share of item revenue that came from the best sellers listed (up to 10)."
+              "hint": "Share of item revenue that came from the best sellers listed (up to 10).",
+              "caption": "{top_products_count} of {products_sold_count} products"
             }
           ]
         ]
@@ -314,11 +315,13 @@
         },
         {
           "id": "products_sold_count",
-          "label": "Products sold"
+          "label": "Products sold",
+          "template": "{% if products_sold_count == nil %}—{% else %}{% assign rp_n = products_sold_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %}{% endif %}"
         },
         {
           "id": "units_sold",
-          "label": "Units"
+          "label": "Units",
+          "template": "{% if units_sold == nil %}—{% else %}{% assign rp_n = units_sold | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %}{% endif %}"
         },
         {
           "id": "item_revenue",
@@ -326,7 +329,8 @@
         },
         {
           "id": "unsold_count",
-          "label": "No sales"
+          "label": "No sales",
+          "template": "{% if unsold_count == nil %}—{% else %}{% assign rp_n = unsold_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %}{% endif %}"
         },
         {
           "id": "date_created",

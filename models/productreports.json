@@ -8,6 +8,11 @@
   "primary_field": "period_label",
   "secondary_field": "item_revenue",
   "fields": {
+    "dashboard_url": {
+      "type": "string",
+      "label": "Dashboard address",
+      "description": "Where this type of report is listed in the dashboard, for the link in its email. The email adds the report's id."
+    },
     "period_label": {
       "type": "string",
       "label": "Period",
@@ -51,6 +56,12 @@
       "type": "currency",
       "label": "Item revenue",
       "description": "Line-item revenue, before shipping and tax.",
+      "default": 0
+    },
+    "top_products_count": {
+      "type": "int",
+      "label": "Best sellers counted",
+      "description": "How many best sellers Best sellers' share covers (up to 10).",
       "default": 0
     },
     "top_share_pct": {

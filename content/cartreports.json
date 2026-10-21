@@ -243,7 +243,8 @@
         },
         {
           "id": "abandoned_count",
-          "label": "Abandoned"
+          "label": "Abandoned",
+          "template": "{% if abandoned_count == nil %}—{% else %}{% assign rp_n = abandoned_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %}{% endif %}"
         },
         {
           "id": "abandoned_value",
@@ -251,16 +252,18 @@
         },
         {
           "id": "recovered_count",
-          "label": "Recovered"
+          "label": "Recovered",
+          "template": "{% if recovered_count == nil %}—{% else %}{% assign rp_n = recovered_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %}{% endif %}"
         },
         {
           "id": "recovery_rate_pct",
-          "label": "Recovery rate %"
+          "label": "Recovery rate %",
+          "template": "{% if recovery_rate_pct == nil %}—{% else %}{{ recovery_rate_pct }}{% endif %}"
         },
         {
           "id": "abandoned_change_pct",
           "label": "vs previous",
-          "template": "{% if abandoned_change_pct > 0 %}▲ {{ abandoned_change_pct }}%{% elsif abandoned_change_pct < 0 %}▼ {{ abandoned_change_pct | abs }}%{% else %}—{% endif %}"
+          "template": "{% if abandoned_change_pct == nil %}—{% elsif abandoned_change_pct > 0 %}▲ {% assign rp_v = abandoned_change_pct | abs | round: 2 %}{% assign rp_w = rp_v | floor %}{% assign rp_f = rp_v | minus: rp_w | round: 2 %}{% if rp_w >= 1000000 %}{{ rp_w | divided_by: 1000000 | floor }},{{ rp_w | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_w | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_w >= 1000 %}{{ rp_w | divided_by: 1000 | floor }},{{ rp_w | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_w }}{% endif %}{{ rp_f | remove_first: \"0\" }}%{% elsif abandoned_change_pct < 0 %}▼ {% assign rp_v = abandoned_change_pct | abs | round: 2 %}{% assign rp_w = rp_v | floor %}{% assign rp_f = rp_v | minus: rp_w | round: 2 %}{% if rp_w >= 1000000 %}{{ rp_w | divided_by: 1000000 | floor }},{{ rp_w | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_w | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_w >= 1000 %}{{ rp_w | divided_by: 1000 | floor }},{{ rp_w | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_w }}{% endif %}{{ rp_f | remove_first: \"0\" }}%{% else %}0%{% endif %}"
         },
         {
           "id": "date_created",

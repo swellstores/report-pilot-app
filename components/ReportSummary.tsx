@@ -27,6 +27,8 @@ interface Figure {
   type?: 'number' | 'percent' | 'change' | 'currency' | 'text' | 'yesno';
   hint?: string;
   tone?: 'neutral';
+  /** Small line under the value, with `{field}` filled from the report; hidden while any field is empty or 0. */
+  caption?: string;
 }
 
 type ReportRecord = Record<string, unknown>;
@@ -51,6 +53,7 @@ const STYLE = `
   .rs .down { color: #dc2626; }
   .rs .flat { color: #525252; }
   .rs .muted { color: #9ca3af; font-weight: 400; }
+  .rs .caption { margin-top: 2px; font-size: 12px; line-height: 16px; color: #737373; }
   .rs .note { margin: 0; font-size: 13px; line-height: 18px; color: #737373; }
 `;
 
@@ -73,6 +76,7 @@ export default function ReportSummary({ context, params, locale }: ComponentProp
                 {figure.hint && <Hint text={figure.hint} />}
               </div>
               <div className="value">{renderValue(record[figure.key], figure, locale, currency)}</div>
+              {caption(figure.caption, record, locale)}
             </div>
           ))}
         </div>
@@ -171,6 +175,27 @@ function Hint({ text }: { text: string }) {
       )}
     </button>
   );
+}
+
+/** A figure's caption with its `{field}` placeholders filled, or nothing while any is empty or 0. */
+function caption(template: unknown, record: ReportRecord, locale: string) {
+  if (typeof template !== 'string' || !template) {
+    return null;
+  }
+  let missing = false;
+  const text = template.replace(/\{(\w+)\}/g, (_, key: string) => {
+    const number = Number(record[key]);
+    if (record[key] === null || record[key] === undefined || record[key] === '' || !Number.isFinite(number) || number === 0) {
+      missing = true;
+      return '';
+    }
+    try {
+      return new Intl.NumberFormat(locale).format(number);
+    } catch {
+      return String(number);
+    }
+  });
+  return missing ? null : <div className="caption">{text}</div>;
 }
 
 function renderValue(raw: unknown, figure: Figure, locale: string, currency: string) {

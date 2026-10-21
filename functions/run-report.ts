@@ -1,4 +1,5 @@
 import { buildReport, PERIODS, resolveSettings, resolveWindow, rollingWindow } from './lib/report';
+import { dashboardAdmin } from './lib/dashboard';
 import { generate, isEnabled, isReportType, REPORT_TYPES, startSend } from './lib/runner';
 
 export const config: SwellConfig = {
@@ -82,7 +83,13 @@ async function startFromRoute(req: SwellRequest, type: unknown) {
 
   let run;
   try {
-    run = await startSend(swell, { type, now: new Date().toISOString(), period, source: 'route' });
+    run = await startSend(swell, {
+      type,
+      now: new Date().toISOString(),
+      period,
+      source: 'route',
+      dashboard: dashboardAdmin(req).admin ?? undefined,
+    });
   } catch (error) {
     console.error(`run-report: could not start send-report for ${type}:`, error);
     return { error: 'not_started', message: error instanceof Error ? error.message : String(error) };

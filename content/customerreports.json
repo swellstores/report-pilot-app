@@ -230,24 +230,28 @@
         },
         {
           "id": "customer_count",
-          "label": "Customers"
+          "label": "Customers",
+          "template": "{% if customer_count == nil %}—{% else %}{% assign rp_n = customer_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %}{% endif %}"
         },
         {
           "id": "new_customer_count",
-          "label": "New"
+          "label": "New",
+          "template": "{% if new_customer_count == nil %}—{% else %}{% assign rp_n = new_customer_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %}{% endif %}"
         },
         {
           "id": "returning_customer_count",
-          "label": "Returning"
+          "label": "Returning",
+          "template": "{% if returning_customer_count == nil %}—{% else %}{% assign rp_n = returning_customer_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %}{% endif %}"
         },
         {
           "id": "repeat_rate_pct",
-          "label": "Repeat rate %"
+          "label": "Repeat rate %",
+          "template": "{% if repeat_rate_pct == nil %}—{% else %}{{ repeat_rate_pct }}{% endif %}"
         },
         {
           "id": "customer_change_pct",
           "label": "vs previous",
-          "template": "{% if customer_change_pct > 0 %}▲ {{ customer_change_pct }}%{% elsif customer_change_pct < 0 %}▼ {{ customer_change_pct | abs }}%{% else %}—{% endif %}"
+          "template": "{% if customer_change_pct == nil %}—{% elsif customer_change_pct > 0 %}▲ {% assign rp_v = customer_change_pct | abs | round: 2 %}{% assign rp_w = rp_v | floor %}{% assign rp_f = rp_v | minus: rp_w | round: 2 %}{% if rp_w >= 1000000 %}{{ rp_w | divided_by: 1000000 | floor }},{{ rp_w | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_w | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_w >= 1000 %}{{ rp_w | divided_by: 1000 | floor }},{{ rp_w | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_w }}{% endif %}{{ rp_f | remove_first: \"0\" }}%{% elsif customer_change_pct < 0 %}▼ {% assign rp_v = customer_change_pct | abs | round: 2 %}{% assign rp_w = rp_v | floor %}{% assign rp_f = rp_v | minus: rp_w | round: 2 %}{% if rp_w >= 1000000 %}{{ rp_w | divided_by: 1000000 | floor }},{{ rp_w | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_w | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_w >= 1000 %}{{ rp_w | divided_by: 1000 | floor }},{{ rp_w | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_w }}{% endif %}{{ rp_f | remove_first: \"0\" }}%{% else %}0%{% endif %}"
         },
         {
           "id": "date_created",

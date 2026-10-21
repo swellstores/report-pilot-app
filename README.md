@@ -130,7 +130,8 @@ How each product did in the period.
 
 - **Summary:** Products sold, Previous period products sold and Products with no
   sales; Units sold, Item revenue and Best sellers' share (the share of item
-  revenue that came from the 10 best sellers).
+  revenue that came from the 10 best sellers, with how many products that is,
+  such as "10 of 37 products").
 - **Best sellers:** the 10 products that earned the most, with quantity, revenue,
   previous revenue and revenue change.
 - **Biggest movers:** the 10 largest changes in revenue, up or down, including
@@ -248,7 +249,8 @@ order. The differences:
 - there are no links to products or customers;
 - summary rows of four cards show as two rows of two, and on phones the cards
   stack;
-- long lists show their first rows and say how many more are in the dashboard;
+- long lists show their first rows and link to the full report in the dashboard
+  (the link needs a login, so it only opens for your store's admins);
 - empty or switched-off lists are left out, except the inventory report's Items,
   which says when nothing is out of stock or running low.
 
@@ -361,7 +363,7 @@ separately.
 | "Send a report now" action | `functions/send-report-now.ts`, declared as the `send_now` action in `settings/report-config.json` |
 | Building, saving and emailing a report, in steps | `functions/send-report.ts` (a workflow, started by the crons and the action) |
 | Preview or send any report on demand | `functions/run-report.ts` (route, not public) |
-| Dashboard address for component links | `functions/dashboard-path.ts` (route only the app's components call) |
+| Dashboard address for links | `functions/lib/dashboard.ts`, used by `functions/dashboard-path.ts` (route only the app's components call) and by the functions that start a send, which store the report's dashboard address for its email |
 | Report types, schedule checks and the workflow's steps | `functions/lib/runner.ts` |
 | Report calculations | `functions/lib/report.ts` (sales, periods, recipients, sending), `inventory.ts`, `customers.ts`, `products.ts`, `discounts.ts`, `carts.ts`, `subscriptions.ts`, `scan.ts` (bounded paging) |
 | Time zone, periods and send hour | `functions/lib/time.ts` |
