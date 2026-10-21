@@ -17,6 +17,7 @@ import {
   DEFAULT_TIME_ZONE,
   localDay,
   startOfLocalDay,
+  validSendHour,
   validTimeZone,
   weekday,
 } from './time';
@@ -112,6 +113,8 @@ export interface ReportSettings {
   send_when_empty: boolean;
   /** The store's time zone, from the app's "Time zone" setting. */
   timeZone: string;
+  /** The local hour reports are sent at, from the "Send at" setting (8 by default). */
+  sendHour: number;
 }
 
 const DEFAULTS: ReportSettings = {
@@ -122,6 +125,7 @@ const DEFAULTS: ReportSettings = {
   include_daily_breakdown: true,
   send_when_empty: false,
   timeZone: DEFAULT_TIME_ZONE,
+  sendHour: 8,
 };
 
 /** Top products stored on a sales report when the switch is on. */
@@ -129,6 +133,11 @@ const TOP_PRODUCTS = 10;
 
 /** Loose sanity check — real validation is the mail server's job. */
 const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Whether `value` looks like one email address, as the recipient lists accept. */
+export function isEmailAddress(value: unknown): value is string {
+  return typeof value === 'string' && EMAIL_SHAPE.test(value);
+}
 
 /**
  * This app's sales report notification, as `<collection>.<file name>`. It is
@@ -240,6 +249,7 @@ export function resolveSettings(raw: SwellSettings | undefined | null): ReportSe
     ),
     send_when_empty: bool(settings.send_when_empty, DEFAULTS.send_when_empty),
     timeZone: validTimeZone(settings.timezone),
+    sendHour: validSendHour(settings.send_hour),
   };
 }
 

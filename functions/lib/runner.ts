@@ -22,6 +22,7 @@ import { buildSubscriptionReport, subscriptionsIsEmpty } from './subscriptions';
 import {
   buildReport,
   isDueToday,
+  isEmailAddress,
   NOTIFICATION_TEMPLATE,
   resolveSettings,
   resolveTemplate,
@@ -63,6 +64,7 @@ interface Resolved {
   recipients: string[];
   send_when_empty: boolean;
   timeZone: string;
+  sendHour: number;
 }
 
 interface Definition {
@@ -197,6 +199,8 @@ export interface SendParams {
    * run: a workflow can't tell the test environment from live.
    */
   dashboard?: string;
+  /** Send to this one address instead of the report's recipients (a test from the action). */
+  only_to?: string;
   /**
    * The notification's full name. Looked up before the run starts, because a
    * workflow isn't allowed to read `/:models` ("Workflow runtime API path is
@@ -237,7 +241,8 @@ export async function buildForSend(swell: SwellAPI, params: SendParams) {
     report,
     period,
     empty: definition.isEmpty(report),
-    recipients: settings.recipients,
+    // A test from "Send a report now" goes to that one address only.
+    recipients: isEmailAddress(params.only_to) ? [params.only_to] : settings.recipients,
     send_when_empty: settings.send_when_empty,
   };
 }
@@ -278,8 +283,8 @@ export function reportSummary(type: ReportType, report: any) {
 
 /**
  * Entry point for a type's cron, which runs every hour: honour the toggles,
- * then start the `send-report` workflow only in the store's send hour (08:00
- * local) on a day the period is due.
+ * then start the `send-report` workflow only in the store's send hour (the
+ * "Send at" setting, 08:00 local by default) on a day the period is due.
  */
 export async function runScheduled(
   swell: SwellAPI,
@@ -297,7 +302,7 @@ export async function runScheduled(
 
   // Every other hour of the day returns here without a log line, to keep the
   // hourly runs quiet.
-  if (!isSendHour(now, settings.timeZone)) {
+  if (!isSendHour(now, settings.timeZone, settings.sendHour)) {
     return { type, skipped: 'not_send_hour', timezone: settings.timeZone };
   }
 

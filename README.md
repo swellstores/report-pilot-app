@@ -11,7 +11,7 @@ any past period again.
 
 | When | What the app does |
 | --- | --- |
-| A report is due (around 08:00 in your time zone, on the days its schedule sets) | Works out the figures for the period, saves the report under **Reporting**, and emails it to the recipients for that report. |
+| A report is due (at the **Send at** time in your time zone, 08:00 by default, on the days its schedule sets) | Works out the figures for the period, saves the report under **Reporting**, and emails it to the recipients for that report. |
 | The period had nothing in it | Skips the report, unless **Send even when there is nothing to report** is on. |
 | You choose **Actions → Send a report now** | Builds, saves and emails the report you pick straight away, even if that report is switched off. |
 | You open a report under **Reporting** | Shows its summary and tables. Long tables show their first rows, with **Show more** for the rest. |
@@ -272,7 +272,8 @@ Settings are in **Apps → Report Pilot → Settings**.
 | Send scheduled reports | Turns every scheduled report on or off without uninstalling the app. On by default. |
 | Send even when there is nothing to report | When off (the default), a report is skipped if its period had nothing in it: no paid orders, no customers, no products sold, no discounted orders, no stock running low, no abandoned carts, or no subscriptions. |
 | Recipients | Addresses that get every report that's switched on. |
-| Time zone | Your store's time zone, from the same list as **Settings → General**. Reports arrive around 08:00 in it, and days, weeks and months start at its midnight. Defaults to Greenwich Mean Time (UTC). |
+| Time zone | Your store's time zone, from the same list as **Settings → General**. Days, weeks and months start at its midnight. Defaults to Greenwich Mean Time (UTC). |
+| Send at | The hour reports are sent, in the time zone above, from 00:00 to 23:00. Defaults to 08:00. |
 
 Each report has a tab under **Each report** with:
 
@@ -315,10 +316,10 @@ Some tabs have more:
   subscription report uses the subscriptions' currency. Treat totals on these stores as approximate.
 - **Billing intervals:** plans billed daily, weekly, monthly or yearly are
   converted to a monthly amount. Any other interval is counted as monthly.
-- **Send times:** reports are sent once a day, in the 08:00 hour of your time
-  zone. The exact minute varies by report, from 08:00 to 08:30. In time zones
-  offset by a half or quarter hour, such as India, they arrive anywhere in the
-  08:00 hour.
+- **Send times:** reports are sent once a day, in the hour set in **Send at**
+  (08:00 by default) in your time zone. The exact minute varies by report, up to
+  30 minutes past the hour. In time zones offset by a half or quarter hour, such
+  as India, they arrive anywhere in that hour.
 - **Environments:** works in Swell's test and live environments. Settings and
   reports are separate for each.
 
@@ -389,7 +390,7 @@ app writes only to its own collections.
 ### How a scheduled report runs
 
 Each cron runs every hour. It returns straight away unless it's the store's
-08:00 hour (`isSendHour`) and the report is due today (`isDueToday`), both in
+**Send at** hour (`isSendHour`, 08:00 by default) and the report is due today (`isDueToday`), both in
 the time zone setting. It then looks up the report's email template
 (`resolveTemplate`, which reads `/:models`, something a workflow isn't allowed
 to do), starts the `send-report` workflow with it, and returns.

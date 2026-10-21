@@ -10,8 +10,14 @@
 
 export const DEFAULT_TIME_ZONE = 'UTC';
 
-/** The local hour reports are sent at. Crons run hourly and wait for it. */
+/** The local hour reports are sent at unless the "Send at" setting says otherwise. Crons run hourly and wait for it. */
 export const SEND_HOUR = 8;
+
+/** A "Send at" setting as an hour, 0–23, or the default 8 when unset or invalid. */
+export function validSendHour(value: unknown): number {
+  const hour = Number(value);
+  return value !== null && value !== '' && Number.isInteger(hour) && hour >= 0 && hour <= 23 ? hour : SEND_HOUR;
+}
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 86400000;
@@ -159,10 +165,10 @@ export function dayAsUtcDate(day: LocalDay): Date {
 }
 
 /**
- * Whether `now` is in the store's send hour (08:00–08:59 local). The report
- * crons run every hour, and only the run in this hour can send, so each store
- * gets its reports in its own morning, once a day.
+ * Whether `now` is in the store's send hour (the "Send at" setting, 08:00–08:59
+ * local by default). The report crons run every hour, and only the run in this
+ * hour can send, so each store gets its reports at its own time, once a day.
  */
-export function isSendHour(now: Date, timeZone: string): boolean {
-  return localParts(now, timeZone).hour === SEND_HOUR;
+export function isSendHour(now: Date, timeZone: string, sendHour: number = SEND_HOUR): boolean {
+  return localParts(now, timeZone).hour === sendHour;
 }

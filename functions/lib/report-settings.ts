@@ -18,6 +18,8 @@ export interface TypeSettings {
   send_when_empty: boolean;
   /** The store's time zone, from the app's "Time zone" setting. */
   timeZone: string;
+  /** The local hour reports are sent at, from the "Send at" setting. */
+  sendHour: number;
 }
 
 export interface InventorySettings extends TypeSettings {
@@ -63,6 +65,7 @@ function common(raw: SwellSettings | undefined | null, prefix: string): TypeSett
     recipients: recipientsFor(settings, prefix),
     send_when_empty: shared.send_when_empty,
     timeZone: shared.timeZone,
+    sendHour: shared.sendHour,
   };
 }
 

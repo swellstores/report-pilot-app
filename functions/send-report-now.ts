@@ -1,4 +1,5 @@
 import { dashboardAdmin } from './lib/dashboard';
+import { isEmailAddress } from './lib/report';
 import { isReportType, recipientsFor, reportLabel, startSend } from './lib/runner';
 
 export const config: SwellConfig = {
@@ -10,7 +11,8 @@ export const config: SwellConfig = {
 
 /**
  * The admin picked a report type in the action's modal. This sends it now, to
- * the recipients in the app settings, whether or not that report is switched on
+ * the recipients in the app settings (or only to the "Send only to" address,
+ * for a test), whether or not that report is switched on
  * or scheduled — the admin asked for it explicitly — and even if the period had
  * nothing in it.
  *
@@ -28,17 +30,24 @@ export default async function (req: SwellRequest) {
     throw new SwellError('Choose a report type to send.', { status: 400 });
   }
 
+  // "Send only to": an optional single address for a test.
+  const onlyTo = typeof req.data?.only_to === 'string' ? req.data.only_to.trim() : '';
+  if (onlyTo && !isEmailAddress(onlyTo)) {
+    throw new SwellError('Enter one email address in Send only to, or leave it empty.', { status: 400 });
+  }
+
   const label = reportLabel(type);
   let recipients: string[];
 
   try {
-    recipients = await recipientsFor(swell, type);
+    recipients = onlyTo ? [onlyTo] : await recipientsFor(swell, type);
     await startSend(swell, {
       type,
       now: new Date().toISOString(),
       force: true,
       source: 'action',
       dashboard: dashboardAdmin(req).admin ?? undefined,
+      only_to: onlyTo || undefined,
     });
   } catch (error) {
     console.error(`${label}: could not start send-report:`, error);
@@ -52,6 +61,12 @@ export default async function (req: SwellRequest) {
   if (!recipients.length) {
     return {
       message: `Creating the ${label.toLowerCase()} now. No recipients are set in the app settings, so no email will be sent. ${where}`,
+    };
+  }
+
+  if (onlyTo) {
+    return {
+      message: `Sending a test of the ${label.toLowerCase()} to ${onlyTo} only. It should arrive within a few minutes. ${where}`,
     };
   }
 

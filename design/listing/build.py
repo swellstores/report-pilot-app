@@ -153,7 +153,7 @@ EMAIL_STYLE = """
 
 email = page(
     "Your key numbers, <mark>in every inbox</mark>",
-    "Daily, weekly, every 2 weeks or monthly, around 08:00 in your store's time zone.",
+    "Daily, weekly, every 2 weeks or monthly, at the time you choose in your store's time zone.",
     f"""
 <div class="frame"><div class="mail">
   <div class="inbox">
@@ -328,8 +328,10 @@ settings = page(
         <div class="row"><span class="toggle off"></span>Send even when there is nothing to report</div>
         <div class="lbl">Recipients</div>
         <div class="inp" id="recipients"><span><span class="chip">owner@example.com &times;</span><span class="chip">finance@example.com &times;</span></span></div>
-        <div class="lbl">Time zone</div>
-        <div class="inp" id="tz" style="width:46%">Pacific Daylight Time{CHEVRON}</div>
+        <div id="when" style="display:flex; gap:16px; width:64%">
+          <div style="flex:1.6"><div class="lbl">Time zone</div><div class="inp">Pacific Daylight Time{CHEVRON}</div></div>
+          <div style="flex:1"><div class="lbl">Send at</div><div class="inp">07:00{CHEVRON}</div></div>
+        </div>
         <div class="divide"></div>
         <div class="sh"><b>Each report</b><div>Switch each report on, choose how often it runs, and add anyone who should get only that report.</div></div>
         <div class="rtabs"><div>Sales</div><div>Customers</div><div class="on">Inventory</div><div>Products</div><div>Discounts</div><div>Abandoned carts</div><div>Subscriptions</div></div>
@@ -345,8 +347,8 @@ settings = page(
 </div>
 <div class="ring" id="ring-send" data-ring="#sendnow" data-pad="3"></div>
 <div class="callout" data-at="#ring-send" data-side="left"><b>1</b>Send any report right now</div>
-<div class="ring" id="ring-tz" data-ring="#tz" data-pad="5"></div>
-<div class="callout" data-at="#ring-tz" data-side="right"><b>2</b>Mornings in your time zone</div>
+<div class="ring" id="ring-tz" data-ring="#when" data-pad="5"></div>
+<div class="callout" data-at="#ring-tz" data-side="right"><b>2</b>Your time, in your time zone</div>
 <div class="ring" id="ring-extra" data-ring="#extra" data-pad="5"></div>
 <div class="callout" data-at="#ring-extra" data-side="right"><b>3</b>Extra people for one report</div>
 """,

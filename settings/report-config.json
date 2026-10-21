@@ -50,6 +50,13 @@
                 "value": "subscriptions"
               }
             ]
+          },
+          {
+            "id": "only_to",
+            "type": "email",
+            "label": "Send only to",
+            "description": "Optional. Enter one address to send a test to just that address. Leave it empty to send to the report's recipients.",
+            "placeholder": "name@example.com"
           }
         ]
       }
@@ -80,391 +87,503 @@
       "placeholder": "finance@example.com"
     },
     {
-      "id": "timezone",
-      "type": "select",
-      "label": "Time zone",
-      "description": "Reports are sent around 08:00 in this time zone, and each day, week and month starts at its midnight. Swell doesn't share the time zone from Settings → General with apps, so choose the same one here.",
-      "default": "GMT",
-      "options": [
-        {
-          "label": "Line Islands Time",
-          "value": "Pacific/Kiritimati"
-        },
-        {
-          "label": "Phoenix Islands Time",
-          "value": "Pacific/Enderbury"
-        },
-        {
-          "label": "Tonga Time",
-          "value": "Pacific/Tongatapu"
-        },
-        {
-          "label": "Chatham Daylight Time",
-          "value": "Pacific/Chatham"
-        },
-        {
-          "label": "Petropavlovsk-Kamchatski Time",
-          "value": "Asia/Kamchatka"
-        },
-        {
-          "label": "New Zealand Daylight Time",
-          "value": "Pacific/Auckland"
-        },
-        {
-          "label": "Fiji Time",
-          "value": "Pacific/Fiji"
-        },
-        {
-          "label": "Norfolk Time",
-          "value": "Pacific/Norfolk"
-        },
-        {
-          "label": "Solomon Islands Time",
-          "value": "Pacific/Guadalcanal"
-        },
-        {
-          "label": "Lord Howe Summer Time",
-          "value": "Australia/Lord_Howe"
-        },
-        {
-          "label": "Australian Eastern Standard Time (Brisbane)",
-          "value": "Australia/Brisbane"
-        },
-        {
-          "label": "Australian Eastern Standard Time (Sydney)",
-          "value": "Australia/Sydney"
-        },
-        {
-          "label": "Australian Central Standard Time (Adelaide)",
-          "value": "Australia/Adelaide"
-        },
-        {
-          "label": "Australian Central Standard Time (Darwin)",
-          "value": "Australia/Darwin"
-        },
-        {
-          "label": "Korea Standard Time",
-          "value": "Asia/Seoul"
-        },
-        {
-          "label": "Japan Standard Time",
-          "value": "Asia/Tokyo"
-        },
-        {
-          "label": "Hong Kong Time",
-          "value": "Asia/Hong_Kong"
-        },
-        {
-          "label": "Malaysia Time",
-          "value": "Asia/Kuala_Lumpur"
-        },
-        {
-          "label": "Philippines Time",
-          "value": "Asia/Manila"
-        },
-        {
-          "label": "China Standard Time (Shanghai)",
-          "value": "Asia/Shanghai"
-        },
-        {
-          "label": "Singapore Time",
-          "value": "Asia/Singapore"
-        },
-        {
-          "label": "China Standard Time (Taipei)",
-          "value": "Asia/Taipei"
-        },
-        {
-          "label": "Australian Western Standard Time",
-          "value": "Australia/Perth"
-        },
-        {
-          "label": "Indochina Time (Bangkok)",
-          "value": "Asia/Bangkok"
-        },
-        {
-          "label": "West Indonesia Time",
-          "value": "Asia/Jakarta"
-        },
-        {
-          "label": "Indochina Time (Saigon)",
-          "value": "Asia/Saigon"
-        },
-        {
-          "label": "Myanmar Time",
-          "value": "Asia/Rangoon"
-        },
-        {
-          "label": "Bangladesh Time",
-          "value": "Asia/Dacca"
-        },
-        {
-          "label": "Nepal Time",
-          "value": "Asia/Katmandu"
-        },
-        {
-          "label": "India Standard Time (Calcutta)",
-          "value": "Asia/Calcutta"
-        },
-        {
-          "label": "India Standard Time (Colombo)",
-          "value": "Asia/Colombo"
-        },
-        {
-          "label": "Pakistan Summer Time",
-          "value": "Asia/Karachi"
-        },
-        {
-          "label": "Uzbekistan Time",
-          "value": "Asia/Tashkent"
-        },
-        {
-          "label": "Yekaterinburg Time",
-          "value": "Asia/Yekaterinburg"
-        },
-        {
-          "label": "Afghanistan Time",
-          "value": "Asia/Kabul"
-        },
-        {
-          "label": "Azerbaijan Time",
-          "value": "Asia/Baku"
-        },
-        {
-          "label": "Gulf Standard Time",
-          "value": "Asia/Dubai"
-        },
-        {
-          "label": "Georgia Time",
-          "value": "Asia/Tbilisi"
-        },
-        {
-          "label": "Armenia Time",
-          "value": "Asia/Yerevan"
-        },
-        {
-          "label": "Iran Standard Time",
-          "value": "Asia/Tehran"
-        },
-        {
-          "label": "Eastern African Time",
-          "value": "Africa/Nairobi"
-        },
-        {
-          "label": "Arabia Standard Time (Baghdad)",
-          "value": "Asia/Baghdad"
-        },
-        {
-          "label": "Arabia Standard Time (Kuwait)",
-          "value": "Asia/Kuwait"
-        },
-        {
-          "label": "Arabia Standard Time (Riyadh)",
-          "value": "Asia/Riyadh"
-        },
-        {
-          "label": "Moscow Standard Time",
-          "value": "Europe/Moscow"
-        },
-        {
-          "label": "Eastern European Time (Cairo)",
-          "value": "Africa/Cairo"
-        },
-        {
-          "label": "South Africa Standard Time",
-          "value": "Africa/Johannesburg"
-        },
-        {
-          "label": "Eastern European Time (Beirut)",
-          "value": "Asia/Beirut"
-        },
-        {
-          "label": "Israel Standard Time",
-          "value": "Asia/Jerusalem"
-        },
-        {
-          "label": "Eastern European Time (Athens)",
-          "value": "Europe/Athens"
-        },
-        {
-          "label": "Eastern European Time (Bucharest)",
-          "value": "Europe/Bucharest"
-        },
-        {
-          "label": "Eastern European Time (Helsinki)",
-          "value": "Europe/Helsinki"
-        },
-        {
-          "label": "Eastern European Time (Istanbul)",
-          "value": "Europe/Istanbul"
-        },
-        {
-          "label": "Eastern European Time (Minsk)",
-          "value": "Europe/Minsk"
-        },
-        {
-          "label": "Central European Time (Amsterdam)",
-          "value": "Europe/Amsterdam"
-        },
-        {
-          "label": "Central European Time (Berlin)",
-          "value": "Europe/Berlin"
-        },
-        {
-          "label": "Central European Time (Brussels)",
-          "value": "Europe/Brussels"
-        },
-        {
-          "label": "Central European Time (Prague)",
-          "value": "Europe/Prague"
-        },
-        {
-          "label": "Central European Time (Rome)",
-          "value": "Europe/Rome"
-        },
-        {
-          "label": "Irish Summer Time",
-          "value": "Europe/Dublin"
-        },
-        {
-          "label": "Western European Summer Time",
-          "value": "Europe/Lisbon"
-        },
-        {
-          "label": "British Summer Time",
-          "value": "Europe/London"
-        },
-        {
-          "label": "Greenwich Mean Time",
-          "value": "GMT"
-        },
-        {
-          "label": "East Greenland Time",
-          "value": "America/Scoresbysund"
-        },
-        {
-          "label": "Azores Time",
-          "value": "Atlantic/Azores"
-        },
-        {
-          "label": "Cape Verde Time",
-          "value": "Atlantic/Cape_Verde"
-        },
-        {
-          "label": "South Georgia Standard Time",
-          "value": "Atlantic/South_Georgia"
-        },
-        {
-          "label": "Argentine Summer Time",
-          "value": "America/Buenos_Aires"
-        },
-        {
-          "label": "Brasilia Summer Time",
-          "value": "America/Sao_Paulo"
-        },
-        {
-          "label": "Newfoundland Daylight Time",
-          "value": "America/St_Johns"
-        },
-        {
-          "label": "Atlantic Daylight Time (Halifax)",
-          "value": "America/Halifax"
-        },
-        {
-          "label": "Atlantic Standard Time",
-          "value": "America/Puerto_Rico"
-        },
-        {
-          "label": "Chile Summer Time",
-          "value": "America/Santiago"
-        },
-        {
-          "label": "Atlantic Daylight Time (Bermuda)",
-          "value": "Atlantic/Bermuda"
-        },
-        {
-          "label": "Venezuela Time",
-          "value": "America/Caracas"
-        },
-        {
-          "label": "Colombia Time",
-          "value": "America/Bogota"
-        },
-        {
-          "label": "Eastern Daylight Time (Indianapolis)",
-          "value": "America/Indianapolis"
-        },
-        {
-          "label": "Peru Time",
-          "value": "America/Lima"
-        },
-        {
-          "label": "Eastern Daylight Time (New York)",
-          "value": "America/New_York"
-        },
-        {
-          "label": "Eastern Standard Time (Panama)",
-          "value": "America/Panama"
-        },
-        {
-          "label": "Central Daylight Time (Chicago)",
-          "value": "America/Chicago"
-        },
-        {
-          "label": "Central Standard Time (El Salvador)",
-          "value": "America/El_Salvador"
-        },
-        {
-          "label": "Central Standard Time (Mexico City)",
-          "value": "America/Mexico_City"
-        },
-        {
-          "label": "Mountain Daylight Time",
-          "value": "America/Denver"
-        },
-        {
-          "label": "Mountain Standard Time",
-          "value": "America/Phoenix"
-        },
-        {
-          "label": "Pacific Daylight Time",
-          "value": "America/Los_Angeles"
-        },
-        {
-          "label": "Pacific Standard Time",
-          "value": "America/Tijuana"
-        },
-        {
-          "label": "Pitcairn Standard Time",
-          "value": "Pacific/Pitcairn"
-        },
-        {
-          "label": "Alaska Daylight Time",
-          "value": "America/Anchorage"
-        },
-        {
-          "label": "Gambier Time",
-          "value": "Pacific/Gambier"
-        },
-        {
-          "label": "Marquesas Time",
-          "value": "Pacific/Marquesas"
-        },
-        {
-          "label": "Hawaii Standard Time",
-          "value": "Pacific/Honolulu"
-        },
-        {
-          "label": "Hawaii-Aleutian Standard Time",
-          "value": "America/Atka"
-        },
-        {
-          "label": "Niue Time",
-          "value": "Pacific/Niue"
-        },
-        {
-          "label": "Samoa Standard Time",
-          "value": "Pacific/Pago_Pago"
+      "type": "field_row",
+      "fields": [
+        {
+          "id": "timezone",
+          "admin_span": 2,
+          "type": "select",
+          "label": "Time zone",
+          "description": "Reports are sent at the Send at time, in this time zone, and each day, week and month starts at its midnight. Swell doesn't share the time zone from Settings → General with apps, so choose the same one here.",
+          "default": "GMT",
+          "options": [
+            {
+              "label": "Line Islands Time",
+              "value": "Pacific/Kiritimati"
+            },
+            {
+              "label": "Phoenix Islands Time",
+              "value": "Pacific/Enderbury"
+            },
+            {
+              "label": "Tonga Time",
+              "value": "Pacific/Tongatapu"
+            },
+            {
+              "label": "Chatham Daylight Time",
+              "value": "Pacific/Chatham"
+            },
+            {
+              "label": "Petropavlovsk-Kamchatski Time",
+              "value": "Asia/Kamchatka"
+            },
+            {
+              "label": "New Zealand Daylight Time",
+              "value": "Pacific/Auckland"
+            },
+            {
+              "label": "Fiji Time",
+              "value": "Pacific/Fiji"
+            },
+            {
+              "label": "Norfolk Time",
+              "value": "Pacific/Norfolk"
+            },
+            {
+              "label": "Solomon Islands Time",
+              "value": "Pacific/Guadalcanal"
+            },
+            {
+              "label": "Lord Howe Summer Time",
+              "value": "Australia/Lord_Howe"
+            },
+            {
+              "label": "Australian Eastern Standard Time (Brisbane)",
+              "value": "Australia/Brisbane"
+            },
+            {
+              "label": "Australian Eastern Standard Time (Sydney)",
+              "value": "Australia/Sydney"
+            },
+            {
+              "label": "Australian Central Standard Time (Adelaide)",
+              "value": "Australia/Adelaide"
+            },
+            {
+              "label": "Australian Central Standard Time (Darwin)",
+              "value": "Australia/Darwin"
+            },
+            {
+              "label": "Korea Standard Time",
+              "value": "Asia/Seoul"
+            },
+            {
+              "label": "Japan Standard Time",
+              "value": "Asia/Tokyo"
+            },
+            {
+              "label": "Hong Kong Time",
+              "value": "Asia/Hong_Kong"
+            },
+            {
+              "label": "Malaysia Time",
+              "value": "Asia/Kuala_Lumpur"
+            },
+            {
+              "label": "Philippines Time",
+              "value": "Asia/Manila"
+            },
+            {
+              "label": "China Standard Time (Shanghai)",
+              "value": "Asia/Shanghai"
+            },
+            {
+              "label": "Singapore Time",
+              "value": "Asia/Singapore"
+            },
+            {
+              "label": "China Standard Time (Taipei)",
+              "value": "Asia/Taipei"
+            },
+            {
+              "label": "Australian Western Standard Time",
+              "value": "Australia/Perth"
+            },
+            {
+              "label": "Indochina Time (Bangkok)",
+              "value": "Asia/Bangkok"
+            },
+            {
+              "label": "West Indonesia Time",
+              "value": "Asia/Jakarta"
+            },
+            {
+              "label": "Indochina Time (Saigon)",
+              "value": "Asia/Saigon"
+            },
+            {
+              "label": "Myanmar Time",
+              "value": "Asia/Rangoon"
+            },
+            {
+              "label": "Bangladesh Time",
+              "value": "Asia/Dacca"
+            },
+            {
+              "label": "Nepal Time",
+              "value": "Asia/Katmandu"
+            },
+            {
+              "label": "India Standard Time (Calcutta)",
+              "value": "Asia/Calcutta"
+            },
+            {
+              "label": "India Standard Time (Colombo)",
+              "value": "Asia/Colombo"
+            },
+            {
+              "label": "Pakistan Summer Time",
+              "value": "Asia/Karachi"
+            },
+            {
+              "label": "Uzbekistan Time",
+              "value": "Asia/Tashkent"
+            },
+            {
+              "label": "Yekaterinburg Time",
+              "value": "Asia/Yekaterinburg"
+            },
+            {
+              "label": "Afghanistan Time",
+              "value": "Asia/Kabul"
+            },
+            {
+              "label": "Azerbaijan Time",
+              "value": "Asia/Baku"
+            },
+            {
+              "label": "Gulf Standard Time",
+              "value": "Asia/Dubai"
+            },
+            {
+              "label": "Georgia Time",
+              "value": "Asia/Tbilisi"
+            },
+            {
+              "label": "Armenia Time",
+              "value": "Asia/Yerevan"
+            },
+            {
+              "label": "Iran Standard Time",
+              "value": "Asia/Tehran"
+            },
+            {
+              "label": "Eastern African Time",
+              "value": "Africa/Nairobi"
+            },
+            {
+              "label": "Arabia Standard Time (Baghdad)",
+              "value": "Asia/Baghdad"
+            },
+            {
+              "label": "Arabia Standard Time (Kuwait)",
+              "value": "Asia/Kuwait"
+            },
+            {
+              "label": "Arabia Standard Time (Riyadh)",
+              "value": "Asia/Riyadh"
+            },
+            {
+              "label": "Moscow Standard Time",
+              "value": "Europe/Moscow"
+            },
+            {
+              "label": "Eastern European Time (Cairo)",
+              "value": "Africa/Cairo"
+            },
+            {
+              "label": "South Africa Standard Time",
+              "value": "Africa/Johannesburg"
+            },
+            {
+              "label": "Eastern European Time (Beirut)",
+              "value": "Asia/Beirut"
+            },
+            {
+              "label": "Israel Standard Time",
+              "value": "Asia/Jerusalem"
+            },
+            {
+              "label": "Eastern European Time (Athens)",
+              "value": "Europe/Athens"
+            },
+            {
+              "label": "Eastern European Time (Bucharest)",
+              "value": "Europe/Bucharest"
+            },
+            {
+              "label": "Eastern European Time (Helsinki)",
+              "value": "Europe/Helsinki"
+            },
+            {
+              "label": "Eastern European Time (Istanbul)",
+              "value": "Europe/Istanbul"
+            },
+            {
+              "label": "Eastern European Time (Minsk)",
+              "value": "Europe/Minsk"
+            },
+            {
+              "label": "Central European Time (Amsterdam)",
+              "value": "Europe/Amsterdam"
+            },
+            {
+              "label": "Central European Time (Berlin)",
+              "value": "Europe/Berlin"
+            },
+            {
+              "label": "Central European Time (Brussels)",
+              "value": "Europe/Brussels"
+            },
+            {
+              "label": "Central European Time (Prague)",
+              "value": "Europe/Prague"
+            },
+            {
+              "label": "Central European Time (Rome)",
+              "value": "Europe/Rome"
+            },
+            {
+              "label": "Irish Summer Time",
+              "value": "Europe/Dublin"
+            },
+            {
+              "label": "Western European Summer Time",
+              "value": "Europe/Lisbon"
+            },
+            {
+              "label": "British Summer Time",
+              "value": "Europe/London"
+            },
+            {
+              "label": "Greenwich Mean Time",
+              "value": "GMT"
+            },
+            {
+              "label": "East Greenland Time",
+              "value": "America/Scoresbysund"
+            },
+            {
+              "label": "Azores Time",
+              "value": "Atlantic/Azores"
+            },
+            {
+              "label": "Cape Verde Time",
+              "value": "Atlantic/Cape_Verde"
+            },
+            {
+              "label": "South Georgia Standard Time",
+              "value": "Atlantic/South_Georgia"
+            },
+            {
+              "label": "Argentine Summer Time",
+              "value": "America/Buenos_Aires"
+            },
+            {
+              "label": "Brasilia Summer Time",
+              "value": "America/Sao_Paulo"
+            },
+            {
+              "label": "Newfoundland Daylight Time",
+              "value": "America/St_Johns"
+            },
+            {
+              "label": "Atlantic Daylight Time (Halifax)",
+              "value": "America/Halifax"
+            },
+            {
+              "label": "Atlantic Standard Time",
+              "value": "America/Puerto_Rico"
+            },
+            {
+              "label": "Chile Summer Time",
+              "value": "America/Santiago"
+            },
+            {
+              "label": "Atlantic Daylight Time (Bermuda)",
+              "value": "Atlantic/Bermuda"
+            },
+            {
+              "label": "Venezuela Time",
+              "value": "America/Caracas"
+            },
+            {
+              "label": "Colombia Time",
+              "value": "America/Bogota"
+            },
+            {
+              "label": "Eastern Daylight Time (Indianapolis)",
+              "value": "America/Indianapolis"
+            },
+            {
+              "label": "Peru Time",
+              "value": "America/Lima"
+            },
+            {
+              "label": "Eastern Daylight Time (New York)",
+              "value": "America/New_York"
+            },
+            {
+              "label": "Eastern Standard Time (Panama)",
+              "value": "America/Panama"
+            },
+            {
+              "label": "Central Daylight Time (Chicago)",
+              "value": "America/Chicago"
+            },
+            {
+              "label": "Central Standard Time (El Salvador)",
+              "value": "America/El_Salvador"
+            },
+            {
+              "label": "Central Standard Time (Mexico City)",
+              "value": "America/Mexico_City"
+            },
+            {
+              "label": "Mountain Daylight Time",
+              "value": "America/Denver"
+            },
+            {
+              "label": "Mountain Standard Time",
+              "value": "America/Phoenix"
+            },
+            {
+              "label": "Pacific Daylight Time",
+              "value": "America/Los_Angeles"
+            },
+            {
+              "label": "Pacific Standard Time",
+              "value": "America/Tijuana"
+            },
+            {
+              "label": "Pitcairn Standard Time",
+              "value": "Pacific/Pitcairn"
+            },
+            {
+              "label": "Alaska Daylight Time",
+              "value": "America/Anchorage"
+            },
+            {
+              "label": "Gambier Time",
+              "value": "Pacific/Gambier"
+            },
+            {
+              "label": "Marquesas Time",
+              "value": "Pacific/Marquesas"
+            },
+            {
+              "label": "Hawaii Standard Time",
+              "value": "Pacific/Honolulu"
+            },
+            {
+              "label": "Hawaii-Aleutian Standard Time",
+              "value": "America/Atka"
+            },
+            {
+              "label": "Niue Time",
+              "value": "Pacific/Niue"
+            },
+            {
+              "label": "Samoa Standard Time",
+              "value": "Pacific/Pago_Pago"
+            }
+          ]
+        },
+        {
+          "id": "send_hour",
+          "admin_span": 1,
+          "type": "select",
+          "label": "Send at",
+          "description": "The time reports are sent, in the chosen time zone. Each report arrives within a few minutes of it.",
+          "default": "8",
+          "options": [
+            {
+              "label": "00:00",
+              "value": "0"
+            },
+            {
+              "label": "01:00",
+              "value": "1"
+            },
+            {
+              "label": "02:00",
+              "value": "2"
+            },
+            {
+              "label": "03:00",
+              "value": "3"
+            },
+            {
+              "label": "04:00",
+              "value": "4"
+            },
+            {
+              "label": "05:00",
+              "value": "5"
+            },
+            {
+              "label": "06:00",
+              "value": "6"
+            },
+            {
+              "label": "07:00",
+              "value": "7"
+            },
+            {
+              "label": "08:00",
+              "value": "8"
+            },
+            {
+              "label": "09:00",
+              "value": "9"
+            },
+            {
+              "label": "10:00",
+              "value": "10"
+            },
+            {
+              "label": "11:00",
+              "value": "11"
+            },
+            {
+              "label": "12:00",
+              "value": "12"
+            },
+            {
+              "label": "13:00",
+              "value": "13"
+            },
+            {
+              "label": "14:00",
+              "value": "14"
+            },
+            {
+              "label": "15:00",
+              "value": "15"
+            },
+            {
+              "label": "16:00",
+              "value": "16"
+            },
+            {
+              "label": "17:00",
+              "value": "17"
+            },
+            {
+              "label": "18:00",
+              "value": "18"
+            },
+            {
+              "label": "19:00",
+              "value": "19"
+            },
+            {
+              "label": "20:00",
+              "value": "20"
+            },
+            {
+              "label": "21:00",
+              "value": "21"
+            },
+            {
+              "label": "22:00",
+              "value": "22"
+            },
+            {
+              "label": "23:00",
+              "value": "23"
+            }
+          ]
         }
       ]
     },
@@ -494,7 +613,7 @@
           "id": "period",
           "type": "select",
           "label": "Reporting period",
-          "description": "Daily arrives every morning, weekly every Monday, every 2 weeks on alternate Mondays, monthly on the 1st — around 08:00 in the time zone above.",
+          "description": "Daily arrives every day, weekly every Monday, every 2 weeks on alternate Mondays, monthly on the 1st — at the Send at time above.",
           "default": "weekly",
           "options": [
             {

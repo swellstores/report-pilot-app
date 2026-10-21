@@ -10,7 +10,7 @@ import {
   saveForSend,
   type SendParams,
 } from './lib/runner';
-import { PERIODS } from './lib/report';
+import { isEmailAddress, PERIODS } from './lib/report';
 import { maskAddress } from './lib/text';
 import { failOnRefusal } from './lib/refusals';
 
@@ -33,13 +33,16 @@ export default class SendReport {
   async run(req: SwellWorkflowRequest, step: SwellWorkflowStep) {
     const params = req.data as SendParams;
     const validPeriod = params?.period === undefined || PERIODS.includes(params.period);
+    const validOnlyTo = params?.only_to === undefined || isEmailAddress(params.only_to);
     if (
       !isReportType(params?.type) ||
       typeof params.now !== 'string' ||
       !Number.isFinite(Date.parse(params.now)) ||
-      !validPeriod
+      !validPeriod ||
+      !validOnlyTo
     ) {
-      console.error(`send-report started without a valid report type, time or period: ${JSON.stringify(req.data)}`);
+      // Logged without the params themselves, which can hold an address.
+      console.error(`send-report started without a valid report type, time, period or address (type ${String(params?.type)}).`);
       return { error: 'invalid_params' };
     }
 
@@ -113,7 +116,7 @@ export default class SendReport {
       `${label} created for ${periodLabel}: ${reportSummary(type, built.report)}. ` +
         `Sent to ${sent} recipient(s)` +
         (errors.length ? `, ${errors.length} failed: ${errors.join('; ')}` : '') +
-        ` (${params.source}).`,
+        ` (${params.source}${params.only_to ? ', test to one address' : ''}).`,
     );
 
     return { type, report_id: reportId, period: periodLabel, sent, failed: errors.length, errors };
