@@ -140,11 +140,12 @@ EMAIL_STYLE = """
 .msg .pre { margin-top: 2px; color: var(--soft); font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .msg.on { background: #eef2ff; }
 .msg.on .sub { font-weight: 600; }
-.read { flex: 1; padding: 22px 0 22px 44px; overflow: hidden; }
-.em { width: 640px; margin: 0; background: #fff; border-radius: 14px; border: 1px solid #ececf1; padding: 26px 30px; }
+.read { flex: 1; padding: 16px 0 16px 44px; overflow: hidden; }
+.em { width: 640px; margin: 0; background: #fff; border-radius: 14px; border: 1px solid #ececf1; padding: 20px 30px 22px; }
 .em .k { font-size: 12.5px; letter-spacing: .9px; text-transform: uppercase; color: #6b7280; }
 .em .t { font-size: 26px; font-weight: 650; color: #111827; margin-top: 4px; }
-.em hr { border: 0; border-top: 1px solid #ececf1; margin: 16px -30px; }
+.em .intro { font-size: 14px; color: #6b7280; margin-top: 4px; }
+.em hr { border: 0; border-top: 1px solid #ececf1; margin: 12px -30px; }
 .em .section { margin-top: 0; }
 .em .rt .more td { color: #737373; }
 """
@@ -156,22 +157,22 @@ email = page(
 <div class="frame"><div class="mail">
   <div class="inbox">
     <div class="hd">Inbox</div>
-    <div class="msg on" id="msg"><div class="from">Harbor &amp; Pine<span>8:00 AM</span></div>
-      <div class="sub">Sales report: Oct 5 &ndash; Oct 11, 2026 &mdash; 214 orders, $18,940.50</div>
-      <div class="pre">Here's how the store did last week.</div></div>
+    <div id="msgs"><div class="msg on" id="msg"><div class="from">Harbor &amp; Pine<span>8:00 AM</span></div>
+      <div class="sub">Sales report: Oct 5 &ndash; Oct 11, 2026</div>
+      <div class="pre">Here's how the store performed.</div></div>
     <div class="msg"><div class="from">Harbor &amp; Pine<span>8:10 AM</span></div>
-      <div class="sub">Customers: Oct 5 &ndash; Oct 11, 2026 &mdash; 188 bought, 61 new</div>
-      <div class="pre">Who bought from you last week.</div></div>
+      <div class="sub">Customer report: Oct 5 &ndash; Oct 11, 2026</div>
+      <div class="pre">Here's who bought from the store.</div></div>
     <div class="msg"><div class="from">Harbor &amp; Pine<span>8:25 AM</span></div>
-      <div class="sub">Abandoned carts: Oct 5 &ndash; Oct 11, 2026 &mdash; 96 abandoned, 23 recovered</div>
-      <div class="pre">Carts left behind last week.</div></div>
+      <div class="sub">Abandoned cart report: Oct 5 &ndash; Oct 11, 2026</div>
+      <div class="pre">Here's what was left in carts.</div></div>
     <div class="msg"><div class="from">Harbor &amp; Pine<span>Mon</span></div>
-      <div class="sub">Inventory: 3 out of stock, 9 running low</div>
-      <div class="pre">What needs restocking.</div></div>
-    <div id="inbox-end"></div>
+      <div class="sub">Inventory report: Oct 12, 2026</div>
+      <div class="pre">Here's what needs restocking.</div></div>
+    </div><div id="inbox-end"></div>
   </div>
   <div class="read"><div class="em">
-    <div class="k">Sales report</div><div class="t">Oct 5 &ndash; Oct 11, 2026</div><hr>
+    <div class="k">Sales report</div><div class="t">Oct 5 &ndash; Oct 11, 2026</div><div class="intro">Here's how the store performed.</div><hr>
     <div class="section">Summary</div>
     <div id="summary">{cards([
         [("Revenue", "$18,940.50"), ("Previous revenue", "$16,212.00"), ("Revenue change", '<span class="up">&#9650; 16.83%</span>')],
@@ -187,8 +188,8 @@ email = page(
     ], more="5 more on this report in your dashboard", tid="top")}
   </div></div>
 </div></div>
-<div class="ring" id="ring-msg" data-ring="#msg" data-pad="-2"></div>
-<div class="callout" data-at="#inbox-end" data-side="below start" data-gap="34" data-dx="20"><b>1</b>Arrives at 08:00 your time</div>
+<div class="ring" id="ring-msg" data-ring="#msgs" data-pad="-2"></div>
+<div class="callout" data-at="#inbox-end" data-side="below start" data-gap="34" data-dx="8"><b>1</b>One email for each report</div>
 <div class="ring" id="ring-summary" data-ring="#summary" data-pad="8"></div>
 <div class="callout" data-at="#ring-summary" data-side="right"><b>2</b>Each figure against last period</div>
 <div class="ring" id="ring-top" data-ring="#top" data-pad="6"></div>
@@ -255,10 +256,10 @@ carts_subs = page(
       [("Recovered carts", "23"), ("Recovery rate", "23.96%"), ("Recovered revenue", "$2,184.00")],
   ])}</div>
   <div class="section">Products left in carts</div>
-  {table(["Product", "Carts", "Value"], [
-      ["Waxed Field Jacket", "12", "$2,280.00"],
-      ["Canvas Weekender Bag", "15", "$1,800.00"],
-      ["Merino Crew Sweater", "17", "$1,615.00"],
+  {table(["Product", "Carts", "Quantity", "Value", ""], [
+      ["Waxed Field Jacket", "12", "12", "$2,280.00", '<a>View product</a>'],
+      ["Canvas Weekender Bag", "15", "16", "$1,920.00", '<a>View product</a>'],
+      ["Merino Crew Sweater", "17", "17", "$1,615.00", '<a>View product</a>'],
   ], tid="left")}
 </div></div>
 <div class="frame half-r"><div class="pad half">
@@ -286,21 +287,21 @@ carts_subs = page(
 
 # 4. The settings page, with the Actions menu open
 SETTINGS_STYLE = """
-.set { border: 1px solid var(--line); border-radius: 12px; margin-top: 16px; background: #fff; }
-.set .top { padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.set { border: 1px solid var(--line); border-radius: 12px; margin-top: 12px; background: #fff; }
+.set .top { padding: 12px 20px; border-bottom: 1px solid var(--line); }
 .set .top b { font-size: 16px; font-weight: 600; }
 .set .top div { font-size: 13.5px; color: var(--soft); margin-top: 2px; }
-.set .body { padding: 16px 20px; }
-.row { display: flex; align-items: center; font-size: 15px; margin-bottom: 14px; }
+.set .body { padding: 14px 20px; }
+.row { display: flex; align-items: center; font-size: 15px; margin-bottom: 10px; }
 .toggle.off { background: #d4d4d8; }
 .toggle.off::after { right: auto; left: 3px; }
 .chip { display: inline-block; background: #f4f4f5; border: 1px solid #e4e4e7; border-radius: 6px; padding: 3px 9px; font-size: 13.5px; margin-right: 6px; }
 .lbl { font-size: 14px; color: #3f3f46; margin: 4px 0 6px; font-weight: 500; }
-.inp { border: 1px solid #d4d4d8; border-radius: 8px; padding: 8px 12px; font-size: 14.5px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.inp { border: 1px solid #d4d4d8; border-radius: 8px; padding: 8px 12px; font-size: 14.5px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .inp.ph { color: #a1a1aa; }
-.divide { border-top: 1px solid var(--line); margin: 6px -20px 18px; }
-.sh b { font-size: 15px; font-weight: 600; } .sh div { font-size: 13px; color: var(--soft); margin: 2px 0 12px; }
-.rtabs { display: flex; gap: 18px; font-size: 14px; color: var(--soft); border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+.divide { border-top: 1px solid var(--line); margin: 4px -20px 12px; }
+.sh b { font-size: 15px; font-weight: 600; } .sh div { font-size: 13px; color: var(--soft); margin: 2px 0 10px; }
+.rtabs { display: flex; gap: 18px; font-size: 14px; color: var(--soft); border-bottom: 1px solid var(--line); margin-bottom: 12px; }
 .rtabs div { padding-bottom: 8px; } .rtabs .on { color: var(--text); font-weight: 600; border-bottom: 2px solid var(--text); }
 .appicon { width: 46px; height: 46px; border-radius: 10px; }
 .apphead { display: flex; align-items: center; gap: 14px; }
@@ -318,11 +319,12 @@ settings = page(
       <div class="apphead"><img class="appicon" src="data:image/png;base64,{ICON}"><div><div class="title" style="font-size:24px">Report Pilot</div><div class="subtle">Scheduled store reports, delivered by email and kept in your dashboard</div></div></div>
       <div class="buttons"><span class="button" id="actions">Actions{CHEVRON}</span><span class="button dark">Save settings</span></div>
     </div>
-    <div class="tabs"><div>Overview</div><div class="on">Settings</div><div>Versions</div></div>
+    <div class="tabs"><div>Overview</div><div class="on">Settings</div><div>Workflows</div><div>Versions</div></div>
     <div class="set">
       <div class="top"><b>Reports</b><div>Choose which reports are emailed, how often each one runs, and who receives them.</div></div>
       <div class="body">
         <div class="row"><span class="toggle"></span>Send scheduled reports</div>
+        <div class="row"><span class="toggle off"></span>Send even when there is nothing to report</div>
         <div class="lbl">Recipients</div>
         <div class="inp" id="recipients"><span><span class="chip">owner@example.com &times;</span><span class="chip">finance@example.com &times;</span></span></div>
         <div class="lbl">Time zone</div>

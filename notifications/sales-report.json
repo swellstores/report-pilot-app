@@ -9,7 +9,7 @@
   "admin": true,
   "new": true,
   "repeat": true,
-  "subject": "Sales report: {{ period_label }} — {% assign rp_n = order_count | round: 0 %}{% if rp_n < 0 %}-{% assign rp_n = rp_n | abs %}{% endif %}{% if rp_n >= 1000000 %}{{ rp_n | divided_by: 1000000 | floor }},{{ rp_n | divided_by: 1000 | floor | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% elsif rp_n >= 1000 %}{{ rp_n | divided_by: 1000 | floor }},{{ rp_n | modulo: 1000 | prepend: \"00\" | slice: -3, 3 }}{% else %}{{ rp_n }}{% endif %} order{% if order_count != 1 %}s{% endif %}, {{ grand_total | currency }}",
+  "subject": "Sales report: {{ period_label }}",
   "conditions": { "id": { "$exists": false } },
   "fields": [
     {
