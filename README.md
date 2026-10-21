@@ -365,6 +365,7 @@ separately.
 | Preview or send any report on demand | `functions/run-report.ts` (route, not public) |
 | Dashboard address for links | `functions/lib/dashboard.ts`, used by `functions/dashboard-path.ts` (route only the app's components call) and by the functions that start a send, which store the report's dashboard address for its email |
 | Report types, schedule checks and the workflow's steps | `functions/lib/runner.ts` |
+| Turning refused Swell calls in the workflow into errors | `functions/lib/refusals.ts` |
 | Report calculations | `functions/lib/report.ts` (sales, periods, recipients, sending), `inventory.ts`, `customers.ts`, `products.ts`, `discounts.ts`, `carts.ts`, `subscriptions.ts`, `scan.ts` (bounded paging) |
 | Time zone, periods and send hour | `functions/lib/time.ts` |
 | Settings for the other report types | `functions/lib/report-settings.ts` |
@@ -410,6 +411,12 @@ A step that finished isn't run again when a later one fails. Saving and
 emailing are never retried, because a request that timed out may still have
 gone through, so a report is never saved twice and nobody is emailed twice. Saving a record doesn't email anyone by itself: each
 notification has a condition that never matches.
+
+Inside a workflow, a Swell call that's refused comes back as `{ errors }`
+instead of throwing, as it would in a function. `functions/lib/refusals.ts`
+wraps the workflow's client so a refusal throws: a refused read fails the build
+step rather than producing a report of zeros, and a refused save or email is
+recorded as a failure.
 
 ### Running, testing and pushing
 

@@ -12,6 +12,7 @@ import {
 } from './lib/runner';
 import { PERIODS } from './lib/report';
 import { maskAddress } from './lib/text';
+import { failOnRefusal } from './lib/refusals';
 
 export const config: SwellConfig = {
   kind: 'workflow',
@@ -43,8 +44,9 @@ export default class SendReport {
     }
 
     // The lib functions only use get, post and settings, which the workflow
-    // API has too.
-    const swell = req.swell as unknown as SwellAPI;
+    // API has too. A refused call throws, as it would in a function, instead
+    // of quietly coming back as `{ errors }` and reading as an empty store.
+    const swell = failOnRefusal(req.swell) as unknown as SwellAPI;
     const { type } = params;
     const label = reportLabel(type);
 
