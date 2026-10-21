@@ -21,7 +21,7 @@
         <td align="center" style="padding:32px 16px;">
           <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:600px; background-color:#ffffff; border-radius:12px; overflow:hidden; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
 
-            <tr><td style="height:4px; line-height:4px; font-size:0; background-color:#4f46e5;">&nbsp;</td></tr>
+            <tr><td height="4" style="height:4px; line-height:4px; font-size:4px; mso-line-height-rule:exactly; background-color:#4f46e5;">&nbsp;</td></tr>
             <!-- Header -->
             <tr>
               <td class="rp-pad" style="padding:28px 32px 20px 32px; border-bottom:1px solid #e6e8eb;">

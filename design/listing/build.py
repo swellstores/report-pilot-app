@@ -108,11 +108,11 @@ REPORT_STYLE = """
 """
 
 
-def cards(rows, cols=3):
+def cards(rows, cols=3, info=True):
     out = []
     for row in rows:
         cells = "".join(
-            f'<div class="cardx"{f" id={i!r}" if i else ""}><div class="l">{label}{INFO}</div><div class="v">{value}</div></div>'
+            f'<div class="cardx"{f" id={i!r}" if i else ""}><div class="l">{label}{INFO if info else ""}</div><div class="v">{value}</div></div>'
             for label, value, *rest in row
             for i in [rest[0] if rest else None]
         )
@@ -141,13 +141,14 @@ EMAIL_STYLE = """
 .msg.on { background: #eef2ff; }
 .msg.on .sub { font-weight: 600; }
 .read { flex: 1; padding: 16px 0 16px 44px; overflow: hidden; }
-.em { width: 640px; margin: 0; background: #fff; border-radius: 14px; border: 1px solid #ececf1; padding: 20px 30px 22px; }
+.em { width: 640px; margin: 0; background: #fff; border-radius: 14px; border: 1px solid #ececf1; padding: 24px 30px 22px; position: relative; overflow: hidden; }
+.em::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: #4f46e5; }
 .em .k { font-size: 12.5px; letter-spacing: .9px; text-transform: uppercase; color: #6b7280; }
 .em .t { font-size: 26px; font-weight: 650; color: #111827; margin-top: 4px; }
 .em .intro { font-size: 14px; color: #6b7280; margin-top: 4px; }
 .em hr { border: 0; border-top: 1px solid #ececf1; margin: 12px -30px; }
 .em .section { margin-top: 0; }
-.em .rt .more td { color: #737373; }
+.em .rt .more td { color: #4338ca; }
 """
 
 email = page(
@@ -177,7 +178,7 @@ email = page(
     <div id="summary">{cards([
         [("Revenue", "$18,940.50"), ("Previous revenue", "$16,212.00"), ("Revenue change", '<span class="up">&#9650; 16.83%</span>')],
         [("Orders", "214"), ("Previous orders", "197"), ("Order change", '<span class="up">&#9650; 8.63%</span>')],
-    ])}</div>
+    ], info=False)}</div>
     <div class="section" style="margin-top:16px">Top products</div>
     {table(["Product", "Quantity", "Revenue"], [
         ["Merino Crew Sweater", "58", "$5,510.00"],
