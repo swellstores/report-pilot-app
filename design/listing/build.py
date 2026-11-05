@@ -1,19 +1,34 @@
 """Builds the App Store listing pages. Run render.sh to render them into ../../assets.
 
-The pages are mock-ups with a made-up store (Harbor & Pine) and tidy sample
-figures, laid out like the Swell dashboard and the app's own report pages and
-emails. Styles are shared with the other official apps' listings (listing.css).
+A made-up store (Harbor & Pine) with tidy sample figures, drawn from the real UI so the gallery matches what a merchant sees:
+
+1. The sales email (notifications/sales-report.tpl) with its sections and figures in order.
+2. A sales report record page (content/reports.json, components/ReportSummary.tsx). The info icons stay hidden until a
+   card is hovered, so they aren't drawn. Top products starts below the crop, after the six rows of figures.
+3. Abandoned cart and subscription report pages (content/cartreports.json, content/subscriptionreports.json), cropped
+   side by side, with their sections in order. Each table is the first one on its page.
+4. The app settings page (settings/report-config.json, swell-admin components/apps/view.js): field descriptions are
+   tooltips, so they aren't printed. Save settings stays secondary until a field is edited.
+
+Styles: listing.css is the frame, shared with the other official apps' listings. swell.css is the Swell dashboard, from
+swell-admin's styles, and swell-ui/ holds its nav icons (client/src/components/icon/img/nav).
 """
 import base64
 import pathlib
 
 HERE = pathlib.Path(__file__).parent
 ICON = base64.b64encode((HERE / "../../assets/icon.png").read_bytes()).decode()
-GLYPH = f'<img src="data:image/png;base64,{ICON}" style="width:34px;height:34px;border-radius:8px">'
+ICON_SRC = f"data:image/png;base64,{ICON}"
+GLYPH = f'<img src="{ICON_SRC}" style="width:34px;height:34px;border-radius:8px">'
 
 # Sizes each ring around its target and moves each callout or menu next to its anchor, in document order
 PLACE = """<script>
-const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
+const rect = (selector) => {
+  const all = [...document.querySelectorAll(selector)].map((el) => el.getBoundingClientRect());
+  const left = Math.min(...all.map((r) => r.left)), top = Math.min(...all.map((r) => r.top));
+  const right = Math.max(...all.map((r) => r.right)), bottom = Math.max(...all.map((r) => r.bottom));
+  return { left, top, right, bottom, width: right - left, height: bottom - top };
+};
 for (const el of document.querySelectorAll("[data-ring], [data-at]")) {
   if (el.dataset.ring) {
     const t = rect(el.dataset.ring), pad = Number(el.dataset.pad ?? 6);
@@ -39,43 +54,69 @@ DECOS = [
     DOTS.format("left:52px;top:118px") + TRIANGLE.format("right:62px;top:136px") + PLUS.format("left:12px;top:620px"),
 ]
 
-CHEVRON = '<svg class="chev" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg>'
-INFO = '<svg class="info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>'
-ICONS = {
-    "Home": '<path d="M4 10.5 12 4l8 6.5V20h-5v-5.5H9V20H4z"/>',
-    "Orders": '<path d="M7 3.5h7l4 4v13H7z"/><path d="M13.5 3.5V8H18M9.5 12.5h6M9.5 16h6"/>',
-    "Subscriptions": '<path d="M19.5 10.5A7.5 7.5 0 0 0 5.6 8M4.5 13.5a7.5 7.5 0 0 0 13.9 2.5"/><path d="M5 4v4h4M19 20v-4h-4"/>',
-    "Customers": '<circle cx="9.5" cy="8.5" r="3.5"/><path d="M3 20c.7-3.4 3.2-5.3 6.5-5.3S15.3 16.6 16 20M15.5 5.2a3.5 3.5 0 0 1 0 6.6M18 14.9c1.6.8 2.6 2.4 3 5.1"/>',
-    "Products": '<path d="M12 3.5 19.5 7.5v9L12 20.5 4.5 16.5v-9z"/><path d="M4.5 7.5 12 11.5l7.5-4M12 11.5v9"/>',
-    "Discounts": '<path d="M4 12.5V4h8.5l8 8-8.5 8.5z"/><circle cx="8.5" cy="8.5" r="1.4"/>',
-    "Content": '<rect x="4" y="4" width="6.5" height="6.5" rx="1.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.2"/>',
-    "Reporting": '<path d="M11 4.5a7.5 7.5 0 1 0 8.5 8.5H11z"/><path d="M14 3.5a7 7 0 0 1 6.5 6.5H14z"/>',
-    "Apps": '<rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/>',
-}
-EXPANDS = {"Orders", "Products", "Discounts", "Content", "Reporting"}
+
+def chev(direction="down"):
+    path = {"down": "M2 3.5l3 3 3-3", "up": "M2 6.5l3-3 3 3"}[direction]
+    return (f'<svg class="chev" viewBox="0 0 10 10"><path d="{path}" fill="none" stroke="currentColor" '
+            'stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>')
+
+
 REPORTS = ["Dashboard", "Sales reports", "Customer reports", "Inventory reports", "Product reports",
            "Discount reports", "Abandoned cart reports", "Subscription reports"]
 
 
-def icon(name):
-    return f'<svg class="ico" viewBox="0 0 24 24">{ICONS[name]}</svg>'
+def nav_item(icon, label, more=False, on=False, sub=""):
+    chevron = f'<span style="margin-left:auto;color:#737373;display:inline-flex">{chev("up" if sub else "down")}</span>' if more else ""
+    return (f'<li class="{"on" if on else ""}"><a><i style="background-image:url(swell-ui/{icon}{"-active" if on else ""}@2x.png)"></i>'
+            f"{label}{chevron}</a>{sub}</li>")
 
 
-def sidebar(section, children=(), active_child=None, admin=None):
-    rows = []
-    for item in ["Home", "Orders", "Subscriptions", "Customers", "Products", "Discounts", "Content", "Reporting"]:
-        rows.append(f'<div class="item{" open" if item == section else ""}">{icon(item)}<span>{item}</span>{CHEVRON if item in EXPANDS else ""}</div>')
-        if item == section:
-            rows += [f'<div class="child{" on" if child == active_child else ""}">{child}</div>' for child in children]
-    rows.append('<div class="group">Admin</div>')
-    rows.append(f'<div class="item{" open" if admin == "Apps" else ""}">{icon("Apps")}<span>Apps</span></div>')
-    return f'<div class="side"><div class="store"><span class="avatar">H</span>Harbor &amp; Pine{CHEVRON}</div><div class="nav">{"".join(rows)}</div></div>'
+def sidebar(active):
+    """The left menu (swell-admin components/nav/main.js). An app's content views follow Dashboard under Reporting, and
+    the active one shows the app icon (components/nav/nav.scss)."""
+    sub = ""
+    if active in REPORTS:
+        rows = "".join(
+            f'<li class="on"><a><span class="child-app"><img src="{ICON_SRC}"></span>{child}</a></li>' if child == active
+            else f"<li><a>{child}</a></li>"
+            for child in REPORTS
+        )
+        sub = f'<ul class="children">{rows}</ul>'
+    reporting = active in REPORTS
+    return f"""<aside class="nav">
+  <div class="store"><span class="av">H</span><span class="nm">Harbor &amp; Pine</span><span style="color:#737373;display:inline-flex;margin-right:6px">{chev()}</span></div>
+  <ul>
+    {nav_item("home", "Home")}
+    {nav_item("orders", "Orders", True)}
+    {nav_item("subscriptions", "Subscriptions")}
+    {nav_item("customers", "Customers")}
+    {nav_item("products", "Products", True)}
+    {nav_item("discounts", "Discounts", True)}
+    {nav_item("apps", "Content", True)}
+    {nav_item("reporting", "Reporting", True, reporting, sub)}
+  </ul>
+  <h6>Channels</h6>
+  <ul>{nav_item("storefront", "Online Store", True)}</ul>
+  <h6>Admin</h6>
+  <ul>
+    {nav_item("apps", "Apps", on=active == "Apps")}
+    {nav_item("integrations", "Integrations")}
+    {nav_item("developer", "Developer", True)}
+    {nav_item("settings", "Settings")}
+  </ul>
+</aside>"""
+
+
+def window(main, side="", zoom=1.0, width=1460, height=684, style=""):
+    """The dashboard inside a frame, shown at `zoom`."""
+    return (f'<div class="sw" style="zoom:{zoom};width:{round(width / zoom)}px;height:{round(height / zoom)}px">'
+            f'{side}<div class="main" style="{style}">{main}</div></div>')
 
 
 def page(title, lede, body, deco=0, style=""):
     return (
-        '<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="listing.css">'
-        + f"<style>{REPORT_STYLE}{style}</style>"
+        '<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="listing.css"><link rel="stylesheet" href="swell.css">'
+        + f"<style>{DASH_STYLE}{style}</style>"
         + "</head><body>"
         + DECOS[deco]
         + f'<div class="pill">{GLYPH}Report Pilot <span class="x">&times;</span> Swell</div>'
@@ -86,115 +127,115 @@ def page(title, lede, body, deco=0, style=""):
     )
 
 
-# The app's report pages: summary cards (components/ReportSummary.tsx) and tables (ReportTable.tsx)
-REPORT_STYLE = """
-.avatar { background: #0f766e; }
-.info { width: 15px; height: 15px; fill: none; stroke: #a1a1aa; stroke-width: 2; stroke-linecap: round; vertical-align: -2px; margin-left: 4px; }
-.section { font-size: 15px; font-weight: 600; color: var(--text); margin: 18px 0 8px; }
-.cards { display: grid; gap: 10px; }
-.cards.c3 { grid-template-columns: repeat(3, 1fr); }
-.cards.c2 { grid-template-columns: repeat(2, 1fr); }
-.cards + .cards { margin-top: 10px; }
-.cardx { border: 1px solid var(--line); border-radius: 8px; padding: 11px 14px; background: #fff; }
-.cardx .l { font-size: 13px; color: #737373; font-weight: 500; }
-.cardx .v { font-size: 22px; font-weight: 650; margin-top: 4px; color: #171717; font-variant-numeric: tabular-nums; }
-.up { color: #059669; } .down { color: #dc2626; } .flat { color: #525252; }
-.rt { width: 100%; border-collapse: collapse; font-size: 14.5px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-top: 0; }
-.rt th { background: #fafafa; color: var(--soft); font-weight: 500; padding: 9px 12px; text-align: center; border-bottom: 1px solid var(--line); }
-.rt td { padding: 10px 12px; text-align: center; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
-.rt th:first-child, .rt td:first-child { text-align: left; }
-.rt .more td { text-align: center; color: #4338ca; font-size: 14px; }
-.rt a { color: #4338ca; text-decoration: none; }
+# The real sidebar width and child rows (components/nav/nav.scss, components/layout/main.scss), then the app's report
+# pages: summary cards (components/ReportSummary.tsx) and tables (ReportTable.tsx), with their own styles
+DASH_STYLE = """
+.sw .nav { width: 256px; padding: 16px 15px; }
+.sw .nav ul.children { margin: 0 0 5px; padding: 5px 0; }
+.sw .nav ul.children li > a { height: 36.5px; margin: 0; padding: 7px 15px 7px 44px; color: var(--muted); }
+.sw .nav ul.children li.on > a { color: var(--text); background: var(--bg); }
+.sw .child-app { position: absolute; left: 15px; top: 8px; width: 20px; height: 20px; border-radius: 4px; overflow: hidden; }
+.sw .child-app img { display: block; width: 100%; height: 100%; }
+.sw .page { min-width: 0; }
+.sw .flabel { display: block; }
+.sw .rs { color: #171717; display: grid; gap: 12px; line-height: normal; }
+.sw .rs .row { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 12px; }
+.sw .rs .card { background: #fff; border: 1px solid #e5e5e5; border-radius: 6px; padding: 12px 14px; min-width: 0; }
+.sw .rs .label { display: flex; align-items: center; min-height: 18px; font-size: 12px; font-weight: 500; color: #737373; }
+.sw .rs .value { margin-top: 6px; font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.sw .up { color: #059669; }
+.sw .flat { color: #525252; }
+.sw .rt { background: #fff; border: 1px solid #e5e5e5; border-radius: 6px; overflow: hidden; font-size: 14px; color: #171717; }
+.sw .rt table { border-collapse: separate; border-spacing: 0; }
+.sw .rt th { background: none; font-size: 12px; font-weight: 500; line-height: 19.2px; color: #171717; text-align: center; padding: 12px 16px; }
+.sw .rt td { line-height: 22.4px; text-align: center; padding: 16px; border-top: 1px solid #e5e5e5; }
+.sw .rt th:first-child, .sw .rt td:first-child { text-align: left; }
 """
 
 
-def cards(rows, cols=3, info=True):
+def report_head(section, title):
+    """A content record's header (components/collection/record.js). Delete is the view's default extra action."""
+    return f"""<div class="back">&larr; {section}</div>
+<div class="title-row"><div class="h1" id="title">{title}</div><div class="btns"><span class="btn sec">Actions {chev()}</span></div></div>"""
+
+
+def summary(rows, tid=None):
     out = []
     for row in rows:
         cells = "".join(
-            f'<div class="cardx"{f" id={i!r}" if i else ""}><div class="l">{label}{INFO if info else ""}</div><div class="v">{value}</div></div>'
-            for label, value, *rest in row
-            for i in [rest[0] if rest else None]
+            f'<div class="card"{f" id={f[2]!r}" if len(f) > 2 else ""}><div class="label">{f[0]}</div><div class="value">{f[1]}</div></div>'
+            for f in row
         )
-        out.append(f'<div class="cards c{len(row)}">{cells}</div>')
-    return "".join(out)
+        out.append(f'<div class="row" style="--cols:{len(row)}">{cells}</div>')
+    return f'<div class="rs"{f" id={tid!r}" if tid else ""}>{"".join(out)}</div>'
 
 
-def table(head, rows, more=None, tid=None):
+def table(head, rows):
     th = "".join(f"<th>{h}</th>" for h in head)
     tr = "".join("<tr>" + "".join(f"<td>{c}</td>" for c in r) + "</tr>" for r in rows)
-    if more:
-        tr += f'<tr class="more"><td colspan="{len(head)}">{more}</td></tr>'
-    return f'<table class="rt"{f" id={tid!r}" if tid else ""}><tr>{th}</tr>{tr}</table>'
+    return f'<div class="rt"><table><tr>{th}</tr>{tr}</table></div>'
 
 
-# 1. The sales report email, styled like notifications/sales-report.tpl
+def field(label, content):
+    return f'<div class="field"><label class="flabel">{label}</label>{content}</div>'
+
+
+UP = '<span class="up">&#9650; {}</span>'
+FLAT = '<span class="flat">&#9660; {}</span>'
+
+# The same period and figures in every image
+PERIOD = "Oct 5 &ndash; Oct 11, 2026"
+REVENUE_ROWS = [
+    [("Revenue", "$18,940.50"), ("Previous revenue", "$16,212.00"), ("Revenue change", UP.format("16.83%"))],
+    [("Orders", "214"), ("Previous orders", "197"), ("Order change", UP.format("8.63%"))],
+    [("Average order value", "$88.51"), ("Items sold", "402")],
+    [("New customers", "61"), ("Returning customers", "127")],
+]
+SUBTOTAL, DISCOUNTS, SHIPPING, TAX = ("Subtotal", "$18,120.00"), ("Discounts", "$1,062.75"), ("Shipping", "$1,284.00"), ("Tax", "$1,109.25")
+
+# 1. The sales report email (notifications/sales-report.tpl)
 EMAIL_STYLE = """
-.mail { display: flex; height: 100%; background: #f4f4f5; }
-.inbox { width: 320px; flex: none; background: #fff; border-right: 1px solid var(--line); }
-.inbox .hd { padding: 18px 20px; font-weight: 650; font-size: 18px; border-bottom: 1px solid var(--line); }
-.msg { padding: 14px 20px; border-bottom: 1px solid var(--line); font-size: 14.5px; }
-.msg .from { display: flex; justify-content: space-between; font-weight: 650; color: var(--text); }
-.msg .from span { color: var(--soft); font-weight: 500; font-size: 13px; }
-.msg .sub { margin-top: 3px; color: var(--text); }
-.msg .pre { margin-top: 2px; color: var(--soft); font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.msg.on { background: #eef2ff; }
-.msg.on .sub { font-weight: 600; }
-.read { flex: 1; padding: 16px 0 16px 44px; overflow: hidden; }
-.em { width: 640px; margin: 0; background: #fff; border-radius: 14px; border: 1px solid #ececf1; padding: 24px 30px 22px; position: relative; overflow: hidden; }
-.em::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: #4f46e5; }
-.em .k { font-size: 12.5px; letter-spacing: .9px; text-transform: uppercase; color: #6b7280; }
-.em .t { font-size: 26px; font-weight: 650; color: #111827; margin-top: 4px; }
-.em .intro { font-size: 14px; color: #6b7280; margin-top: 4px; }
-.em hr { border: 0; border-top: 1px solid #ececf1; margin: 12px -30px; }
-.em .section { margin-top: 0; }
-.em .rt .more td { color: #4338ca; }
+.frame.mail { background: #f4f5f7; }
+.mailz { zoom: 1.16; }
+.em { width: 600px; margin: 19px 0 0 160px; background: #fff; border-radius: 12px; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+.em .line { height: 4px; background: #4f46e5; }
+.em .hd { padding: 28px 32px 20px; border-bottom: 1px solid #e6e8eb; }
+.em .k { margin: 0 0 6px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; }
+.em .t { font-size: 22px; line-height: 1.3; color: #111827; font-weight: 600; }
+.em .intro { margin-top: 10px; font-size: 14px; line-height: 1.5; color: #6b7280; }
+.em .sec { padding: 24px 32px 0; }
+.em .h { margin-bottom: 12px; font-size: 14px; line-height: 20px; font-weight: 600; color: #171717; }
+.em .row { display: flex; gap: 12px; margin-bottom: 12px; }
+.em .card { flex: 1 1 0; min-width: 0; padding: 12px 14px; border: 1px solid #e5e5e5; border-radius: 6px; background: #fff; }
+.em .l { font-size: 12px; line-height: 16px; font-weight: 500; color: #737373; }
+.em .v { margin-top: 6px; font-size: 22px; line-height: 28px; font-weight: 600; color: #171717; white-space: nowrap; }
+.em .up { color: #059669; }
 """
+
+
+def email_row(figures, rid=None):
+    cells = "".join(f'<div class="card"><div class="l">{label}</div><div class="v">{value}</div></div>' for label, value in figures)
+    return f'<div class="row"{f" id={rid!r}" if rid else ""}>{cells}</div>'
+
 
 email = page(
     "Your key numbers, <mark>in every inbox</mark>",
     "Daily, weekly, every 2 weeks or monthly, at the time you choose in your store's time zone.",
     f"""
-<div class="frame"><div class="mail">
-  <div class="inbox">
-    <div class="hd">Inbox</div>
-    <div id="msgs"><div class="msg on" id="msg"><div class="from">Harbor &amp; Pine<span>8:00 AM</span></div>
-      <div class="sub">Sales report: Oct 5 &ndash; Oct 11, 2026</div>
-      <div class="pre">Here's how the store performed.</div></div>
-    <div class="msg"><div class="from">Harbor &amp; Pine<span>8:10 AM</span></div>
-      <div class="sub">Customer report: Oct 5 &ndash; Oct 11, 2026</div>
-      <div class="pre">Here's who bought from the store.</div></div>
-    <div class="msg"><div class="from">Harbor &amp; Pine<span>8:25 AM</span></div>
-      <div class="sub">Abandoned cart report: Oct 5 &ndash; Oct 11, 2026</div>
-      <div class="pre">Here's what was left in carts.</div></div>
-    <div class="msg"><div class="from">Harbor &amp; Pine<span>Mon</span></div>
-      <div class="sub">Inventory report: Oct 12, 2026</div>
-      <div class="pre">Here's what needs restocking.</div></div>
-    </div><div id="inbox-end"></div>
+<div class="frame mail"><div class="mailz"><div class="em"><div class="line"></div>
+  <div class="hd"><div id="subject"><div class="k">Sales report</div><div class="t">{PERIOD}</div><div class="intro">Here's how the store performed.</div></div></div>
+  <div class="sec"><div class="h">Summary</div>
+    <div id="compare">{email_row(REVENUE_ROWS[0])}{email_row(REVENUE_ROWS[1])}</div>
+    {email_row(REVENUE_ROWS[2])}{email_row(REVENUE_ROWS[3], "customers")}
+    {email_row([SUBTOTAL, DISCOUNTS])}{email_row([SHIPPING, TAX])}
   </div>
-  <div class="read"><div class="em">
-    <div class="k">Sales report</div><div class="t">Oct 5 &ndash; Oct 11, 2026</div><div class="intro">Here's how the store performed.</div><hr>
-    <div class="section">Summary</div>
-    <div id="summary">{cards([
-        [("Revenue", "$18,940.50"), ("Previous revenue", "$16,212.00"), ("Revenue change", '<span class="up">&#9650; 16.83%</span>')],
-        [("Orders", "214"), ("Previous orders", "197"), ("Order change", '<span class="up">&#9650; 8.63%</span>')],
-    ], info=False)}</div>
-    <div class="section" style="margin-top:16px">Top products</div>
-    {table(["Product", "Quantity", "Revenue"], [
-        ["Merino Crew Sweater", "58", "$5,510.00"],
-        ["Canvas Weekender Bag", "31", "$3,720.00"],
-        ["Waxed Field Jacket", "14", "$2,660.00"],
-        ["Linen Camp Shirt", "36", "$2,340.00"],
-        ["Leather Card Holder", "44", "$1,540.00"],
-    ], more="5 more on this report in your dashboard", tid="top")}
-  </div></div>
-</div></div>
-<div class="ring" id="ring-msg" data-ring="#msgs" data-pad="-2"></div>
-<div class="callout" data-at="#inbox-end" data-side="below start" data-gap="34" data-dx="8"><b>1</b>One email for each report</div>
-<div class="ring" id="ring-summary" data-ring="#summary" data-pad="8"></div>
-<div class="callout" data-at="#ring-summary" data-side="right"><b>2</b>Each figure against last period</div>
-<div class="ring" id="ring-top" data-ring="#top" data-pad="6"></div>
-<div class="callout" data-at="#ring-top" data-side="right"><b>3</b>Best sellers by revenue</div>
+</div></div></div>
+<div class="ring" id="ring-subject" data-ring="#subject" data-pad="9"></div>
+<div class="callout" data-at="#ring-subject" data-side="right" data-gap="52"><b>1</b>One email for each report</div>
+<div class="ring" id="ring-compare" data-ring="#compare" data-pad="7"></div>
+<div class="callout" data-at="#ring-compare" data-side="right" data-gap="54"><b>2</b>Compared with the last period</div>
+<div class="ring" id="ring-customers" data-ring="#customers" data-pad="5"></div>
+<div class="callout" data-at="#ring-customers" data-side="right" data-gap="56"><b>3</b>New and returning customers</div>
 """,
     deco=0,
     style=EMAIL_STYLE,
@@ -205,33 +246,21 @@ report_page = page(
     "Every report <mark>kept in your dashboard</mark>",
     "Open any past period under Reporting, with the same figures as the email and more.",
     f"""
-<div class="frame"><div class="dash">
-  {sidebar("Reporting", REPORTS, "Sales reports")}
-  <div class="main" style="max-width:860px">
-    <div class="crumb">&larr; Sales reports</div>
-    <div class="head"><div class="title" id="title">Oct 5 &ndash; Oct 11, 2026</div></div>
-    <div class="section" style="margin-top:4px">Sales report summary</div>
-    <div id="summary">{cards([
-        [("Revenue", "$18,940.50"), ("Previous revenue", "$16,212.00"), ("Revenue change", '<span class="up">&#9650; 16.83%</span>')],
-        [("Orders", "214"), ("Previous orders", "197"), ("Order change", '<span class="up">&#9650; 8.63%</span>')],
-        [("Average order value", "$88.51"), ("Items sold", "402")],
-        [("New customers", "61"), ("Returning customers", "127", "returning")],
-    ])}</div>
-    <div class="section">Top products</div>
-    {table(["Product", "Quantity", "Revenue", ""], [
-        ["Merino Crew Sweater", "58", "$5,510.00", '<a>View product</a>'],
-        ["Canvas Weekender Bag", "31", "$3,720.00", '<a>View product</a>'],
-        ["Waxed Field Jacket", "14", "$2,660.00", '<a>View product</a>'],
-        ["Linen Camp Shirt", "36", "$2,340.00", '<a>View product</a>'],
-        ["Leather Card Holder", "44", "$1,540.00", '<a>View product</a>'],
-    ], more="Show 5 more", tid="top")}
-  </div>
-</div></div>
-<div class="callout" data-at="#title" data-side="right" data-gap="36"><b>1</b>Every period saved under Reporting</div>
-<div class="ring" id="ring-returning" data-ring="#returning" data-pad="5"></div>
-<div class="callout" data-at="#ring-returning" data-side="right"><b>2</b>New versus returning</div>
-<div class="ring" id="ring-top" data-ring="#top" data-pad="5"></div>
-<div class="callout" data-at="#ring-top" data-side="right"><b>3</b>Links to each product</div>
+<div class="frame">{window(f'''<div class="page" style="width:790px">
+    {report_head("Sales reports", PERIOD)}
+    <label class="flabel" style="margin-top:20px">Sales report summary</label>
+    {summary([
+        REVENUE_ROWS[0], REVENUE_ROWS[1], REVENUE_ROWS[2],
+        [("New customers", "61", "new"), ("Returning customers", "127", "returning")],
+        [SUBTOTAL, DISCOUNTS, SHIPPING, TAX],
+        [("Canceled orders", "6", "canceled"), ("Unpaid orders", "9"), ("Refunds", "$510.00", "refunds")],
+    ])}
+  </div>''', sidebar("Sales reports"), zoom=0.99, style="padding-top:16px")}</div>
+<div class="callout" data-at="#title" data-side="right" data-gap="28"><b>1</b>Every period saved under Reporting</div>
+<div class="ring" id="ring-customers" data-ring="#new, #returning" data-pad="5"></div>
+<div class="callout" data-at="#ring-customers" data-side="right"><b>2</b>New versus returning</div>
+<div class="ring" id="ring-held" data-ring="#canceled, #refunds" data-pad="5"></div>
+<div class="callout" data-at="#ring-held" data-side="right"><b>3</b>Canceled, unpaid and refunds</div>
 """,
     deco=1,
 )
@@ -239,48 +268,47 @@ report_page = page(
 # 3. Abandoned cart and subscription reports side by side
 HALF_STYLE = """
 .frame.half-l, .frame.half-r { width: 712px; }
-.half .title { font-size: 24px; }
-.half .cardx .l { white-space: nowrap; }
-.half .cardx { padding: 11px 12px; }
 """
 
 carts_subs = page(
     "Abandoned carts and <mark>subscriptions</mark> too",
     "See what came back, what's left in carts, and how your recurring revenue is moving.",
     f"""
-<div class="frame half-l"><div class="pad half">
-  <div class="crumb">&larr; Abandoned cart reports</div>
-  <div class="head"><div class="title">Oct 5 &ndash; Oct 11, 2026</div></div>
-  <div class="section" style="margin-top:2px">Abandoned cart report summary</div>
-  <div id="recovered">{cards([
-      [("Abandoned carts", "96"), ("Abandoned change", '<span class="flat">&#9660; 7.69%</span>'), ("Still open", "73")],
-      [("Recovered carts", "23"), ("Recovery rate", "23.96%"), ("Recovered revenue", "$2,184.00")],
-  ])}</div>
-  <div class="section">Products left in carts</div>
-  {table(["Product", "Carts", "Quantity", "Value", ""], [
-      ["Waxed Field Jacket", "12", "12", "$2,280.00", '<a>View product</a>'],
-      ["Canvas Weekender Bag", "15", "16", "$1,920.00", '<a>View product</a>'],
-      ["Merino Crew Sweater", "17", "17", "$1,615.00", '<a>View product</a>'],
-  ], tid="left")}
-</div></div>
-<div class="frame half-r"><div class="pad half">
-  <div class="crumb">&larr; Subscription reports</div>
-  <div class="head"><div class="title">Oct 5 &ndash; Oct 11, 2026</div></div>
-  <div class="section" style="margin-top:2px">Subscription report summary</div>
-  <div id="mrr">{cards([
+<div class="frame half-l">{window(f'''
+  {report_head("Abandoned cart reports", PERIOD)}
+  <label class="flabel" style="margin-top:20px">Abandoned cart report summary</label>
+  {summary([
+      [("Abandoned carts", "96"), ("Abandoned change", FLAT.format("7.69%")), ("Still open", "73")],
+      [("Abandoned value", "$9,312.00"), ("Average abandoned cart", "$97.00")],
+      [("Recovered carts", "23", "recovered"), ("Recovery rate", "23.96%"), ("Recovered revenue", "$2,184.00", "recovered-end")],
+  ])}
+  <label class="flabel" id="carts-label" style="margin-top:20px">Largest abandoned carts</label>
+  {table(["Customer", "Items", "Value", "Abandoned", "Status"], [
+      ["Maya Okafor", "3", "$412.00", "Oct 9, 2026", "Open"],
+      ["Daniel Reyes", "2", "$386.00", "Oct 7, 2026", "Recovered"],
+      ["Guest", "4", "$341.50", "Oct 10, 2026", "Open"],
+      ["Lena Fischer", "3", "$298.00", "Oct 6, 2026", "Recovered"],
+      ["Owen Clarke", "2", "$276.00", "Oct 8, 2026", "Open"],
+  ])}''', width=712, style="padding:8px 20px 0")}</div>
+<div class="frame half-r">{window(f'''
+  {report_head("Subscription reports", PERIOD)}
+  <label class="flabel" style="margin-top:20px">Subscription report summary</label>
+  {summary([
       [("Active subscriptions", "412"), ("Monthly recurring revenue", "$9,876.00"), ("On trial", "38")],
-      [("New subscriptions", "27"), ("New change", '<span class="up">&#9650; 12.5%</span>'), ("Net change", "19")],
-  ])}</div>
-  <div class="section">Failed renewals</div>
-  {table(["Customer", "Plan", "Amount due", "Status"], [
-      ["Priya Raman", "Coffee Club &mdash; Monthly", "$24.00", "Past due"],
-      ["Tom Becker", "Coffee Club &mdash; Every 3 months", "$66.00", "Unpaid"],
-  ], tid="failed")}
-</div></div>
-<div class="ring" id="ring-recovered" data-ring="#recovered .cards:nth-child(2)" data-pad="5"></div>
-<div class="callout" data-at="#left" data-side="below start" data-gap="26"><b>1</b>Carts that came back as orders</div>
-<div class="ring" id="ring-failed" data-ring="#failed" data-pad="5"></div>
-<div class="callout" data-at="#failed" data-side="below end" data-gap="26"><b>2</b>Failed renewals to follow up</div>
+      [("New subscriptions", "27"), ("New change", UP.format("12.5%")), ("Net change", "19")],
+      [("Canceled", "8"), ("Canceled change", FLAT.format("20%")), ("Paused", "14")],
+      [("Past due", "6", "pastdue"), ("Renewals in the next 7 days", "96"), ("Trials ending in the next 7 days", "11")],
+  ])}
+  <label class="flabel" id="plans-label" style="margin-top:20px">By plan</label>
+  {table(["Plan", "Paying", "On trial", "Monthly revenue"], [
+      ["Coffee Club &mdash; Monthly", "286", "30", "$6,864.00"],
+      ["Coffee Club &mdash; Every 3 months", "96", "8", "$2,112.00"],
+      ["Coffee Club &mdash; Yearly", "30", "0", "$900.00"],
+  ])}''', width=712, style="padding:8px 20px 0")}</div>
+<div class="ring" id="ring-recovered" data-ring="#recovered, #recovered-end" data-pad="4"></div>
+<div class="callout" data-at="#ring-recovered" data-side="below end" data-gap="-9"><b>1</b>Carts that came back as orders</div>
+<div class="ring" id="ring-pastdue" data-ring="#pastdue" data-pad="4"></div>
+<div class="callout" data-at="#ring-pastdue" data-side="below start" data-gap="-9" data-dx="74"><b>2</b>Failed renewals to follow up</div>
 """,
     deco=0,
     style=HALF_STYLE,
@@ -288,69 +316,87 @@ carts_subs = page(
 
 # 4. The settings page, with the Actions menu open
 SETTINGS_STYLE = """
-.set { border: 1px solid var(--line); border-radius: 12px; margin-top: 12px; background: #fff; }
-.set .top { padding: 12px 20px; border-bottom: 1px solid var(--line); }
-.set .top b { font-size: 16px; font-weight: 600; }
-.set .top div { font-size: 13.5px; color: var(--soft); margin-top: 2px; }
-.set .body { padding: 14px 20px; }
-.row { display: flex; align-items: center; font-size: 15px; margin-bottom: 10px; }
-.toggle.off { background: #d4d4d8; }
-.toggle.off::after { right: auto; left: 3px; }
-.chip { display: inline-block; background: #f4f4f5; border: 1px solid #e4e4e7; border-radius: 6px; padding: 3px 9px; font-size: 13.5px; margin-right: 6px; }
-.lbl { font-size: 14px; color: #3f3f46; margin: 4px 0 6px; font-weight: 500; }
-.inp { border: 1px solid #d4d4d8; border-radius: 8px; padding: 8px 12px; font-size: 14.5px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.inp.ph { color: #a1a1aa; }
-.divide { border-top: 1px solid var(--line); margin: 4px -20px 12px; }
-.sh b { font-size: 15px; font-weight: 600; } .sh div { font-size: 13px; color: var(--soft); margin: 2px 0 10px; }
-.rtabs { display: flex; gap: 18px; font-size: 14px; color: var(--soft); border-bottom: 1px solid var(--line); margin-bottom: 12px; }
-.rtabs div { padding-bottom: 8px; } .rtabs .on { color: var(--text); font-weight: 600; border-bottom: 2px solid var(--text); }
-.appicon { width: 46px; height: 46px; border-radius: 10px; }
-.apphead { display: flex; align-items: center; gap: 14px; }
+.sw .apphead { display: flex; align-items: center; gap: 15px; margin-top: 6px; }
+.sw .apphead img { display: block; width: 60px; height: 60px; border-radius: 4px; }
+.sw .section { margin-top: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.sw .section .top { padding: 16px; }
+.sw .section .top b { display: block; font-size: 16px; font-weight: 500; line-height: 1.6; }
+.sw .section .top div { font-size: 14px; color: var(--muted); }
+.sw .section .fields { padding: 16px 16px 18px; border-top: 1px solid var(--border); }
+.sw .switch { display: flex; align-items: center; gap: 10px; width: max-content; margin-bottom: 18px; font-size: 14px; }
+.sw .tags { gap: 8px; padding: 0 6px; }
+.sw .tag { position: relative; padding: 5px 28px 5px 10px; background: var(--hover); border-radius: 4px; font-size: 13px; line-height: 1.4; color: var(--text); }
+.sw .tag svg { position: absolute; right: 9px; top: 50%; width: 10px; height: 10px; margin-top: -5px; stroke: var(--muted); stroke-width: 1.5; stroke-linecap: round; }
+.sw .when { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.sw .when .field { margin-bottom: 0; }
+.sw .when .span2 { grid-column: span 2; }
+.sw .each { margin-top: 40px; padding-top: 40px; border-top: 1px solid var(--border); }
+.sw .each .wrap { width: fit-content; }
+.sw .each b { display: block; font-size: 14px; font-weight: 500; line-height: 20px; color: var(--text); }
+.sw .each small { display: block; margin-top: 2px; font-size: 12px; line-height: 18px; color: var(--muted); }
+.sw .each .tabs { gap: 24px; margin-top: 16px; }
+.sw .each .tabs span { font-weight: 500; }
+.sw .tabs span.on { box-shadow: inset 0 -2px 0 var(--text); }
+.sw .gd { margin: 16px 0; font-size: 14px; color: var(--muted); }
+/* Actions menu (components/dropdown-menu: 6px padding, 32px items 2px apart, 8px radius, --shadow-lg) */
+.sw .dm { position: absolute; z-index: 30; right: 0; top: 100%; margin-top: 8px; display: flex; flex-direction: column; gap: 2px; min-width: 224px; padding: 6px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--label); box-shadow: 0 12px 16px -4px rgba(23, 23, 23, 0.08), 0 4px 6px -2px rgba(23, 23, 23, 0.03); }
+.sw .dm .it { display: flex; align-items: center; gap: 10px; height: 32px; padding: 6px 10px; border-radius: 6px; line-height: 20px; white-space: nowrap; }
+.sw .dm .it img { width: 16px; height: 16px; border-radius: 4px; }
+.sw .dm .sep { border-bottom: 1px solid var(--border); margin: 6px -6px; }
+.sw .dm .red { color: #d92d20; }
 """
+
+X = '<svg viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg>'
+SELECT = f'<span style="margin-left:auto;display:inline-flex">{chev()}</span>'
+MENU = (f'<div class="dm"><div class="it" id="sendnow"><img src="{ICON_SRC}">Send a report now</div><div class="sep"></div>'
+        '<div class="it">Disable app</div><div class="sep"></div><div class="it red">Uninstall app</div></div>')
+REPORT_TABS = ["Sales", "Customers", "Inventory", "Products", "Discounts", "Abandoned carts", "Subscriptions"]
+
+
+def switch(label, on=True):
+    return f'<div class="switch"><span class="toggle{"" if on else " off"}"></span>{label}</div>'
+
+
+def tag(text):
+    return f'<span class="tag">{text}{X}</span>'
+
 
 settings = page(
     "Set it once, <mark>send to the right people</mark>",
     "Everyone on the main list gets every report. Add extra people to any single report.",
     f"""
-<div class="frame"><div class="dash">
-  {sidebar(None, admin="Apps")}
-  <div class="main">
-    <div class="crumb">&larr; Apps</div>
-    <div class="head">
-      <div class="apphead"><img class="appicon" src="data:image/png;base64,{ICON}"><div><div class="title" style="font-size:24px">Report Pilot</div><div class="subtle">Scheduled store reports, delivered by email and kept in your dashboard</div></div></div>
-      <div class="buttons"><span class="button" id="actions">Actions{CHEVRON}</span><span class="button dark">Save settings</span></div>
+<div class="frame">{window(f'''<div style="position:relative">
+    <div class="back">&larr; Apps</div>
+    <div class="title-row">
+      <div class="apphead"><img src="{ICON_SRC}"><div><div class="h1" style="margin:0">Report Pilot</div><div style="font-size:15px;line-height:20px">Scheduled store reports, delivered by email and kept in your dashboard</div></div></div>
+      <div class="btns" style="margin-top:14px"><span style="position:relative;display:inline-flex"><span class="btn sec">Actions {chev()}</span>{MENU}</span><span class="btn sec">Save settings</span></div>
     </div>
-    <div class="tabs"><div>Overview</div><div class="on">Settings</div><div>Workflows</div><div>Versions</div></div>
-    <div class="set">
+    <div class="tabs" style="margin-top:16px"><span>Overview</span><span class="on">Settings</span><span>Workflows</span><span>Versions</span></div>
+    <div class="section">
       <div class="top"><b>Reports</b><div>Choose which reports are emailed, how often each one runs, and who receives them.</div></div>
-      <div class="body">
-        <div class="row"><span class="toggle"></span>Send scheduled reports</div>
-        <div class="row"><span class="toggle off"></span>Send even when there is nothing to report</div>
-        <div class="lbl">Recipients</div>
-        <div class="inp" id="recipients"><span><span class="chip">owner@example.com &times;</span><span class="chip">finance@example.com &times;</span></span></div>
-        <div id="when" style="display:flex; gap:16px; width:64%">
-          <div style="flex:1.6"><div class="lbl">Time zone</div><div class="inp">Pacific Daylight Time{CHEVRON}</div></div>
-          <div style="flex:1"><div class="lbl">Send at</div><div class="inp">07:00{CHEVRON}</div></div>
+      <div class="fields">
+        {switch("Send scheduled reports")}
+        {switch("Send even when there is nothing to report", on=False)}
+        {field("Recipients", f'<div class="input tags">{tag("owner@example.com")}{tag("finance@example.com")}</div>')}
+        <div class="when">
+          <div class="span2" id="tz">{field("Time zone", f'<div class="input">Pacific Daylight Time{SELECT}</div>')}</div>
+          <div id="at">{field("Send at", f'<div class="input">07:00{SELECT}</div>')}</div>
         </div>
-        <div class="divide"></div>
-        <div class="sh"><b>Each report</b><div>Switch each report on, choose how often it runs, and add anyone who should get only that report.</div></div>
-        <div class="rtabs"><div>Sales</div><div>Customers</div><div class="on">Inventory</div><div>Products</div><div>Discounts</div><div>Abandoned carts</div><div>Subscriptions</div></div>
-        <div class="row"><span class="toggle"></span>Send the inventory report</div>
-        <div class="lbl">Also send this report to</div>
-        <div class="inp" id="extra" style="width:60%"><span><span class="chip">warehouse@example.com &times;</span></span></div>
+        <div class="each"><div class="wrap" id="each">
+          <b>Each report</b><small>Switch each report on, choose how often it runs, and add anyone who should get only that report.</small>
+          <div class="tabs">{"".join(f'<span class="{"on" if t == "Sales" else ""}">{t}</span>' for t in REPORT_TABS)}</div>
+        </div></div>
+        <div class="gd">Revenue, orders, top products and the day-by-day picture.</div>
+        {switch("Send the sales report")}
       </div>
     </div>
-  </div>
-</div></div>
-<div class="menu" data-at="#actions" data-side="below end" data-gap="8" style="width:250px">
-  <div class="mi app" id="sendnow">Send a report now</div><div class="mi">Disable app</div><hr><div class="mi danger">Uninstall app</div>
-</div>
-<div class="ring" id="ring-send" data-ring="#sendnow" data-pad="3"></div>
-<div class="callout" data-at="#ring-send" data-side="left"><b>1</b>Send any report right now</div>
-<div class="ring" id="ring-tz" data-ring="#when" data-pad="5"></div>
-<div class="callout" data-at="#ring-tz" data-side="right"><b>2</b>Your time, in your time zone</div>
-<div class="ring" id="ring-extra" data-ring="#extra" data-pad="5"></div>
-<div class="callout" data-at="#ring-extra" data-side="right"><b>3</b>Extra people for one report</div>
+  </div>''', sidebar("Apps"), zoom=0.925, style="padding-top:18px")}</div>
+<div class="ring" id="ring-send" data-ring="#sendnow" data-pad="2"></div>
+<div class="callout" data-at="#ring-send" data-side="left"><b>1</b>Send any report now</div>
+<div class="ring" id="ring-tz" data-ring="#tz, #at" data-pad="8"></div>
+<div class="callout" data-at="#ring-tz" data-side="right"><b>2</b>At your local time</div>
+<div class="ring" id="ring-each" data-ring="#each" data-pad="8"></div>
+<div class="callout" data-at="#ring-each" data-side="right"><b>3</b>Extra people for one report</div>
 """,
     deco=1,
     style=SETTINGS_STYLE,
@@ -364,11 +410,11 @@ body {{ width: 1200px; height: 630px; overflow: hidden; display: flex; align-ite
 .mark {{ width: 300px; height: 300px; flex: none; border-radius: 64px; box-shadow: 0 10px 24px rgba(30,27,75,.22); }}
 h1 {{ font-size: 76px; font-weight: 800; letter-spacing: -2px; color: #1e1b4b; line-height: 1.02; }}
 .bar {{ width: 128px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #4f46e5, #f59e0b); margin: 24px 0; }}
-p {{ font-size: 30px; color: #52556e; line-height: 1.35; max-width: 600px; }}
+p {{ font-size: 30px; color: #52556e; line-height: 1.35; white-space: nowrap; }}
 .pills {{ display: flex; gap: 14px; margin-top: 30px; }}
 .pills span {{ border: 2px solid #6366f1; color: #4338ca; border-radius: 999px; padding: 9px 20px; font-size: 22px; }}
 </style></head><body>
-<img class="mark" src="data:image/png;base64,{ICON}">
+<img class="mark" src="{ICON_SRC}">
 <div><h1>Report<br>Pilot</h1><div class="bar"></div>
 <p>Your store's key numbers, emailed on a schedule.</p>
 <div class="pills"><span>7 reports</span><span>Your time zone</span><span>Saved in Swell</span></div></div>
