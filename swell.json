@@ -1,53 +1,53 @@
 {
-  "id": "report_pilot",
-  "name": "Report Pilot",
-  "description": "Scheduled store reports, delivered by email and kept in your dashboard",
-  "version": "1.0.4",
-  "support_email": "support@swell.is",
-  "documentation_url": "https://developers.swell.is/app-guides/report-pilot",
-  "repository_url": "https://github.com/swellstores/report-pilot-app",
-  "type": "admin",
-  "permissions": [
-    "read_orders",
-    "read_products",
-    "read_accounts",
-    "read_carts",
-    "read_subscriptions",
-    "read_promotions",
-    "write_notifications",
-    "read_:models"
-  ],
-  "use_cases": [
-    "direct_to_consumer",
-    "wholesale",
-    "digital_goods"
-  ],
-  "price": 0,
-  "price_external": false,
-  "images": [
-    {
-      "id": "key-numbers-by-email",
-      "title": "Your key numbers, in every inbox",
-      "description": "Sales, customers, inventory and more, emailed daily, weekly, every 2 weeks or monthly, at the time you choose in your store's time zone.",
-      "image_src": "assets/screenshots/1-key-numbers-by-email.png"
-    },
-    {
-      "id": "every-report-kept",
-      "title": "Every report kept in your dashboard",
-      "description": "Each period is saved under Reporting, with the same figures as the email, including canceled orders, unpaid orders and refunds.",
-      "image_src": "assets/screenshots/2-every-report-kept.png"
-    },
-    {
-      "id": "carts-and-subscriptions",
-      "title": "Abandoned carts and subscriptions",
-      "description": "See which carts came back as orders, what's left behind, your monthly recurring revenue and the renewals that failed.",
-      "image_src": "assets/screenshots/3-carts-and-subscriptions.png"
-    },
-    {
-      "id": "set-it-once",
-      "title": "Set it once, send to the right people",
-      "description": "One list gets every report, and anyone can be added to a single report. Pick your time zone, or send any report right now.",
-      "image_src": "assets/screenshots/4-set-it-once.png"
-    }
-  ]
+	"id": "report_pilot",
+	"name": "Report Pilot",
+	"description": "Scheduled store reports, delivered by email and kept in your dashboard",
+	"version": "1.0.5",
+	"support_email": "support@swell.is",
+	"documentation_url": "https://developers.swell.is/app-guides/report-pilot",
+	"repository_url": "https://github.com/swellstores/report-pilot-app",
+	"type": "admin",
+	"permissions": [
+		"read_orders",
+		"read_products",
+		"read_accounts",
+		"read_carts",
+		"read_subscriptions",
+		"read_promotions",
+		"write_notifications",
+		"read_:models"
+	],
+	"use_cases": [
+		"direct_to_consumer",
+		"wholesale",
+		"digital_goods"
+	],
+	"price": 0,
+	"price_external": false,
+	"images": [
+		{
+			"id": "key-numbers-by-email",
+			"title": "Your key numbers, in every inbox",
+			"description": "Sales, customers, inventory and more, emailed daily, weekly, every 2 weeks or monthly, at the time you choose in your store's time zone.",
+			"image_src": "assets/screenshots/1-key-numbers-by-email.png"
+		},
+		{
+			"id": "every-report-kept",
+			"title": "Every report kept in your dashboard",
+			"description": "Each period is saved under Reporting, with the same figures as the email, including canceled orders, unpaid orders and refunds.",
+			"image_src": "assets/screenshots/2-every-report-kept.png"
+		},
+		{
+			"id": "carts-and-subscriptions",
+			"title": "Abandoned carts and subscriptions",
+			"description": "See which carts came back as orders, what's left behind, your monthly recurring revenue and the renewals that failed.",
+			"image_src": "assets/screenshots/3-carts-and-subscriptions.png"
+		},
+		{
+			"id": "set-it-once",
+			"title": "Set it once, send to the right people",
+			"description": "One list gets every report, and anyone can be added to a single report. Pick your time zone, or send any report right now.",
+			"image_src": "assets/screenshots/4-set-it-once.png"
+		}
+	]
 }
