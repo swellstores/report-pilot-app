@@ -17,11 +17,6 @@
 		"write_notifications",
 		"read_:models"
 	],
-	"use_cases": [
-		"direct_to_consumer",
-		"wholesale",
-		"digital_goods"
-	],
 	"price": 0,
 	"price_external": false,
 	"images": [
