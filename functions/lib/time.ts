@@ -164,11 +164,51 @@ export function dayAsUtcDate(day: LocalDay): Date {
   return new Date(Date.UTC(day.year, day.month - 1, day.day));
 }
 
+/** How many hours after the send hour a scheduled run that didn't save its report is tried again. */
+export const SEND_RETRY_HOURS = 2;
+
 /**
- * Whether `now` is in the store's send hour (the "Send at" setting, 08:00–08:59
- * local by default). The report crons run every hour, and only the run in this
- * hour can send, so each store gets its reports at its own time, once a day.
+ * Which hourly run of the day `now` is, counted from the store's send hour
+ * (the "Send at" setting, 08:00 local by default): 0 for the run in that
+ * hour, 1 and 2 for the hours after it, and null for any other run (before
+ * it, too long after it, or on another local day). The report crons run every
+ * hour; only run 0 sends as a rule, and runs 1 and 2 send only if no report
+ * was saved since the send hour (a failed run, or the repeat of an hour on
+ * the day clocks go back). Counted in elapsed time from `sendHourStart`, so
+ * when clocks go forward past the send hour, run 0 is the next hour that
+ * exists.
  */
-export function isSendHour(now: Date, timeZone: string, sendHour: number = SEND_HOUR): boolean {
-  return localParts(now, timeZone).hour === sendHour;
+export function sendHourRun(now: Date, timeZone: string, sendHour: number = SEND_HOUR): number | null {
+  // Also checked on the clock, for the zones whose clocks go back by less
+  // than an hour (Chatham, Lord Howe), where the send hour can start, then be
+  // left for the previous hour for a while.
+  if (localParts(now, timeZone).hour < sendHour) {
+    return null;
+  }
+  const since = sendHourStart(localDay(now, timeZone), timeZone, sendHour);
+  const run = Math.floor((now.getTime() - since.getTime()) / HOUR_MS);
+  return run >= 0 && run <= SEND_RETRY_HOURS ? run : null;
+}
+
+/**
+ * The first instant of `day` whose local hour is `sendHour` or later. On the
+ * day clocks go forward past the send hour, that's the next hour that exists;
+ * on the day they go back, it's the first of the two.
+ */
+export function sendHourStart(day: LocalDay, timeZone: string, sendHour: number = SEND_HOUR): Date {
+  const start = startOfLocalDay(day, timeZone).getTime();
+  // Local hours are whole or half hours from the day's start, except in the
+  // rare zones with a 15-minute offset change; checking every 15 minutes
+  // finds the hour in all of them.
+  for (let quarters = 0; quarters < 26 * 4; quarters += 1) {
+    const instant = new Date(start + quarters * 15 * 60 * 1000);
+    const parts = localParts(instant, timeZone);
+    if (dayKey(parts) !== dayKey(day)) {
+      break;
+    }
+    if (parts.hour >= sendHour) {
+      return instant;
+    }
+  }
+  return new Date(start + sendHour * HOUR_MS);
 }

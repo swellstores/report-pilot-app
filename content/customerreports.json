@@ -37,7 +37,7 @@
       "label": "Customers",
       "type": "number",
       "readonly": true,
-      "description": "Different customers who placed at least one paid order in this period. Guest checkouts aren't counted."
+      "description": "Different customers who placed at least one paid order in this period."
     },
     {
       "id": "prev_customer_count",
@@ -110,7 +110,7 @@
             {
               "key": "customer_count",
               "label": "Customers",
-              "hint": "Different customers who placed at least one paid order in this period. Guest checkouts aren't counted."
+              "hint": "Different customers who placed at least one paid order in this period."
             },
             {
               "key": "prev_customer_count",

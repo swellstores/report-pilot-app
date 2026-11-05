@@ -38,7 +38,8 @@ import {
   resolveSubscriptionSettings,
 } from './report-settings';
 import { isDashboardAdmin } from './dashboard';
-import { isSendHour } from './time';
+import { refusalReason } from './refusals';
+import { localDay, sendHourRun, sendHourStart } from './time';
 
 /** The app's id, as it appears in dashboard addresses (`apps.report_pilot.reports`). */
 const APP_ID = 'report_pilot';
@@ -283,8 +284,12 @@ export function reportSummary(type: ReportType, report: any) {
 
 /**
  * Entry point for a type's cron, which runs every hour: honour the toggles,
- * then start the `send-report` workflow only in the store's send hour (the
- * "Send at" setting, 08:00 local by default) on a day the period is due.
+ * then start the `send-report` workflow in the store's send hour (the "Send
+ * at" setting, 08:00 local by default) on a day the period is due. The two
+ * runs after it start the workflow again only if no report of this type was
+ * saved since the send hour, so a run that failed before saving is retried,
+ * and an hour that happens twice when clocks go back sends once. When clocks
+ * go forward past the send hour, the next hour that exists sends.
  */
 export async function runScheduled(
   swell: SwellAPI,
@@ -302,17 +307,44 @@ export async function runScheduled(
 
   // Every other hour of the day returns here without a log line, to keep the
   // hourly runs quiet.
-  if (!isSendHour(now, settings.timeZone, settings.sendHour)) {
+  const sendRun = sendHourRun(now, settings.timeZone, settings.sendHour);
+  if (sendRun === null) {
     return { type, skipped: 'not_send_hour', timezone: settings.timeZone };
   }
 
   if (!isDueToday(settings.period, now, settings.timeZone)) {
-    console.log(`${definition.label} skipped: ${settings.period} report is not due today.`);
+    // Logged once a day, by the send hour's own run.
+    if (sendRun === 0) console.log(`${definition.label} skipped: ${settings.period} report is not due today.`);
     return { type, skipped: 'not_due', period: settings.period };
+  }
+
+  // Also quiet: the usual case for the two hours after a send.
+  if (sendRun > 0 && (await savedSinceSendHour(swell, type, settings, now))) {
+    return { type, skipped: 'already_saved', period: settings.period };
   }
 
   const run = await startSend(swell, { type, now: now.toISOString(), source: 'schedule', dashboard });
   return { type, started: run?.id };
+}
+
+/**
+ * Whether a report of this type was saved since today's send hour. Each type
+ * is due at most once a day, so that report is the one for today's period (or
+ * one sent by "Send a report now" since then). A refused lookup counts as
+ * saved: skipping a retry is safer than emailing a report twice.
+ */
+async function savedSinceSendHour(swell: SwellAPI, type: ReportType, settings: Resolved, now: Date) {
+  const since = sendHourStart(localDay(now, settings.timeZone), settings.timeZone, settings.sendHour);
+  const response = await swell.get(`/${DEFINITIONS[type].collection}`, {
+    where: { date_created: { $gte: since.toISOString() } },
+    fields: 'id',
+    limit: 1,
+  });
+  if (refusalReason(response)) {
+    console.error(`${DEFINITIONS[type].label}: retry skipped, the check for a saved report was refused: ${refusalReason(response)}`);
+    return true;
+  }
+  return Boolean(response?.results?.length);
 }
 
 /** Recipients a type's report goes to, for the action's reply. */

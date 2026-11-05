@@ -867,7 +867,7 @@
     {
       "type": "field_group",
       "label": "Abandoned carts",
-      "description": "Carts customers left without checking out, how many came back as orders, and the products most often left behind.",
+      "description": "Carts customers left without checking out, how many came back as orders, and the products with the most value left behind.",
       "fields": [
         {
           "id": "carts_enabled",

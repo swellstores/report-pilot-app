@@ -58,7 +58,7 @@
       "label": "Item revenue",
       "type": "currency",
       "readonly": true,
-      "description": "Revenue from items sold, before shipping, tax and refunds."
+      "description": "Revenue from items sold, before discounts, shipping, tax and refunds."
     },
     {
       "id": "top_share_pct",
@@ -105,7 +105,7 @@
               "key": "item_revenue",
               "label": "Item revenue",
               "type": "currency",
-              "hint": "Revenue from items sold, before shipping, tax and refunds."
+              "hint": "Revenue from items sold, before discounts, shipping, tax and refunds."
             },
             {
               "key": "top_share_pct",

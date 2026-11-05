@@ -18,7 +18,7 @@ any past period again.
 
 | Schedule | Arrives | Covers |
 | --- | --- | --- |
-| Daily | Every morning | The previous day |
+| Daily | Every day at the Send at time | The previous day |
 | Weekly | Mondays | The previous Monday to Sunday |
 | Every 2 weeks | Alternate Mondays (Oct 26, Nov 9, Nov 23 2026, then every 14 days) | The previous 14 days |
 | Monthly | The 1st of the month | The previous calendar month |
@@ -104,8 +104,8 @@ reports. A customer with no name on their account is shown as "Unnamed
 customer": email addresses are never put in a report, because reports can go to
 people outside your business.
 
-Only orders linked to a customer account are counted, so guest checkouts aren't
-in Customers. Spend is less any refunds.
+Swell links every order to a customer account, guest checkouts included, so
+every paid order counts. Spend is less any refunds.
 
 ### Inventory report
 
@@ -180,7 +180,8 @@ Carts customers left without checking out, and how many came back.
 - **Products left in carts:** the 10 products with the most value left behind,
   with the number of carts, quantity and value.
 
-Swell marks a cart abandoned after about 3 hours without activity. A cart counts
+Swell marks a cart abandoned after a period without activity set in the store's
+settings (1 to 24 hours). A cart counts
 if it was abandoned in the period, including carts that later became an order.
 Empty and draft carts are left out.
 
@@ -255,7 +256,7 @@ order. The differences:
   which says when nothing is out of stock or running low.
 
 You can change each email's intro line and footer note under **Settings →
-Notifications**. The subject line is fixed.
+Notifications**. You can change the subject line there too.
 
 ### Looking back at past reports
 
@@ -390,8 +391,13 @@ app writes only to its own collections.
 ### How a scheduled report runs
 
 Each cron runs every hour. It returns straight away unless it's the store's
-**Send at** hour (`isSendHour`, 08:00 by default) and the report is due today (`isDueToday`), both in
-the time zone setting. It then looks up the report's email template
+**Send at** hour (`sendHourRun`, 08:00 by default) and the report is due today (`isDueToday`), both in
+the time zone setting. The two hours after **Send at** start the workflow again
+only if no report of that type was saved since **Send at**, so a run that failed
+before saving its report is retried, and an hour that happens twice when clocks
+go back sends once. When clocks go forward past **Send at**, the next hour that
+exists sends. Retries stop at midnight, so a **Send at** of 22:00 or 23:00 gets
+fewer of them. It then looks up the report's email template
 (`resolveTemplate`, which reads `/:models`, something a workflow isn't allowed
 to do), starts the `send-report` workflow with it, and returns.
 **Send a report now** starts the same workflow, so the dialog doesn't wait.
@@ -406,7 +412,8 @@ report isn't cut off by the 10 seconds a function gets:
    it was sent from the action).
 3. **Save report** to the report's collection.
 4. **Email recipient 1, 2, …:** one step per address, then a short wait and a
-   check that Swell sent each one. A failed address doesn't stop the others.
+   check that Swell sent each one. A failed address doesn't stop the others,
+   and once all of them were tried the run ends as Failed.
 
 A step that finished isn't run again when a later one fails. Saving and
 emailing are never retried, because a request that timed out may still have

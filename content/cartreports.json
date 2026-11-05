@@ -82,7 +82,7 @@
             {
               "key": "abandoned_count",
               "label": "Abandoned carts",
-              "hint": "Carts abandoned in this period, including any that later became an order. Swell counts a cart as abandoned after about 3 hours without activity."
+              "hint": "Carts abandoned in this period, including any that later became an order. Swell counts a cart as abandoned after a period without activity set in the store's settings (1 to 24 hours)."
             },
             {
               "key": "abandoned_change_pct",

@@ -119,6 +119,12 @@ export default class SendReport {
         ` (${params.source}${params.only_to ? ', test to one address' : ''}).`,
     );
 
-    return { type, report_id: reportId, period: periodLabel, sent, failed: errors.length, errors };
+    // Fail the run so it shows as Failed, after every address was tried. The
+    // report is saved, so a later hour doesn't send it again.
+    if (errors.length) {
+      throw new Error(`${label} for ${periodLabel}: ${errors.length} of ${built.recipients.length} email(s) failed.`);
+    }
+
+    return { type, report_id: reportId, period: periodLabel, sent, failed: 0, errors };
   }
 }

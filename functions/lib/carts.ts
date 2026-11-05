@@ -1,11 +1,12 @@
 /**
  * Abandoned cart report: carts abandoned in the period, how many of them came
- * back as orders, the value left behind, and the products most often left in
- * carts.
+ * back as orders, the value left behind, and the products with the most value
+ * left behind.
  *
  * How Swell records abandonment (checked against test carts):
- * - A new cart gets `date_abandoned` set 3 hours ahead. When that time passes
- *   without activity, Swell sets `abandoned: true` and `status: "abandoned"`.
+ * - A new cart gets `date_abandoned` set ahead by the store's abandoned cart
+ *   setting (1 to 24 hours). When that time passes without activity, Swell
+ *   sets `abandoned: true` and `status: "abandoned"`.
  * - When a cart becomes an order, `status` becomes `"converted"`, `abandoned`
  *   goes back to `false`, `order_id` is set, and `date_abandoned` is kept.
  * So a converted cart counts as abandoned (and recovered) only when its order

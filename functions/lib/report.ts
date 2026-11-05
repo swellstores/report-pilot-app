@@ -623,8 +623,9 @@ export async function fetchAccountIds(
  * Split the period's customers into new and returning, by asking which of them
  * had already placed a paid order before the window opened.
  *
- * Guest checkouts have no `account_id` and so appear on neither side; the two
- * counts therefore need not add up to the period's order count.
+ * Swell links every order to a customer account, guest checkouts included, so
+ * every paid order has an `account_id`. A customer with several orders counts
+ * once, so the two counts need not add up to the period's order count.
  */
 export async function fetchCustomerSplit(swell: SwellAPI, start: Date, end: Date) {
   const { ids: accountIds, truncated } = await fetchAccountIds(swell, {
