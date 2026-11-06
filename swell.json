@@ -2,7 +2,7 @@
 	"id": "report_pilot",
 	"name": "Report Pilot",
 	"description": "Scheduled store reports, delivered by email and kept in your dashboard",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"support_email": "support@swell.is",
 	"documentation_url": "https://developers.swell.is/app-guides/report-pilot",
 	"repository_url": "https://github.com/swellstores/report-pilot-app",
