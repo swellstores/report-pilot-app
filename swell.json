@@ -17,8 +17,6 @@
 		"write_notifications",
 		"read_:models"
 	],
-	"price": 0,
-	"price_external": false,
 	"images": [
 		{
 			"id": "key-numbers-by-email",
